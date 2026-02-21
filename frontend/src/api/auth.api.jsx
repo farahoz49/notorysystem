@@ -29,3 +29,7 @@ export const resetPasswordApi = async (token, password) => {
   });
   return data;
 };
+export const changePasswordApi = async (payload) => {
+  const { data } = await api.put("users/change-password", payload);
+  return data;
+};

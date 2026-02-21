@@ -495,3 +495,44 @@ export const resetPassword = async (req, res) => {
     res.status(500).json({ message: "Reset password error" });
   }
 };
+// ✅ CHANGE PASSWORD (user logged-in)
+// body: { oldPassword, newPassword, confirmPassword }
+export const changePassword = async (req, res) => {
+  try {
+    const { oldPassword, newPassword, confirmPassword } = req.body;
+
+    if (!oldPassword || !newPassword || !confirmPassword) {
+      return res.status(400).json({ message: "Fadlan buuxi dhammaan fields-ka" });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({ message: "Password cusub ugu yaraan 6 xaraf ha noqdo" });
+    }
+
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({ message: "Password-yada cusub isma la mid aha" });
+    }
+
+    // user from auth middleware
+    const user = await User.findById(req.user._id).select("+password");
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    // verify old password
+    const ok = await user.comparePassword(oldPassword);
+    if (!ok) return res.status(401).json({ message: "Old password waa qalad" });
+
+    // update (haddii User model uu pre('save') hash gareeyo, waa ok)
+    user.password = newPassword;
+
+    // reset tokens haddii ay jiraan
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+
+    await user.save();
+
+    return res.status(200).json({ message: "Password waa la beddelay ✅" });
+  } catch (error) {
+    console.error("changePassword error:", error);
+    return res.status(500).json({ message: "Change password error" });
+  }
+};

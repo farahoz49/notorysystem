@@ -22,10 +22,12 @@ const Reception = () => {
       { value: "baabuur", label: "Baabuur" },
       { value: "DhulBanaan", label: "Dhul Banaan" }, // label space leh ✅
       { value: "Saami", label: "Saami" },
+      
     ],
     Wakaalad: [
       { value: "Wakaalad Guud", label: "Wakaalad Guud" },
       { value: "Wakaalad_Gaar_ah", label: "Wakaalad Gaar ah" },
+       { value: "Wakaalad_Saami", label: "Wakaalad Saami" }, // ✅ NEW
     ],
     Daamaanad: [
       { value: "Daaminul maal", label: "Daaminul maal" },

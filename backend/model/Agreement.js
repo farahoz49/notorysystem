@@ -29,6 +29,7 @@ serviceType: {
     "Saami",
     "Wakaalad Guud",
     "Wakaalad_Gaar_ah",
+    "Wakaalad_Saami",
   ],
   required: true,
 },
@@ -140,7 +141,7 @@ agreementSchema.pre("validate", function (next) {
   }
 
   if (this.service === "Wakaalad") {
-    const allowed = ["Wakaalad Guud", "Wakaalad_Gaar_ah"];
+    const allowed = ["Wakaalad Guud", "Wakaalad_Gaar_ah", "Wakaalad_Saami"];
     if (!allowed.includes(this.serviceType)) {
       return next(new Error("Invalid serviceType for Wakaalad"));
     }

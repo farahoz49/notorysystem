@@ -7,6 +7,7 @@ const serviceEndpointMap = {
   DhulBanaan: "/dhul-banaan",
   Wakaalad_Gaar_ah: "/Wakaalad_Gaar_ah",
   Saami: "/saamis",
+  Wakaalad_Saami: "/wakaalad-saami", // ✅ NEW
 };
 
 const getEndpoint = (serviceType) => serviceEndpointMap[serviceType] || "";

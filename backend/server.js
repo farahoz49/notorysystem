@@ -12,6 +12,8 @@ import tasdiiqRoutes from './routes/tasdiiqRoutes.js';
 import dhulBanaanRoutes from './routes/dhulBanaanRoutes.js'
 import Wakaalad_Gaar_ahRoutes from './routes/Wakaalad_Gaar_ahRoute.js'
 import baabuurRoutes from './routes/BaabuurRoute.js'
+import wakaaladSaamiRoutes from "./routes/wakaaladSaamiroutes.js";
+
 import cors from "cors"
 const app = express();
 const PORT = 8000
@@ -36,6 +38,7 @@ app.use("/api/dhul-banaan", dhulBanaanRoutes);
 app.use("/api/Wakaalad_Gaar_ah", Wakaalad_Gaar_ahRoutes);
 app.use("/api/baabuur", baabuurRoutes);
 
+app.use("/api/wakaalad-saami", wakaaladSaamiRoutes);
 
 
 // forget password

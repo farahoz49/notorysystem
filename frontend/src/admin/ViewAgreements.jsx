@@ -155,14 +155,14 @@ const ViewAgreements = () => {
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="text-2xl font-bold text-black">Agreements</h2>
-            <p className="text-sm text-gray-500">
+            {/* <p className="text-sm text-gray-500">
               Ka raadi refNo, ujeeddo, seller ama buyer — kadibna filter date.
-            </p>
+            </p> */}
           </div>
 
-          <div className="text-sm text-gray-600">
+          {/* <div className="text-sm text-gray-600">
             Total: <span className="font-semibold text-black">{filteredAgreements.length}</span>
-          </div>
+          </div> */}
         </div>
       </div>
 

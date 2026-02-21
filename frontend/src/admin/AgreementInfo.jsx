@@ -2327,6 +2327,157 @@ const personInfoRuns = (p, color) => {
     }),
   ];
 }
+      case "Wakaalad_Saami": {
+  // ================= HELPERS =================
+  const safe = (v) => (v === undefined || v === null ? "" : String(v).trim());
+
+  const formatGrantor = (p) => {
+    if (!p) return "";
+    const fullName = safe(p.fullName);
+    const nationality = safe(p.nationality) || "Somali";
+    const mother = safe(p.motherName);
+    const birthPlace = safe(p.birthPlace);
+    const birthYear = safe(p.birthYear);
+    const address = safe(p.address);
+    const docType = safe(p.documentType);
+    const docNo = safe(p.documentNumber);
+    const phone = safe(p.phone);
+
+    return `${fullName}, ${nationality} ah, hooyadayna la yiraahdo ${mother}, ku dhashay ${birthPlace}, sanadkii ${birthYear}, degan ${address}, lehna ${docType} lambarkiisu yahay ${docNo} ee ku lifaaqan warqadaan, Tell: ${phone}`;
+  };
+
+  const formatAgent = (p) => {
+    if (!p) return "";
+    const fullName = safe(p.fullName);
+    const nationality = safe(p.nationality) || "Somali";
+    const mother = safe(p.motherName);
+    const birthPlace = safe(p.birthPlace);
+    const birthYear = safe(p.birthYear);
+    const address = safe(p.address);
+    const docType = safe(p.documentType);
+    const docNo = safe(p.documentNumber);
+    const phone = safe(p.phone);
+
+    return `${fullName}, ${nationality} ah, hooyadiisna la yiraahdo ${mother}, ku dhashay ${birthPlace}, sanadkii ${birthYear}, degan ${address}, lehna ${docType} lambarkiisu yahay ${docNo} ee ku lifaaqan warqadaan, Tell: ${phone}`;
+  };
+
+  // Bold names only
+  const buildRunsWithBoldNames = (people = [], formatter) => {
+    const items = people
+      .filter(Boolean)
+      .map((p) => {
+        const fullName = safe(p.fullName);
+        const fullText = formatter(p); // starts with FullName
+        const rest = fullText.startsWith(fullName)
+          ? fullText.slice(fullName.length)
+          : `, ${fullText}`;
+        return { fullName, rest };
+      });
+
+    if (items.length === 1) {
+      return [
+        new TextRun({ text: items[0].fullName, bold: true, size: 24 }),
+        new TextRun({ text: items[0].rest, size: 24 }),
+      ];
+    }
+
+    const runs = [];
+    items.forEach((it, idx) => {
+      if (idx > 0) {
+        const isLast = idx === items.length - 1;
+        runs.push(new TextRun({ text: isLast ? " iyo " : ", ", size: 24 }));
+      }
+      runs.push(new TextRun({ text: it.fullName, bold: true, size: 24 }));
+      runs.push(new TextRun({ text: it.rest, size: 24 }));
+    });
+
+    return runs;
+  };
+
+  // ================= DATA (PEOPLE) =================
+  const grantors = agreement?.dhinac1?.sellers || []; // bixiyeyaasha wakaalada
+  const agents = agreement?.dhinac2?.buyers || []; // la wakiilanayo
+  const isPluralGrantor = grantors.length > 1;
+
+  const healthText = isPluralGrantor
+    ? ", xiskeenuna taam yahay cid nagu qasbeysana aysan jirin wakaaladan, "
+    : ", xiskeygana taam yahay cid igu qasbeysana aysan jirin wakaaladan, ";
+
+  const statementText = isPluralGrantor
+    ? "waxaan qoraalkaan ku caddeynaynaa in aan wakaalad gaar ah u siinay "
+    : "waxaan qoraalkaan ku caddeynayaa in aan wakaalad gaar ah u siiyay ";
+
+  // ================= SERVICE (ACCOUNTS) =================
+  const svc = service || {};
+
+  const hormuudAcc = safe(svc.accountHormuud); // e.g 839399
+  const salaamAcc = safe(svc.accountSalaam);   // e.g 49495959
+
+  // date for activity report (haddii uusan jirin, isticmaal agreement date)
+  const reportDate = svc?.Date ? formatDate(svc.Date) : formatDate(agreement.agreementDate);
+
+  const hasHormuud = !!hormuudAcc;
+  const hasSalaam = !!salaamAcc;
+
+  // Text-ka aad rabto
+  const hormuudText =
+    `Saamiyada aan ku leeyahay Shirkadda Hormuud Telecom Somalia inc (HorTel). ` +
+    `Accounka numbarkiisu yahay ${hormuudAcc}, sida ku cad activity report-ga ka soo baxay Hormuud ` +
+    `kuna taariikhaysan ${reportDate}. ` +
+    `in uu gadi karo, hibayn karo, rahmi karo, waqfi karo, iskuna damiinan karo, una xayiri karo naftiisa, ` +
+    `rahan dhigi karo kana saari karo, qareen u qaban karo, u dacwoon karo, isla markaasna uu leeyahay maamul ` +
+    `la mid ah midka sharcigu ii siiyey oo kale. Sidoo kalena uu maamuli karo faa'idada uu soo saaro saamigaas.`;
+
+  const salaamText =
+    `Sidoo kale accounkayga bankiga Salaam Somali Bank, ee numbarkiisuna yahay ${salaamAcc}, ` +
+    `in uu maamuli karo, lacag ka saari karo, lacag dhigi karo, u dacwoon karo, u doodi karo, qareena u qaban karo, ` +
+    `isla markaasna uu leeyahay maamul la mid ah midka sharcigu i siiyey oo kale.`;
+
+  // ✅ Condition: hormuud only / salaam only / both
+  let accountSentence = "";
+  if (hasHormuud && hasSalaam) {
+    accountSentence = `${hormuudText}\n\n${salaamText}`;
+  } else if (hasHormuud) {
+    accountSentence = hormuudText;
+  } else if (hasSalaam) {
+    accountSentence = salaamText;
+  } else {
+    // haddii labadaba madhan yihiin (optional)
+    accountSentence = "";
+  }
+
+  // ================= PARAGRAPH =================
+  return [
+    new Paragraph({
+      alignment: AlignmentType.JUSTIFIED,
+      spacing: { after: 160 },
+      children: [
+        new TextRun({
+          text: `Maanta oo ay taariikhdu tahay ${formatDate(
+            agreement.agreementDate
+          )}, ${isPluralGrantor ? "anagoo kala ah " : "anigoo ah "}`,
+          size: 24,
+        }),
+
+        // Grantors (names bold)
+        ...buildRunsWithBoldNames(grantors, formatGrantor),
+
+        // health + statement
+        new TextRun({ text: `${healthText}${statementText}`, size: 24 }),
+
+        // Agents (names bold)
+        ...buildRunsWithBoldNames(agents, formatAgent),
+
+        // ✅ Account text (only if exists)
+        ...(accountSentence
+          ? [
+              new TextRun({ text: `, ${accountSentence}`, size: 24 })
+            ]
+          : []),
+      ],
+    }),
+  ];
+}
 
 
         default:

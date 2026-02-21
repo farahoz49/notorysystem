@@ -25,6 +25,7 @@ import UserReports from "../admin/Reports"
 import ForgotPassword from "../pages/auth/ForgotPassword";
 import CheckEmail from "../pages/auth/CheckEmail";
 import ResetPassword from "../pages/auth/ResetPassword";
+import ChangePassword from "../pages/auth/ChangePassword";
 
 const AppRoutes = () => {
     return (
@@ -68,6 +69,16 @@ const AppRoutes = () => {
                         </AuthLayout>
                     }
                 />
+                 <Route
+          path="/change-password"
+          element={
+            <ProtectedRoute roles={["ADMIN", "USER"]}>
+              <MainLayout>
+                <ChangePassword />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
 
                 {/* ===== ADMIN ===== */}
                 <Route

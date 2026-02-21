@@ -220,6 +220,12 @@ const ServiceDetails = ({ agreement, serviceData, setServiceData, fetchData }) =
           { key: "SaamiDate", label: "Saami Date", type: "date" },
         ];
       }
+      case "Wakaalad_Saami":
+        return [
+          { key: "accountHormuud", label: "Account Hormuud", type: "number" },
+          { key: "accountSalaam", label: "Account Salaam", type: "number" },
+          { key: "Date", label: "Taariikh", type: "date" },
+        ];
 
       default:
         return [];
@@ -307,6 +313,25 @@ const ServiceDetails = ({ agreement, serviceData, setServiceData, fetchData }) =
           </div>
         );
       }
+      case "Wakaalad_Saami":
+        return (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+            <div>
+              <span className="font-semibold text-black">Account Hormuud:</span>{" "}
+              {service.accountHormuud || "N/A"}
+            </div>
+
+            <div>
+              <span className="font-semibold text-black">Account Salaam:</span>{" "}
+              {service.accountSalaam || "N/A"}
+            </div>
+
+            <div>
+              <span className="font-semibold text-black">Taariikh:</span>{" "}
+              {service.Date?.split("T")[0] || "N/A"}
+            </div>
+          </div>
+        );
 
       default:
         return <p className="text-gray-500">No service details available</p>;
