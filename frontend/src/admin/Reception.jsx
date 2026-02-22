@@ -22,16 +22,24 @@ const Reception = () => {
       { value: "baabuur", label: "Baabuur" },
       { value: "DhulBanaan", label: "Dhul Banaan" }, // label space leh ✅
       { value: "Saami", label: "Saami" },
-      
+
     ],
     Wakaalad: [
       { value: "Wakaalad Guud", label: "Wakaalad Guud" },
       { value: "Wakaalad_Gaar_ah", label: "Wakaalad Gaar ah" },
-       { value: "Wakaalad_Saami", label: "Wakaalad Saami" }, // ✅ NEW
+      { value: "Wakaalad_Saami", label: "Wakaalad Saami" }, // ✅ NEW
     ],
-    Daamaanad: [
+    Damaanad: [
       { value: "Daaminul maal", label: "Daaminul maal" },
       { value: "Shaqaaleysiin", label: "Shaqaaleysiin" },
+    ],
+    Caddeyn: [
+      { value: "Caddeyn", label: "Caddeyn" },
+      { value: "Xayiraad Saami", label: "Xayiraad Saami" },
+    ],
+    Heshiisyo: [
+      { value: "Heshiis Dhex Maray Laba Daraf", label: "Heshiis Dhex Maray Laba Daraf" },
+      { value: "Aas’aasid Shirkad", label: "Aas’aasid Shirkad" },
     ],
   };
 
@@ -176,8 +184,8 @@ const Reception = () => {
   };
 
   const createNewPerson = async () => {
-    if (!newPersonModal.fullName.trim() || !newPersonModal.phone.trim()) {
-      toast.error("Please enter both name and phone");
+    if (!newPersonModal.fullName.trim() ) {
+      toast.error("Magaca Waa Qasab");
       return;
     }
 
@@ -238,7 +246,7 @@ const Reception = () => {
       }
     },
 
-    Daamaanad: {
+    Damaanad: {
       side1Title: "Dhinaca 1aad (Damiinu-l-Maal)",
       side2Title: "Dhinaca 2aad (La Damiinte)",
       dhinac1Roles: {
@@ -248,6 +256,34 @@ const Reception = () => {
       },
       dhinac2Roles: {
         buyers: "La Damiinte",
+        agents: "Wakiil",
+        guarantors: "Damiin"
+      }
+    },
+    Caddeyn: {
+      side1Title: "Dhinaca 1aad (Caddeeye)",
+      side2Title: "Dhinaca 2aad (Loo Caddeeye)",
+      dhinac1Roles: {
+        sellers: "Caddeeye",
+        agents: "Wakiil",
+        guarantors: "Damiin"
+      },
+      dhinac2Roles: {
+        buyers: "Loo Caddeeye",
+        agents: "Wakiil",
+        guarantors: "Damiin"
+      }
+    },
+    Heshiisyo: {
+      side1Title: "Dhinaca 1aad (Dhinaca 1aad)",
+      side2Title: "Dhinaca 2aad (Dhinaca 2aad)",
+      dhinac1Roles: {
+        sellers: "Dhinaca 1aad",
+        agents: "Wakiil",
+        guarantors: "Damiin"
+      },
+      dhinac2Roles: {
+        buyers: "Dhinaca 2aad",
         agents: "Wakiil",
         guarantors: "Damiin"
       }
@@ -279,7 +315,7 @@ const Reception = () => {
       <div className="mb-5 flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-black">Agreement Registration</h2>
-          
+
         </div>
       </div>
 
@@ -361,7 +397,7 @@ focus:ring-2 focus:ring-black focus:border-black shadow-sm"
 
               />
             </div>
-              <div>
+            <div>
               <label className="block text-sm font-medium mb-1">Service</label>
               <select
                 name="service"
@@ -373,14 +409,16 @@ focus:ring-2 focus:ring-black focus:border-black shadow-sm"
               >
                 <option value="Wareejin">Wareejin</option>
                 <option value="Wakaalad">Wakaalad</option>
-                <option value="Daamaanad">Daamaanad</option>
+                <option value="Damaanad">Damaanad</option>
+                <option value="Caddeyn">Caddeyn</option>
+                <option value="Heshiisyo">Heshiisyo / Xeerar</option>
 
               </select>
             </div>
           </div>
 
           <div className="flex-1 bg-white p-4 rounded shadow space-y-4">
-          
+
 
             <div>
               <label className="block text-sm font-medium mb-1">Service Type</label>
@@ -404,15 +442,11 @@ focus:ring-2 focus:ring-black focus:border-black shadow-sm"
               <label className="block text-sm font-medium mb-1">Objective</label>
               <Input
                 type="text"
-                name="sellingPrice"
-                value={` Hashiis ${form.serviceType}`}
-                onChange={handleChange}
-                className="w-full px-4 py-2.5 rounded-xl border border-black/20 bg-white text-black
-transition-all duration-200 outline-none
-focus:ring-2 focus:ring-black focus:border-black shadow-sm"
+                value={`Hashiis ${form.serviceType}`}
+                readOnly
               />
             </div>
-              {form.service === "Wareejin" && (
+            {form.service === "Wareejin" && (
               <div>
                 <label className="block text-sm font-medium mb-1">Agreement Type</label>
                 <select
@@ -433,7 +467,7 @@ focus:ring-2 focus:ring-black focus:border-black shadow-sm"
           </div>
 
           <div className="flex-1 bg-white p-4 rounded shadow space-y-4">
-          
+
 
             {form.service === "Wareejin" && form.agreementType === "Beec" && (
               <div>

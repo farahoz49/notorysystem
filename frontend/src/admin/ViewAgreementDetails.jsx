@@ -77,16 +77,16 @@ const ViewAgreementLayout = () => {
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-6">
       {/* Header */}
-      <div className="bg-black text-white p-5 rounded-2xl border border-white/10 shadow-sm">
+      <div className="bg-white text-white p-5 rounded-2xl border border-white/10 shadow-sm">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold">Agreement Details</h1>
-            <p className="text-sm text-white/80 mt-1">
-              REF: <span className="font-semibold text-white">{agreement.refNo}</span> • Type:{" "}
-              <span className="font-semibold text-white">{agreement.serviceType}</span>
-            </p>
-            <p className="text-sm text-white/80 mt-1">
-              Created by: <span className="text-white font-semibold">{agreement.createdBy?.username}</span>{" "}
+            <h1 className="text-2xl font-bold text-black">agreement Details</h1>
+            <p className="text-sm text-black/80 mt-1">
+              Rep Nambar: <span className="font-semibold text-black">{agreement.refNo}</span> 
+              </p>
+          
+            <p className="text-sm text-black/80 mt-1">
+              Created by: <span className="text-black font-semibold">{agreement.createdBy?.username}</span>{" "}
               • {dynamicTime}
             </p>
           </div>
@@ -94,7 +94,7 @@ const ViewAgreementLayout = () => {
           <Button
             variant="outline"
             onClick={() => navigate(-1)}
-            className="bg-white text-black "
+            className="bg-black text-white "
           >
             Back to List
           </Button>

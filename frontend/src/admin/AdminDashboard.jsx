@@ -21,7 +21,8 @@ import { Link } from "react-router-dom";
 import { FaChartLine } from "react-icons/fa";
 import { useSelector } from "react-redux";
 
-const COLORS = ["#2563eb", "#16a34a", "#9333ea", "#f59e0b", "#dc2626", "#4f46e5"];
+// ✅ Black & White palette (grayscale)
+const BW_COLORS = ["#111827", "#374151", "#6B7280", "#9CA3AF", "#D1D5DB", "#E5E7EB"];
 
 const Dashboard = () => {
   const [agreements, setAgreements] = useState([]);
@@ -93,10 +94,10 @@ const Dashboard = () => {
   const serviceData = [
     { name: "Wareejin", value: countByService("Wareejin") },
     { name: "Wakaalad", value: countByService("Wakaalad") },
-    { name: "Daamaanad", value: countByService("Daamaanad") },
-    { name: "Cedeyn", value: countByService("Cedeyn") },
+    { name: "Damaanad", value: countByService("Damaanad") },
+    { name: "Caddeyn", value: countByService("Caddeyn") },
+    { name: "Heshiisyo", value: countByService("Heshiisyo") },
     { name: "Rahan", value: countByService("Rahan") },
-    { name: "Heshiishyo", value: countByService("Heshiishyo") },
   ];
 
   const feeLineData = agreements
@@ -124,9 +125,9 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-100">
+      <div className="flex items-center justify-center min-h-screen bg-white">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto" />
+          <div className="animate-spin rounded-full h-12 w-12 border-2 border-black border-t-transparent mx-auto" />
           <p className="mt-4 text-gray-600">Loading dashboard...</p>
         </div>
       </div>
@@ -134,23 +135,23 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen space-y-6">
+    <div className="p-6 bg-white min-h-screen space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
-        <h2 className="text-3xl font-bold text-gray-800 flex items-center gap-3">
-          <FaChartLine className="text-blue-600" />
+        <h2 className="text-3xl font-bold text-black flex items-center gap-3">
+          <FaChartLine className="text-black" />
           Dashboard Overview
         </h2>
       </div>
 
-      {/* USER + ADMIN: kaliya 6 cards */}
+      {/* USER + ADMIN: 6 cards */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4">
-        <ServiceStat title="Wareejin" value={countByService("Wareejin")} color="blue" />
-        <ServiceStat title="Wakaalad" value={countByService("Wakaalad")} color="green" />
-        <ServiceStat title="Daamaanad" value={countByService("Daamaanad")} color="purple" />
-        <ServiceStat title="Cedeyn" value={countByService("Cedeyn")} color="amber" />
-        <ServiceStat title="Rahan" value={countByService("Rahan")} color="red" />
-        <ServiceStat title="Heshiishyo" value={countByService("Heshiishyo")} color="indigo" />
+        <ServiceStat title="Wareejin" value={countByService("Wareejin")} />
+        <ServiceStat title="Wakaalad" value={countByService("Wakaalad")} />
+        <ServiceStat title="Damaanad" value={countByService("Damaanad")} />
+        <ServiceStat title="Caddeyn" value={countByService("Caddeyn")} />
+        <ServiceStat title="Heshiisyo" value={countByService("Heshiisyo")} />
+        <ServiceStat title="Rahan" value={countByService("Rahan")} />
       </div>
 
       {/* ADMIN ONLY */}
@@ -158,30 +159,30 @@ const Dashboard = () => {
         <>
           {/* Total Revenue */}
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            <ServiceStat title="Total Revenue" value={`$${stats.totalFee.toLocaleString()}`} color="green" />
+            <ServiceStat title="Total Revenue" value={`$${stats.totalFee.toLocaleString()}`} variant="revenue" />
           </div>
 
           {/* Charts */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-white rounded-xl shadow p-6">
-              <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
-                <span className="text-blue-600">📊</span>
+            <div className="bg-white rounded-2xl border border-black/10 shadow-sm p-6">
+              <h3 className="font-semibold text-lg mb-4 flex items-center gap-2 text-black">
+                <span>📊</span>
                 Agreements by Service
               </h3>
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={serviceData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis allowDecimals={false} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                  <XAxis dataKey="name" tick={{ fill: "#111827" }} />
+                  <YAxis allowDecimals={false} tick={{ fill: "#111827" }} />
                   <Tooltip />
-                  <Bar dataKey="value" fill="#2563eb" radius={[6, 6, 0, 0]} barSize={40} />
+                  <Bar dataKey="value" fill="#111827" radius={[8, 8, 0, 0]} barSize={40} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
 
-            <div className="bg-white rounded-xl shadow p-6">
-              <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
-                <span className="text-green-600">🥧</span>
+            <div className="bg-white rounded-2xl border border-black/10 shadow-sm p-6">
+              <h3 className="font-semibold text-lg mb-4 flex items-center gap-2 text-black">
+                <span>🥧</span>
                 Service Distribution
               </h3>
               <ResponsiveContainer width="100%" height={300}>
@@ -190,11 +191,11 @@ const Dashboard = () => {
                     data={serviceData.filter((d) => d.value > 0)}
                     dataKey="value"
                     nameKey="name"
-                    outerRadius={100}
+                    outerRadius={105}
                     label={(entry) => `${entry.name}: ${entry.value}`}
                   >
                     {serviceData.map((_, i) => (
-                      <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                      <Cell key={i} fill={BW_COLORS[i % BW_COLORS.length]} />
                     ))}
                   </Pie>
                   <Tooltip />
@@ -206,33 +207,33 @@ const Dashboard = () => {
 
           {/* Trend Charts */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-white rounded-xl shadow p-6">
-              <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
-                <span className="text-purple-600">📈</span>
+            <div className="bg-white rounded-2xl border border-black/10 shadow-sm p-6">
+              <h3 className="font-semibold text-lg mb-4 flex items-center gap-2 text-black">
+                <span>📈</span>
                 Revenue Trend
               </h3>
               <ResponsiveContainer width="100%" height={300}>
                 <LineChart data={feeLineData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                  <XAxis dataKey="date" tick={{ fill: "#111827" }} />
+                  <YAxis tick={{ fill: "#111827" }} />
                   <Tooltip formatter={(value) => [`$${value}`, "Fee"]} />
                   <Legend />
-                  <Line type="monotone" dataKey="fee" stroke="#9333ea" strokeWidth={3} dot={{ r: 4 }} />
+                  <Line type="monotone" dataKey="fee" stroke="#111827" strokeWidth={3} dot={{ r: 4 }} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
 
-            <div className="bg-white rounded-xl shadow p-6">
-              <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
-                <span className="text-amber-600">📅</span>
+            <div className="bg-white rounded-2xl border border-black/10 shadow-sm p-6">
+              <h3 className="font-semibold text-lg mb-4 flex items-center gap-2 text-black">
+                <span>📅</span>
                 Monthly Performance
               </h3>
               <ResponsiveContainer width="100%" height={300}>
                 <AreaChart data={monthlyChartData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                  <XAxis dataKey="month" tick={{ fill: "#111827" }} />
+                  <YAxis tick={{ fill: "#111827" }} />
                   <Tooltip
                     formatter={(value, name) => [
                       name === "fees" ? `$${value}` : value,
@@ -240,8 +241,8 @@ const Dashboard = () => {
                     ]}
                   />
                   <Legend />
-                  <Area type="monotone" dataKey="agreements" stroke="#f59e0b" fill="#f59e0b" fillOpacity={0.3} />
-                  <Area type="monotone" dataKey="fees" stroke="#dc2626" fill="#dc2626" fillOpacity={0.3} />
+                  <Area type="monotone" dataKey="agreements" stroke="#111827" fill="#111827" fillOpacity={0.12} />
+                  <Area type="monotone" dataKey="fees" stroke="#374151" fill="#374151" fillOpacity={0.12} />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
@@ -249,25 +250,34 @@ const Dashboard = () => {
 
           {/* Quick Actions + Latest */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-white rounded-xl shadow p-6">
-              <h3 className="font-semibold text-lg mb-4">⚡ Quick Actions</h3>
+            <div className="bg-white rounded-2xl border border-black/10 shadow-sm p-6">
+              <h3 className="font-semibold text-lg mb-4 text-black">⚡ Quick Actions</h3>
               <div className="grid grid-cols-2 gap-4">
-                <Link to="/reception" className="bg-blue-600 text-white p-4 rounded-lg hover:bg-blue-700 text-center">
+                <Link
+                  to="/reception"
+                  className="bg-black text-white p-4 rounded-xl hover:bg-gray-900 text-center transition"
+                >
                   New reception
                 </Link>
-                <Link to="/agreement" className="bg-purple-600 text-white p-4 rounded-lg hover:bg-purple-700 text-center">
+                <Link
+                  to="/agreement"
+                  className="bg-white text-black border border-black/15 p-4 rounded-xl hover:bg-gray-50 text-center transition"
+                >
                   View All Agreements
                 </Link>
-                <Link to="/Reports" className="bg-amber-600 text-white p-4 rounded-lg hover:bg-amber-700 text-center">
+                <Link
+                  to="/Reports"
+                  className="bg-white text-black border border-black/15 p-4 rounded-xl hover:bg-gray-50 text-center transition"
+                >
                   Reports
                 </Link>
               </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow p-6">
+            <div className="bg-white rounded-2xl border border-black/10 shadow-sm p-6">
               <div className="flex justify-between items-center mb-4">
-                <h3 className="font-semibold text-lg">📋 Latest Agreements</h3>
-                <Link to="/agreements" className="text-blue-600 hover:text-blue-800 text-sm">
+                <h3 className="font-semibold text-lg text-black">📋 Latest Agreements</h3>
+                <Link to="/agreements" className="text-black hover:underline text-sm">
                   View All →
                 </Link>
               </div>
@@ -276,25 +286,23 @@ const Dashboard = () => {
                 <table className="w-full text-sm">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase">Ref No</th>
-                      <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase">Service</th>
-                      <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase">Fee</th>
-                      <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                      <th className="p-3 text-left text-xs font-medium text-gray-600 uppercase">Ref No</th>
+                      <th className="p-3 text-left text-xs font-medium text-gray-600 uppercase">Service</th>
+                      <th className="p-3 text-left text-xs font-medium text-gray-600 uppercase">Fee</th>
+                      <th className="p-3 text-left text-xs font-medium text-gray-600 uppercase">Date</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
                     {agreements.slice(0, 5).map((a) => (
-                      <tr key={a._id} className="hover:bg-gray-50">
-                        <td className="p-3 font-medium text-gray-900">
-                          <Link to={`/agreement/${a._id}`} className="hover:text-blue-600">
+                      <tr key={a._id} className="hover:bg-gray-50 transition">
+                        <td className="p-3 font-medium text-black">
+                          <Link to={`/agreement/${a._id}`} className="hover:underline">
                             {a.refNo}
                           </Link>
                         </td>
-                        <td className="p-3">{a.service}</td>
-                        <td className="p-3 font-medium">${a.officeFee || 0}</td>
-                        <td className="p-3 text-gray-500">
-                          {new Date(a.agreementDate).toLocaleDateString()}
-                        </td>
+                        <td className="p-3 text-gray-800">{a.service}</td>
+                        <td className="p-3 font-medium text-black">${a.officeFee || 0}</td>
+                        <td className="p-3 text-gray-600">{new Date(a.agreementDate).toLocaleDateString()}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -309,24 +317,19 @@ const Dashboard = () => {
 };
 
 /* ===== SERVICE STAT ===== */
-const ServiceStat = ({ title, value, color }) => {
-  const colors = {
-    blue: "text-blue-600 bg-blue-50",
-    green: "text-green-600 bg-green-50",
-    purple: "text-purple-600 bg-purple-50",
-    amber: "text-amber-600 bg-amber-50",
-    red: "text-red-600 bg-red-50",
-    indigo: "text-indigo-600 bg-indigo-50",
-    green2: "text-green-600 bg-green-50",
-  };
+const ServiceStat = ({ title, value, variant }) => {
+  const base =
+    "bg-white rounded-2xl border border-black/10 shadow-sm p-4 text-center hover:shadow transition";
 
-  // haddii color="green" la siiyo, wuu shaqeynayaa
-  const cls = colors[color] || "text-gray-700 bg-gray-50";
+  const pill =
+    variant === "revenue"
+      ? "text-black bg-gray-50 border border-black/10"
+      : "text-black bg-white border border-black/10";
 
   return (
-    <div className="bg-white rounded-lg shadow p-4 text-center">
-      <p className="text-sm text-gray-500 mb-1">{title}</p>
-      <p className={`text-2xl font-bold px-2 py-1 rounded ${cls}`}>{value}</p>
+    <div className={base}>
+      <p className="text-sm text-gray-600 mb-1">{title}</p>
+      <p className={`text-2xl font-bold px-2 py-1 rounded-xl ${pill}`}>{value}</p>
     </div>
   );
 };

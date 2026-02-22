@@ -234,93 +234,123 @@ const Users = () => {
     fetchUsers(p);
   };
 
+  const StatusChip = ({ status }) => {
+    const isActive = String(status || "").toLowerCase() === "active";
+    return (
+      <span
+        className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold border
+          ${isActive ? "bg-white text-black border-black/30" : "bg-gray-100 text-gray-800 border-black/20"}`}
+      >
+        {isActive ? "active" : "inactive"}
+      </span>
+    );
+  };
+
+  const RoleChip = ({ role }) => {
+    const isAdmin = String(role || "").toUpperCase() === "ADMIN";
+    return (
+      <span
+        className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold border
+          ${isAdmin ? "bg-black text-white border-black" : "bg-white text-black border-black/30"}`}
+      >
+        {isAdmin ? "ADMIN" : "USER"}
+      </span>
+    );
+  };
+
   return (
-    <div className="p-6">
+    <div className="p-6 bg-white min-h-screen">
       {/* header */}
       <div className="flex items-center justify-between mb-4">
-        <div>
-        
+        <div className="space-y-1">
+          <h2 className="text-2xl font-bold text-black">Users</h2>
+          <p className="text-sm text-gray-600">
+            Total: {stats.total} • Active: {stats.active} • Inactive: {stats.inactive} • Admin: {stats.admin} • User:{" "}
+            {stats.user}
+          </p>
         </div>
+
         <div className="flex gap-2">
-      
           <Button
             onClick={openAdd}
+            className="px-4 py-2 rounded-xl bg-black text-white hover:bg-gray-900 active:scale-[0.99] transition"
           >
             + Add User
           </Button>
         </div>
       </div>
 
-  
-
       {/* table */}
-      <div className="border rounded overflow-x-auto bg-white">
-        
-
+      <div className="border border-black/10 rounded-2xl overflow-x-auto bg-white shadow-sm">
         {loading ? (
-          <div className="p-6 text-center text-gray-500">Loading...</div>
+          <div className="p-6 text-center text-gray-600">Loading...</div>
         ) : users.length === 0 ? (
-          <div className="p-3 text-center text-gray-500">No users found</div>
+          <div className="p-3 text-center text-gray-600">No users found</div>
         ) : (
           <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr className="text-left text-sm">
-               
-                <th className="p-2">#</th>
-                <th className="p-2">Username</th>
-                <th className="p-2">Email</th>
-                <th className="p-2">Phone</th>
-                <th className="p-2">Role</th>
-                <th className="p-2">Status</th>
-                <th className="p-2 ">Actions</th>
+            <thead className="bg-gray-50 border-b border-black/10">
+              <tr className="text-left text-sm text-gray-700">
+                <th className="p-3">#</th>
+                <th className="p-3">Username</th>
+                <th className="p-3">Email</th>
+                <th className="p-3">Phone</th>
+                <th className="p-3">Role</th>
+                <th className="p-3">Status</th>
+                <th className="p-3">Actions</th>
               </tr>
             </thead>
+
             <tbody>
-              {users.map((u ,index) => (
-                <tr key={u._id} className="border-t text-sm">
-             
-                  <td className="p-2 font-medium">{index+1}</td>
-                  <td className="p-2 font-medium">{u.username}</td>
-                  <td className="p-2">{u.email}</td>
-                  <td className="p-2">{u.phone}</td>
-                  <td className="p-2">{u.role}</td>
-                  <td className="p-2">{u.status}</td>
-                  <td className="p-2 flex flex-wrap gap-3">
-                    <Button
-                      onClick={() => openEdit(u)}
-                  
-                    >
-                      Edit
-                    </Button>
+              {users.map((u, index) => (
+                <tr key={u._id} className="border-t border-black/5 text-sm hover:bg-gray-50 transition">
+                  <td className="p-3 font-medium text-black">{index + 1}</td>
+                  <td className="p-3 font-medium text-black">{u.username}</td>
+                  <td className="p-3 text-gray-800">{u.email}</td>
+                  <td className="p-3 text-gray-800">{u.phone}</td>
 
-                    {u.status === "inactive" ? (
+                  <td className="p-3">
+                    <RoleChip role={u.role} />
+                  </td>
+
+                  <td className="p-3">
+                    <StatusChip status={u.status} />
+                  </td>
+
+                  <td className="p-3">
+                    <div className="flex flex-wrap gap-2">
                       <Button
-                        onClick={() => onApprove(u._id)}
-                            className="px-3 py-1 rounded bg-green-600 text-white"
+                        onClick={() => openEdit(u)}
                       >
-                        Activate
+                        Edit
                       </Button>
-                    ) : (
+
+                      {u.status === "inactive" ? (
+                        <Button
+                          onClick={() => onApprove(u._id)}
+                        >
+                          On
+                        </Button>
+                      ) : (
+                        <Button
+                          onClick={() => onDeactivate(u._id)}
+                        >
+                          Off
+                        </Button>
+                      )}
+
                       <Button
-                        onClick={() => onDeactivate(u._id)}
-                            className="px-3 py-1 rounded bg-yellow-500 text-black"
+                        onClick={() => u.role !== "ADMIN" && onDelete(u)}
+                        disabled={u.role === "ADMIN"}
+                        className={`px-3 py-1.5 rounded-lg transition
+                          ${
+                            u.role === "ADMIN"
+                              ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                              : "bg-black text-white hover:bg-gray-900"
+                          }`}
                       >
-                        inactive
+                        Delete
                       </Button>
-                    )}
-
-                   <Button
-  onClick={() => u.role !== "ADMIN" && onDelete(u)}
-  disabled={u.role === "ADMIN"}
-  className={`px-3 py-1 rounded bg-black ${
-    u.role === "ADMIN"
-      ? "bg-black cursor-not-allowed text-white"
-      : "bg-red-600 text-white"
-  }`}
->
-  Delete
-</Button>
-
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -330,20 +360,20 @@ const Users = () => {
 
         {/* pagination */}
         {pagination.pages > 1 && (
-          <div className="p-3 border-t flex items-center justify-between text-sm">
+          <div className="p-3 border-t border-black/10 flex items-center justify-between text-sm text-gray-700">
             <div>
               Page {pagination.page} / {pagination.pages} • Total {pagination.total}
             </div>
             <div className="flex gap-2">
               <button
-                className="px-3 py-1 border rounded"
+                className="px-3 py-1.5 border border-black/20 rounded-lg bg-white hover:bg-gray-50 disabled:opacity-50"
                 onClick={() => changePage(pagination.page - 1)}
                 disabled={pagination.page === 1}
               >
                 Prev
               </button>
               <button
-                className="px-3 py-1 border rounded"
+                className="px-3 py-1.5 border border-black/20 rounded-lg bg-white hover:bg-gray-50 disabled:opacity-50"
                 onClick={() => changePage(pagination.page + 1)}
                 disabled={pagination.page === pagination.pages}
               >
@@ -356,10 +386,10 @@ const Users = () => {
 
       {/* modal (simple) */}
       {mode && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg w-full max-w-lg p-5">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl w-full max-w-lg p-5 border border-black/10 shadow-xl">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-bold text-lg">
+              <h3 className="font-bold text-lg text-black">
                 {mode === "add" ? "Add User" : "Edit User"}
               </h3>
               <Button
@@ -367,7 +397,6 @@ const Users = () => {
                   setMode(null);
                   setSelectedUser(null);
                 }}
-                className="text-xl"
               >
                 ✕
               </Button>
@@ -375,19 +404,19 @@ const Users = () => {
 
             <form onSubmit={onSubmit} className="space-y-3">
               <Input
-                className="border rounded px-3 py-2 w-full"
+                className="border border-black/20 rounded-xl px-3 py-2 w-full bg-white text-black focus:ring-2 focus:ring-black/20"
                 placeholder="Username"
                 value={form.username}
                 onChange={(e) => setForm((p) => ({ ...p, username: e.target.value }))}
               />
               <Input
-                className="border rounded px-3 py-2 w-full"
+                className="border border-black/20 rounded-xl px-3 py-2 w-full bg-white text-black focus:ring-2 focus:ring-black/20"
                 placeholder="Email"
                 value={form.email}
                 onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))}
               />
               <Input
-                className="border rounded px-3 py-2 w-full"
+                className="border border-black/20 rounded-xl px-3 py-2 w-full bg-white text-black focus:ring-2 focus:ring-black/20"
                 placeholder="Phone"
                 value={form.phone}
                 onChange={(e) => setForm((p) => ({ ...p, phone: e.target.value }))}
@@ -395,7 +424,7 @@ const Users = () => {
 
               <div className="flex gap-3">
                 <select
-                  className="border rounded px-3 py-2 w-full"
+                  className="border border-black/20 rounded-xl px-3 py-2 w-full bg-white text-black"
                   value={form.role}
                   onChange={(e) => setForm((p) => ({ ...p, role: e.target.value }))}
                 >
@@ -405,7 +434,7 @@ const Users = () => {
 
                 {mode === "edit" && (
                   <select
-                    className="border rounded px-3 py-2 w-full"
+                    className="border border-black/20 rounded-xl px-3 py-2 w-full bg-white text-black"
                     value={form.status}
                     onChange={(e) => setForm((p) => ({ ...p, status: e.target.value }))}
                   >
@@ -418,20 +447,18 @@ const Users = () => {
               {mode === "add" && (
                 <>
                   <Input
-                    className="border rounded px-3 py-2 w-full"
+                    className="border border-black/20 rounded-xl px-3 py-2 w-full bg-white text-black focus:ring-2 focus:ring-black/20"
                     type="password"
                     placeholder="Password"
                     value={form.password}
                     onChange={(e) => setForm((p) => ({ ...p, password: e.target.value }))}
                   />
                   <Input
-                    className="border rounded px-3 py-2 w-full"
+                    className="border border-black/20 rounded-xl px-3 py-2 w-full bg-white text-black focus:ring-2 focus:ring-black/20"
                     type="password"
                     placeholder="Confirm Password"
                     value={form.confirmPassword}
-                    onChange={(e) =>
-                      setForm((p) => ({ ...p, confirmPassword: e.target.value }))
-                    }
+                    onChange={(e) => setForm((p) => ({ ...p, confirmPassword: e.target.value }))}
                   />
                 </>
               )}
@@ -443,13 +470,12 @@ const Users = () => {
                     setMode(null);
                     setSelectedUser(null);
                   }}
-                  className="px-4 py-2 rounded border"
                 >
                   Cancel
                 </Button>
                 <Button
                   type="submit"
-                
+                  className="px-4 py-2 rounded-xl bg-black text-white hover:bg-gray-900"
                 >
                   {mode === "add" ? "Create" : "Save"}
                 </Button>
