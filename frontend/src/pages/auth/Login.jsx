@@ -85,13 +85,13 @@
 //   return (
 //   <div className="relative min-h-screen flex items-center justify-center  p-4 overflow-hidden">
 //     {/* ✅ Background Logo (Watermark) */}
-   
+
 
 //     {/* ✅ Content Card */}
 //     <div className="relative w-full max-w-6xl bg-white rounded-2xl shadow-xl overflow-hidden border border-black/10">
 //       <div className="grid grid-cols-1 md:grid-cols-2">
 //         {/* ================= LEFT: BRAND ================= */}
-    
+
 // <div className="bg-black text-white p-10 flex flex-col justify-center items-center">
 
 //   {/* ✅ BIG EXPRESS NOTORY LOGO */}
@@ -273,16 +273,22 @@ const Login = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    try {
+      e.preventDefault();
 
-    if (!form.phone || !form.password) {
-      toast.error("Fadlan buuxi Tel & Password");
-      return;
+      if (!form.phone || !form.password) {
+        toast.error("Fadlan buuxi Tel & Password");
+        return;
+      }
+
+      // Haddii aad rabto rememberMe, halkan ayaad ku diri kartaa ama localStorage ku kaydin kartaa
+      // await login({ ...form, rememberMe });
+      await login(form); // backend expects { phone, password }
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Change password failed");
+
     }
 
-    // Haddii aad rabto rememberMe, halkan ayaad ku diri kartaa ama localStorage ku kaydin kartaa
-    // await login({ ...form, rememberMe });
-    await login(form); // backend expects { phone, password }
   };
 
   /* ================= ROLE BASED REDIRECT ================= */
@@ -435,7 +441,7 @@ const Login = () => {
 
               {/* footer small */}
               <p className="text-center text-xs text-gray-500 mt-6">
-                
+
               </p>
             </form>
           </div>

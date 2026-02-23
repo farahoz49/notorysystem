@@ -13,7 +13,7 @@ const userschema = new mongoose.Schema(
     username: {
       type: String,
       required: true,
-      
+
     },
     password: {
       type: String,
@@ -21,9 +21,10 @@ const userschema = new mongoose.Schema(
       select: false, // password laguma soo celin doono queries default
     },
     phone: {
-      type: Number,
+      type: String,
       required: true,
       unique: true,
+      trim: true,
     },
     status: {
       type: String,
@@ -59,17 +60,17 @@ userschema.methods.comparePassword = async function (givenPassword) {
   return await bcrypt.compare(givenPassword, this.password);
 };
 // ✅ Method cusub oo u sameysa reset token
-userschema.methods.createPasswordResetToken = function() {
- 
+userschema.methods.createPasswordResetToken = function () {
+
   const resetToken = crypto.randomBytes(32).toString('hex');
-  
+
   this.resetPasswordToken = crypto
     .createHash('sha256')
     .update(resetToken)
     .digest('hex');
-  
+
   this.resetPasswordExpires = Date.now() + 10 * 60 * 1000; // 10 daqiiqo
-  
+
   return resetToken;
 };
 

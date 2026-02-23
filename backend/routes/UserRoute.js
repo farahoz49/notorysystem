@@ -39,6 +39,6 @@ userRouter.put("/inactive/:id", authenticate, authorizeRoles("ADMIN"), inactiveU
 
 // ✅ dynamic routes LAST
 userRouter.get("/:id", authenticate, getSingleUser);
-userRouter.put("/:id", authenticate, updateUser);
+userRouter.put("/:id", updateUser);
 
 export default userRouter;

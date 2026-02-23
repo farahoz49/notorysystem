@@ -1,19 +1,23 @@
-const g = (gender = "male") => String(gender).toLowerCase() === "female";
+// src/utils/GW.js
 
-export const GW = (gender) => ({
-  // verbs
-  born: g(gender) ? "ku dhalatay" : "ku dhashay",
-  lived: "degan", // lab/dhedig isku mid
-  said: g(gender) ? "tiri" : "yiri", // haddii aad u baahato
+const isF = (gender = "male") =>
+  String(gender).toLowerCase() === "female";
 
-  // pronouns / relations
-  motherOf: g(gender) ? "hooyadeed" : "hooyadiis",
-  fatherOf: g(gender) ? "aabaheed" : "aabihiis",
+export const GW = (gender = "male") => {
+  const female = isF(gender);
 
-  // “ah” label (badanaa isku mid)
-  is: "ah",
+  return {
+    // ================= VERBS =================
+    dhalasho: female ? "ku dhalatay" : "ku dhashay",
+    lived: "degan",
+    said: female ? "tiri" : "yiri",
 
-  // role words (haddii aad rabto)
-  buyer: g(gender) ? "iibsato" : "iibsade",
-  seller: g(gender) ? "iska iibisato" : "iska iibiyaha",
-});
+    // ================= RELATIONS =================
+    hooyo: female ? "hooyadeedna" : "hooyadiisna",
+    caafimaad: female ? "qabta" : "qaba",
+
+    // ================= ROLES =================
+    buyer: female ? "iibsato" : "iibsade",
+    seller: female ? "iska iibisato" : "iska iibiyaha",
+  };
+};

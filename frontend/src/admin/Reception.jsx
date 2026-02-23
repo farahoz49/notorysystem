@@ -28,6 +28,7 @@ const Reception = () => {
       { value: "Wakaalad Guud", label: "Wakaalad Guud" },
       { value: "Wakaalad_Gaar_ah", label: "Wakaalad Gaar ah" },
       { value: "Wakaalad_Saami", label: "Wakaalad Saami" }, // ✅ NEW
+      { value: "Wakaalad kale", label: "Wakaalad kale" }, // ✅ NEW wakaalad kale
     ],
     Damaanad: [
       { value: "Daaminul maal", label: "Daaminul maal" },

@@ -273,11 +273,10 @@ export const updateUserRole = async (req, res) => {
   }
 };
 
-// ✅ Update username, phone & password (with old password verification)
 export const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const { username, phone, oldPassword, newPassword } = req.body;
+    const {email, username, phone ,role } = req.body;
 
     // Hel user-ka, password-na ha la soo celiyo si loo hubiyo
     const user = await User.findById(id).select("+password");
@@ -289,28 +288,16 @@ export const updateUser = async (req, res) => {
     if (username) {
       user.username = username;
     }
+    if (email) {
+      user.email = email;
+    }
 
     // ✅ Phone update
     if (phone) {
       user.phone = phone;
     }
-
-    // ✅ Password update — hubi in oldPassword uu sax yahay
-    if (newPassword) {
-      if (!oldPassword) {
-        return res.status(400).json({
-          message: "Old password is required to set a new password",
-        });
-      }
-
-      const isMatch = await bcrypt.compare(oldPassword, user.password);
-      if (!isMatch) {
-        return res.status(401).json({ message: "Old password is incorrect" });
-      }
-
-      // Hash new password
-      const hashedPassword = await bcrypt.hash(newPassword, 10);
-      user.password = hashedPassword;
+    if (role) {
+      user.role = role;
     }
 
     await user.save();

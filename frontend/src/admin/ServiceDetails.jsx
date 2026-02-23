@@ -232,8 +232,11 @@ const ServiceDetails = ({ agreement, serviceData, setServiceData, fetchData }) =
     }
   };
 
-  if (agreement?.serviceType === "Wakaalad Guud") return null;
+  const hiddenTypes = ["Wakaalad Guud", "Wakaalad kale" , "Caddeyn" , "Heshiis Dhex Maray Laba Daraf" , "Daaminul maal" ];
 
+  if (hiddenTypes.includes(agreement?.serviceType)) {
+    return null;
+  }
   const renderServiceDetails = () => {
     const service = serviceData || {};
 

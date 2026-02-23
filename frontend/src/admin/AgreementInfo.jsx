@@ -29,6 +29,8 @@ import { GW } from "./genderWords.js";
 import { updateAgreement } from "../api/agreements.api.jsx";
 import Button from "../components/ui/Button.jsx";
 import Input from "../components/ui/Input.jsx";
+import { buildWakaaladSaamiDoc } from "../abservices/wakaaladSaami.jsx";
+import { buildCaddeynCase } from "../abservices/Caddeyn.jsx";
 
 const AgreementInfo = ({ agreement, fetchData }) => {
   const [formData, setFormData] = useState({
@@ -451,7 +453,7 @@ const AgreementInfo = ({ agreement, fetchData }) => {
 
           new TextRun({ text: `${p.motherName || ""} `, bold: true, color, size: 24, font: "Times New Roman" }),
 
-          new TextRun({ text: `${w.born} `, size: 24, font: "Times New Roman" }), // ku dhashay/ku dhalatay
+          new TextRun({ text: `${w.dhalasho} `, size: 24, font: "Times New Roman" }), // ku dhashay/ku dhalatay
           new TextRun({ text: `${p.birthPlace || ""} `, bold: true, color, size: 24, font: "Times New Roman" }),
 
           new TextRun({ text: `sannadkii `, size: 24, font: "Times New Roman" }),
@@ -1311,427 +1313,7 @@ const AgreementInfo = ({ agreement, fetchData }) => {
             }),
           ];
 
-        case "DhulBanaan": {
-
-          const cabirText =
-            service?.cabirka === "Boosas"
-              ? `${service?.cabirka} ${service?.tiradaBoosaska} (${numberToSomaliWords(service?.tiradaBoosaska) || ""} Boos ah)`
-              : (service?.cabirka || "");
-
-
-          const cabirFaahfaahin = service?.cabirFaahfaahin
-            ? ` (${service.cabirFaahfaahin})`
-            : "";
-
-          // Ku Milkiyay details text (schema cusub)
-          let milkiyadDetails = "";
-          if (service?.kuMilkiyay === "Aato") {
-            milkiyadDetails =
-              `Caddeyn Lambar: ${service?.aato?.cadeynLambar || ""}, ` +
-              `kasoo baxday ${service?.aato?.kasooBaxday || ""}, ` +
-              `ku saxiixan ${service?.aato?.kuSaxiixan || ""}.`;
-          } else if (service?.kuMilkiyay === "Sabarloog") {
-            milkiyadDetails =
-              `Sabarloog No: ${service?.sabarloog?.sabarloogNo || ""}, ` +
-              `Bollettario No: ${service?.sabarloog?.bollettarioNo1 || ""}` +
-              `${service?.sabarloog?.bollettarioNo2 ? " / " + service.sabarloog.bollettarioNo2 : ""}, ` +
-              `Rasiid Nambar: ${service?.sabarloog?.rasiidNambar || ""}, ` +
-              `Tr. ${service?.sabarloog?.rasiidTaariikh ? formatDate(service.sabarloog.rasiidTaariikh) : ""}, ` +
-              `D. Hoose ee: ${service?.sabarloog?.dHooseEe || ""}.`;
-          } else if (service?.kuMilkiyay === "Maxkamad") {
-            milkiyadDetails =
-              `Warqad Lam: ${service?.maxkamad?.warqadLam || ""}, ` +
-              `Maxkamada: ${service?.maxkamad?.maxkamada || ""}, ` +
-              `Garsooraha: ${service?.maxkamad?.garsooraha || ""}, ` +
-              `Ku saxiixan: ${service?.maxkamad?.kuSaxiixan || ""}.`;
-          }
-
-          return [
-            // QORAALKA BILOWGA HESHIISKA
-            new Paragraph({
-              alignment: AlignmentType.JUSTIFIED,
-              spacing: { after: 50 },
-              children: [
-                new TextRun({
-                  text: `Maanta oo ay taariikhdu tahay ${formatDate(agreement.agreementDate)}, aniga oo ah Dr. Maxamed Cabdiraxmaan Sheekh Maxamed, Nootaayaha Xafiiska Nootaayaha Boqole,xafiiskeygana ku yaal Degmada Howl-wadaag, kasoo horjeedka xawaaladda Taaj, una dhow Xarunta Hormuud, ee Magaalada Muqdisho, Jamhuuriyadda Federaalka Soomaaliya,waxaa ii hor yimid iyagoo heshiis ah,`,
-                  font: "Times New Roman",
-                  size: 24,
-                }),
-              ],
-            }),
-            new Paragraph({
-              alignment: AlignmentType.JUSTIFIED,
-              spacing: { after: 50 },
-              children: [
-                new TextRun({
-                  text: T.seller.toUpperCase(),
-                  font: "Times New Roman",
-                  size: 24,
-                  bold: true,
-                  underline: true
-                }),
-
-              ],
-            }),
-            new Paragraph({
-              alignment: AlignmentType.JUSTIFIED,
-              spacing: { after: 50 },
-              children: [
-                new TextRun({
-                  text: `${sellerNames} `,
-                  font: "Times New Roman",
-                  size: 24,
-                  bold: true,
-                  color: "FF0000",
-                }),
-                new TextRun({
-                  text: `${sellernationality} `,
-                  font: "Times New Roman",
-                  size: 24,
-                  color: "FF0000",
-                }),
-                new TextRun({
-                  text: `ah , ina `,
-                  font: "Times New Roman",
-                  size: 24,
-                }),
-                new TextRun({
-                  text: `${sellerMotherName} `,
-                  font: "Times New Roman",
-                  size: 24,
-                  bold: true,
-                  color: "FF0000",
-                }),
-                new TextRun({
-                  text: `ku dhashay `,
-                  font: "Times New Roman",
-                  size: 24,
-                }),
-                new TextRun({
-                  text: `${sellerBirthPlace} `,
-                  font: "Times New Roman",
-                  size: 24,
-                  bold: true,
-                  color: "FF0000",
-                }),
-                new TextRun({
-                  text: ` sannadkii `,
-                  size: 24,
-                }),
-                new TextRun({
-                  text: `${sellerBirthYear} `,
-                  size: 24,
-                  bold: true,
-                  color: "FF0000",
-                }),
-                new TextRun({
-                  text: ` degan `,
-                  size: 24,
-                }),
-                new TextRun({
-                  text: `${sellerAddress} `,
-                  size: 24,
-                  bold: true,
-                  color: "FF0000",
-                }),
-                new TextRun({
-                  text: ` lehna `,
-                  size: 24,
-                }),
-                new TextRun({
-                  text: `${sellerdocumentType} `,
-                  size: 24,
-                  bold: true,
-                  color: "FF0000",
-                }),
-                new TextRun({
-                  text: ` NO `,
-                  size: 24,
-                }),
-                new TextRun({
-                  text: `${sellerdocumentNumber} `,
-                  size: 24,
-                  bold: true,
-                  color: "FF0000",
-                }),
-                new TextRun({
-                  text: `ee ku lifaaqan warqadaan, Tell `,
-                  size: 24,
-                }),
-                new TextRun({
-                  text: `${sellerPhone}`,
-                  size: 24,
-                  bold: true,
-                  color: "FF0000",
-                }),
-              ],
-            }),
-            new Paragraph({
-              alignment: AlignmentType.JUSTIFIED,
-              spacing: { after: 50 },
-              children: [
-                new TextRun({
-                  text: T.buyer.toUpperCase(),
-                  font: "Times New Roman",
-                  size: 24,
-                  bold: true,
-                  underline: true
-                }),
-              ],
-            }),
-            new Paragraph({
-              alignment: AlignmentType.JUSTIFIED,
-              spacing: { after: 50 },
-              children: [
-                new TextRun({
-                  text: `${buyerNames} `,
-                  font: "Times New Roman",
-                  size: 24,
-                  bold: true,
-                  color: "008000",
-                }),
-                new TextRun({
-                  text: `${buyernationality} `,
-                  font: "Times New Roman",
-                  size: 24,
-                  color: "008000",
-                }),
-                new TextRun({
-                  text: `ah , ina `,
-                  font: "Times New Roman",
-                  size: 24,
-                }),
-                new TextRun({
-                  text: `${buyerMotherName} `,
-                  font: "Times New Roman",
-                  size: 24,
-                  bold: true,
-                  color: "008000",
-                }),
-                new TextRun({
-                  text: `ku dhashay `,
-                  font: "Times New Roman",
-                  size: 24,
-                }),
-                new TextRun({
-                  text: `${buyerBirthPlace} `,
-                  font: "Times New Roman",
-                  size: 24,
-                  bold: true,
-                  color: "008000",
-                }),
-                new TextRun({
-                  text: ` sannadkii `,
-                  size: 24,
-                }),
-                new TextRun({
-                  text: `${buyerBirthYear} `,
-                  size: 24,
-                  bold: true,
-                  color: "008000",
-                }),
-                new TextRun({
-                  text: ` degan `,
-                  size: 24,
-                }),
-                new TextRun({
-                  text: `${buyerAddress} `,
-                  size: 24,
-                  bold: true,
-                  color: "008000",
-                }),
-                new TextRun({
-                  text: ` lehna `,
-                  size: 24,
-                }),
-                new TextRun({
-                  text: `${buyerdocumentType} `,
-                  size: 24,
-                  bold: true,
-                  color: "008000",
-                }),
-                new TextRun({
-                  text: ` NO `,
-                  size: 24,
-                }),
-                new TextRun({
-                  text: `${BuyerdocumentNumber} `,
-                  size: 24,
-                  bold: true,
-                  color: "008000",
-                }),
-                new TextRun({
-                  text: `ee ku lifaaqan warqadaan, Tell `,
-                  size: 24,
-                }),
-                new TextRun({
-                  text: `${buyerPhone}`,
-                  size: 24,
-                  bold: true,
-                  color: "008000",
-                }),
-              ],
-            }),
-            // =========================
-            // SELLER SECTION
-            // =========================
-            new Paragraph({
-              alignment: AlignmentType.JUSTIFIED,
-              spacing: { after: 100 },
-              children: hasSellerAgent
-                ? [
-                  new TextRun({
-                    text: T.sellerAgent.toUpperCase(),
-                    size: 24,
-                    bold: true,
-                    underline: true,
-                  }),
-                  new TextRun({ text: " Anigoo ah ", size: 24 }),
-                  new TextRun({ text: sellerAgentDetails, bold: true, color: "FF0000", size: 24 }),
-                  new TextRun({ text: `, ${wakaaladText}, kana wakiil ah iska ${T.seller} Dhulka `, size: 24 }),
-                  new TextRun({ text: sellerNames, bold: true, color: "FF0000", size: 24 }),
-
-                  new TextRun({
-                    text: `, kana caafimaad qaba dhanka maskaxda, xiskayguna taam yahay, cid igu qasabtayna aysan jirin, `
-                      + `waxaa aan nootaayada iyo marqaatiyaasha hortooda ka cadeynayaa in aan  ${P.actionVerb} ${P.actionVerb2} `,
-                    size: 24,
-                  }),
-                  new TextRun({ text: buyerNames, bold: true, color: "FF0000", size: 24 }),
-
-                  new TextRun({
-                    text:
-                      `,  ${cabirText} cabirkiisu yahay ${cabirFaahfaahin}, `
-                      + `ku yaalla ${service?.kuYaallo?.gobol || ""} - ${service?.kuYaallo?.degmo || ""}, `
-                      + `${service?.lottoLambar ? `Lotto Lambar: ${service.lottoLambar}, ` : ""}`
-                      + `Ku Milkiyay: ${service?.kuMilkiyay || ""}, `
-                      + `${milkiyadDetails ? milkiyadDetails + " " : ""}`
-                      + `Tr. ${service?.taariikh ? formatDate(service.taariikh) : ""}.`,
-                    size: 24,
-                    bold: true
-                  }),
-
-                  new TextRun({
-                    text:
-                      ` Soohdinta: Koonfur ${service?.soohdinta?.koonfur || ""}, `
-                      + `Waqooyi ${service?.soohdinta?.waqooyi || ""}, `
-                      + `Galbeed ${service?.soohdinta?.galbeed || ""}, `
-                      + `Bari ${service?.soohdinta?.bari || ""}.`,
-                    size: 24,
-                    bold: true
-                  }),
-
-                  ...(service?.ahna ? [new TextRun({ text: ` Ahna: ${service.ahna}.`, size: 24 })] : []),
-                  ...(service?.kaKooban ? [new TextRun({ text: ` Ka kooban: ${service.kaKooban}.`, size: 24 })] : []),
-
-                  // qiimaha (haddii Wareejin/Beec)
-                  ...(agreement?.sellingPrice
-                    ? [
-                      new TextRun({
-                        text: ` Waxaan ku gaday anigoo ka wakiil ah ${T.seller} dhulka lacag dhan $${formatCurrency(
-                          agreement.sellingPrice
-                        )} (${numberToSomaliWords(agreement.sellingPrice)} Doolarka Mareykanka ah).`,
-                        size: 24,
-                      }),
-                    ]
-                    : []),
-                ]
-                : [
-                  new TextRun({ text: "Ugu horeyn anigoo ah ", size: 24 }),
-                  new TextRun({ text: sellerNames, bold: true, color: "FF0000", size: 24 }),
-                  new TextRun({
-                    text:
-                      `, kana caafimaad qaba dhanka maskaxda iyo jirkaba, xiskayguna taam yahay, cid igu qasabtayna aysan jirin, `
-                      + `waxa aan  ${P.actionVerb} ${P.actionVerb2} `,
-                    size: 24,
-                  }),
-                  new TextRun({ text: buyerNames, bold: true, color: "FF0000", size: 24 }),
-
-                  new TextRun({
-                    text:
-                      `,  ${cabirText} cabirkiisu yahay ${cabirFaahfaahin}, `
-                      + `ku yaalla ${service?.kuYaallo?.gobol || ""} - ${service?.kuYaallo?.degmo || ""}, `
-                      + `${service?.lottoLambar ? `Lotto Lambar: ${service.lottoLambar}, ` : ""}`
-                      + `Ku Milkiyay: ${service?.kuMilkiyay || ""}, `
-                      + `${milkiyadDetails ? milkiyadDetails + " " : ""}`
-                      + `Tr. ${service?.taariikh ? formatDate(service.taariikh) : ""}.`,
-                    size: 24,
-                  }),
-
-                  new TextRun({
-                    text:
-                      ` Soohdinta: Koonfur ${service?.soohdinta?.koonfur || ""}, `
-                      + `Waqooyi ${service?.soohdinta?.waqooyi || ""}, `
-                      + `Galbeed ${service?.soohdinta?.galbeed || ""}, `
-                      + `Bari ${service?.soohdinta?.bari || ""}.`,
-                    size: 24,
-                  }),
-
-                  ...(service?.ahna ? [new TextRun({ text: ` Ahna: ${service.ahna}.`, size: 24 })] : []),
-                  ...(service?.kaKooban ? [new TextRun({ text: ` Ka kooban: ${service.kaKooban}.`, size: 24 })] : []),
-
-                  ...(agreement?.sellingPrice
-                    ? [
-                      new TextRun({
-                        text: ` Waxaan ku gaday lacag dhan $${formatCurrency(agreement.sellingPrice)} (${numberToSomaliWords(
-                          agreement.sellingPrice
-                        )} Doolarka Mareykanka ah).`,
-                        size: 24,
-                      }),
-                    ]
-                    : []),
-                ],
-            }),
-
-            // =========================
-            // BUYER SECTION
-            // =========================
-            new Paragraph({
-              alignment: AlignmentType.JUSTIFIED,
-              spacing: { after: 100 },
-              children: hasBuyerAgent
-                ? [
-                  new TextRun({
-                    text: "BEEC U AQBALAHA IIBSADAHA DHULKA",
-                    size: 24,
-                    underline: true,
-                    bold: true,
-                  }),
-                  new TextRun({ text: " Anigoo ah ", size: 24 }),
-                  new TextRun({ text: buyerAgentDetails, bold: true, color: "FF0000", size: 24 }),
-                  new TextRun({
-                    text:
-                      `, kana caafimaad qaba dhanka maskaxda iyo jirkaba, xiskayguna taam yahay, cid igu qasabtayna aysan jirin, `
-                      + `waxa aan aqbalay iibkaan anigoo ku qanacsan raalina ka ah. `
-                      + `Sidaasi darteed laga bilaabo taariikhda kor ku xusan, maamulkii iyo manfacii dhulkaas `
-                      + `waxay si sharci ah ugu wareegeen iibsade `,
-                    size: 24,
-                  }),
-                  new TextRun({ text: buyerNames, bold: true, color: "FF0000", size: 24 }),
-                  new TextRun({
-                    text: `, waana beec sax ah oo waafaqsan shareecada Islaamka iyo qaanuunka dalka Soomaaliya.`,
-                    size: 24,
-                  }),
-                ]
-                : [
-                  new TextRun({ text: "Anigoo ah iibsadaha ", size: 24 }),
-                  new TextRun({ text: buyerNames, bold: true, color: "FF0000", size: 24 }),
-                  new TextRun({
-                    text:
-                      `, kana caafimaad qaba dhanka maskaxda iyo jirkaba, xiskayguna taam yahay, cid igu qasabtayna aysan jirin, `
-                      + `waxa aan aqbalay iibkaan anigoo ku qanacsan raalina ka ah. `
-                      + `Sidaasi darteed laga bilaabo taariikhda kor ku xusan, maamulkii iyo manfacii dhulkaas `
-                      + `waxay si sharci ah ugu wareegeen iibsade `,
-                    size: 24,
-                  }),
-                  new TextRun({ text: buyerNames, bold: true, color: "FF0000", size: 24 }),
-                  new TextRun({
-                    text: `, waana beec sax ah oo waafaqsan shareecada Islaamka iyo qaanuunka dalka Soomaaliya.`,
-                    size: 24,
-                  }),
-                ],
-            }),
-          ];
-        }
+      
         case "Saami": {
           // ================= HELPERS =================
           const joinNames = (people = []) => {
@@ -1752,7 +1334,7 @@ const AgreementInfo = ({ agreement, fetchData }) => {
               new TextRun({ text: `${p?.nationality || ""} `, color: roleColor, size: 24, font: "Times New Roman" }),
               new TextRun({ text: `ah, ina `, size: 24, font: "Times New Roman" }),
               new TextRun({ text: `${p?.motherName || ""} `, bold: true, color: roleColor, size: 24, font: "Times New Roman" }),
-              new TextRun({ text: `${W.born} `, size: 24, font: "Times New Roman" }),
+              new TextRun({ text: `${W.dhalasho} `, size: 24, font: "Times New Roman" }),
               new TextRun({ text: `${p?.birthPlace || ""} `, bold: true, color: roleColor, size: 24, font: "Times New Roman" }),
               new TextRun({ text: `sannadkii `, size: 24, font: "Times New Roman" }),
               new TextRun({ text: `${p?.birthYear || ""} `, bold: true, color: roleColor, size: 24, font: "Times New Roman" }),
@@ -2074,6 +1656,154 @@ const AgreementInfo = ({ agreement, fetchData }) => {
             }),
           ];
         }
+        case "Wakaalad kale": {
+          // ================= HELPERS =================
+          const joinWithIyo = (arr = []) => {
+            const items = arr.filter(Boolean);
+            if (items.length === 0) return "";
+            if (items.length === 1) return items[0];
+            if (items.length === 2) return `${items[0]} iyo ${items[1]}`;
+            return `${items.slice(0, -1).join(", ")} iyo ${items[items.length - 1]}`;
+          };
+
+          // Qofka bixiyaha (grantor) sida tusaalahaaga:
+          // "Ahmed ..., Somali ah, hooyadayna..., ku dhashay..., sanadkii..., degan..., lehna..., Tell: ..."
+          const formatGrantor = (p) => {
+            if (!p) return "";
+
+            const fullName = p.fullName || "";
+            const nationality = p.nationality || "Somali";
+            const mother = p.motherName || "";
+            const birthPlace = p.birthPlace || "";
+            const birthYear = p.birthYear || "";
+            const address = p.address || "";
+            const docType = p.documentType || "";
+            const docNo = p.documentNumber || "";
+            const phone = p.phone || "";
+
+            // "lehna Kaarka Aqoonsiga (NIRA) lambarkiisu yahay XXX ee ku lifaaqan warqadaan"
+            // (haddii aad leedahay fields kale sida issuedCountry/notes, ku dari kartaa)
+            return `${fullName}, ${nationality} ah, hooyadayna la yiraahdo ${mother}, ku dhashay ${birthPlace}, sanadkii ${birthYear}, degan ${address}, lehna ${docType} lambarkiisu yahay ${docNo} ee ku lifaaqan warqadaan, Tell: ${phone}`;
+          };
+
+          // Qofka la wakiilanayo (agent) sida tusaalahaaga:
+          // "Abdulkadir..., Somali ah, hooyadiisna..., ku dhashay..., sanadkii..., degan..., lehna..., Tell: ..."
+          const formatAgent = (p) => {
+            if (!p) return "";
+
+            const fullName = p.fullName || "";
+            const nationality = p.nationality || "Somali";
+            const mother = p.motherName || "";
+            const birthPlace = p.birthPlace || "";
+            const birthYear = p.birthYear || "";
+            const address = p.address || "";
+            const docType = p.documentType || "";
+            const docNo = p.documentNumber || "";
+            const phone = p.phone || "";
+
+            return `${fullName}, ${nationality} ah, hooyadiisna la yiraahdo ${mother}, ku dhashay ${birthPlace}, sanadkii ${birthYear}, degan ${address}, lehna ${docType} lambarkiisu yahay ${docNo} ee ku lifaaqan warqadaan, Tell: ${phone}`;
+          };
+
+          // Bold for names only (si ay u ekaato sida aad hore u rabtay)
+          const buildRunsWithBoldNames = (people = [], formatter) => {
+            // Soo saar text pieces: [ {name, restText}, ... ]
+            const items = people
+              .filter(Boolean)
+              .map((p) => {
+                const fullName = p.fullName || "";
+                const fullText = formatter(p); // starts with "FullName, ..."
+                const rest = fullText.startsWith(fullName)
+                  ? fullText.slice(fullName.length) // ", Somali ah, ..."
+                  : `, ${fullText}`;
+                return { fullName, rest };
+              });
+
+            // Haddii hal qof
+            if (items.length === 1) {
+              return [
+                new TextRun({ text: items[0].fullName, bold: true, size: 24 }),
+                new TextRun({ text: items[0].rest, size: 24 }),
+              ];
+            }
+
+            // Haddii labo ama ka badan: mid mid u dhis oo ku kala xiro ", " iyo " iyo "
+            const runs = [];
+            items.forEach((it, idx) => {
+              if (idx > 0) {
+                const isLast = idx === items.length - 1;
+                runs.push(
+                  new TextRun({
+                    text: isLast ? " iyo " : ", ",
+                    size: 24,
+                  })
+                );
+              }
+
+              runs.push(new TextRun({ text: it.fullName, bold: true, size: 24 }));
+              runs.push(new TextRun({ text: it.rest, size: 24 }));
+            });
+
+            return runs;
+          };
+
+          // ================= DATA =================
+          const grantors = agreement?.dhinac1?.sellers || []; // kuwa bixiya wakaalada (2/3/4...)
+          const agents = agreement?.dhinac2?.buyers || []; // kuwa la wakiilanayo (1/2/3...) -> haddii aad hayso dhinac2.agents beddel
+
+          const isPluralGrantor = grantors.length > 1;
+
+          const healthText = isPluralGrantor
+            ? " kana caafimaad qabaan dhanka maskaxda iyo jirkaba, xiskeenuna taam yahay, cid nagu qasbeysana aysan jirin wakaaladan, "
+            : " kana caafimaad qaba dhanka maskaxda iyo jirkaba, xiskayguna taam yahay, cid igu qasbeysana aysan jirin wakaaladan, ";
+
+          const statementText = isPluralGrantor
+            ? "waxaan qoraalkaan ku caddeynaynaa in aan wakaalad gaar ah u siinay "
+            : "waxaan qoraalkaan ku caddeynayaa in aan wakaalad gaar ah u siiyay ";
+
+          const propertyText = isPluralGrantor
+            ? "   "
+            : "  ";
+
+          // ================= PARAGRAPH (HAL PARAGRAPH OO DHEER) =================
+          return [
+            new Paragraph({
+              alignment: AlignmentType.JUSTIFIED,
+              spacing: { after: 160 },
+              children: [
+                new TextRun({
+                  text: `Maanta oo ay taariikhdu tahay ${formatDate(
+                    agreement.agreementDate
+                  )}, ${isPluralGrantor ? "anagoo kala ah " : "anigoo ah "}`,
+                  size: 24,
+                }),
+
+                // Grantors (names bold + rest normal) oo ku xiran ", " iyo " iyo "
+                ...buildRunsWithBoldNames(grantors, formatGrantor),
+
+                // health + statement
+                new TextRun({
+                  text: `${healthText}${statementText}`,
+                  size: 24,
+                }),
+
+                // Agents (names bold + rest normal) oo ku xiran ", " iyo " iyo "
+                ...buildRunsWithBoldNames(agents, formatAgent),
+
+                // Qaybta hantida + awoodaha (sida aad rabtay)
+                new TextRun({
+                  text:
+                    `, ${propertyText}` +
+                    `in uu gadi karo, wareejin karo, hibeyn karo, waqfi karo, xafidi karo, dhisi karo, ijaari karo, ` +
+                    `rahan dhigi karo kana saari karo, iskuna dammiinan karo, maslaxane ka geli karo una qaadi karo, ` +
+                    `qareen u qaban karo kuna dacwoon karo, lacagna ka saari karo, uuna leeyahay maamulka ` +
+                    `${isPluralGrantor ? "hantideena" : "hantideyda"} si la mid ah maamulka sharcigu ${isPluralGrantor ? "noo" : "ii"
+                    } siiyay..`,
+                  size: 24,
+                }),
+              ],
+            }),
+          ];
+        }
         case "Wakaalad_Gaar_ah": {
           // ================= HELPERS =================
           const joinWithIyo = (arr = []) => {
@@ -2327,158 +2057,19 @@ const AgreementInfo = ({ agreement, fetchData }) => {
             }),
           ];
         }
+
+        // gudaha switch-case:
         case "Wakaalad_Saami": {
-          // ================= HELPERS =================
-          const safe = (v) => (v === undefined || v === null ? "" : String(v).trim());
-
-          const formatGrantor = (p) => {
-            if (!p) return "";
-            const fullName = safe(p.fullName);
-            const nationality = safe(p.nationality) || "Somali";
-            const mother = safe(p.motherName);
-            const birthPlace = safe(p.birthPlace);
-            const birthYear = safe(p.birthYear);
-            const address = safe(p.address);
-            const docType = safe(p.documentType);
-            const docNo = safe(p.documentNumber);
-            const phone = safe(p.phone);
-
-            return `${fullName}, ${nationality} ah, hooyadayna la yiraahdo ${mother}, ku dhashay ${birthPlace}, sanadkii ${birthYear}, degan ${address}, lehna ${docType} lambarkiisu yahay ${docNo} ee ku lifaaqan warqadaan, Tell: ${phone}`;
-          };
-
-          const formatAgent = (p) => {
-            if (!p) return "";
-            const fullName = safe(p.fullName);
-            const nationality = safe(p.nationality) || "Somali";
-            const mother = safe(p.motherName);
-            const birthPlace = safe(p.birthPlace);
-            const birthYear = safe(p.birthYear);
-            const address = safe(p.address);
-            const docType = safe(p.documentType);
-            const docNo = safe(p.documentNumber);
-            const phone = safe(p.phone);
-
-            return `${fullName}, ${nationality} ah, hooyadiisna la yiraahdo ${mother}, ku dhashay ${birthPlace}, sanadkii ${birthYear}, degan ${address}, lehna ${docType} lambarkiisu yahay ${docNo} ee ku lifaaqan warqadaan, Tell: ${phone}`;
-          };
-
-          // Bold names only
-          const buildRunsWithBoldNames = (people = [], formatter) => {
-            const items = people
-              .filter(Boolean)
-              .map((p) => {
-                const fullName = safe(p.fullName);
-                const fullText = formatter(p); // starts with FullName
-                const rest = fullText.startsWith(fullName)
-                  ? fullText.slice(fullName.length)
-                  : `, ${fullText}`;
-                return { fullName, rest };
-              });
-
-            if (items.length === 1) {
-              return [
-                new TextRun({ text: items[0].fullName, bold: true, size: 24 }),
-                new TextRun({ text: items[0].rest, size: 24 }),
-              ];
-            }
-
-            const runs = [];
-            items.forEach((it, idx) => {
-              if (idx > 0) {
-                const isLast = idx === items.length - 1;
-                runs.push(new TextRun({ text: isLast ? " iyo " : ", ", size: 24 }));
-              }
-              runs.push(new TextRun({ text: it.fullName, bold: true, size: 24 }));
-              runs.push(new TextRun({ text: it.rest, size: 24 }));
-            });
-
-            return runs;
-          };
-
-          // ================= DATA (PEOPLE) =================
-          const grantors = agreement?.dhinac1?.sellers || []; // bixiyeyaasha wakaalada
-          const agents = agreement?.dhinac2?.buyers || []; // la wakiilanayo
-          const isPluralGrantor = grantors.length > 1;
-
-          const healthText = isPluralGrantor
-            ? ", xiskeenuna taam yahay cid nagu qasbeysana aysan jirin wakaaladan, "
-            : ", xiskeygana taam yahay cid igu qasbeysana aysan jirin wakaaladan, ";
-
-          const statementText = isPluralGrantor
-            ? "waxaan qoraalkaan ku caddeynaynaa in aan wakaalad gaar ah u siinay "
-            : "waxaan qoraalkaan ku caddeynayaa in aan wakaalad gaar ah u siiyay ";
-
-          // ================= SERVICE (ACCOUNTS) =================
-          const svc = service || {};
-
-          const hormuudAcc = safe(svc.accountHormuud); // e.g 839399
-          const salaamAcc = safe(svc.accountSalaam);   // e.g 49495959
-
-          // date for activity report (haddii uusan jirin, isticmaal agreement date)
-          const reportDate = svc?.Date ? formatDate(svc.Date) : formatDate(agreement.agreementDate);
-
-          const hasHormuud = !!hormuudAcc;
-          const hasSalaam = !!salaamAcc;
-
-          // Text-ka aad rabto
-          const hormuudText =
-            `Saamiyada aan ku leeyahay Shirkadda Hormuud Telecom Somalia inc (HorTel). ` +
-            `Accounka numbarkiisu yahay ${hormuudAcc}, sida ku cad activity report-ga ka soo baxay Hormuud ` +
-            `kuna taariikhaysan ${reportDate}. ` +
-            `in uu gadi karo, hibayn karo, rahmi karo, waqfi karo, iskuna damiinan karo, una xayiri karo naftiisa, ` +
-            `rahan dhigi karo kana saari karo, qareen u qaban karo, u dacwoon karo, isla markaasna uu leeyahay maamul ` +
-            `la mid ah midka sharcigu ii siiyey oo kale. Sidoo kalena uu maamuli karo faa'idada uu soo saaro saamigaas.`;
-
-          const salaamText =
-            `Sidoo kale accounkayga bankiga Salaam Somali Bank, ee numbarkiisuna yahay ${salaamAcc}, ` +
-            `in uu maamuli karo, lacag ka saari karo, lacag dhigi karo, u dacwoon karo, u doodi karo, qareena u qaban karo, ` +
-            `isla markaasna uu leeyahay maamul la mid ah midka sharcigu i siiyey oo kale.`;
-
-          // ✅ Condition: hormuud only / salaam only / both
-          let accountSentence = "";
-          if (hasHormuud && hasSalaam) {
-            accountSentence = `${hormuudText}\n\n${salaamText}`;
-          } else if (hasHormuud) {
-            accountSentence = hormuudText;
-          } else if (hasSalaam) {
-            accountSentence = salaamText;
-          } else {
-            // haddii labadaba madhan yihiin (optional)
-            accountSentence = "";
-          }
-
-          // ================= PARAGRAPH =================
-          return [
-            new Paragraph({
-              alignment: AlignmentType.JUSTIFIED,
-              spacing: { after: 160 },
-              children: [
-                new TextRun({
-                  text: `Maanta oo ay taariikhdu tahay ${formatDate(
-                    agreement.agreementDate
-                  )}, ${isPluralGrantor ? "anagoo kala ah " : "anigoo ah "}`,
-                  size: 24,
-                }),
-
-                // Grantors (names bold)
-                ...buildRunsWithBoldNames(grantors, formatGrantor),
-
-                // health + statement
-                new TextRun({ text: `${healthText}${statementText}`, size: 24 }),
-
-                // Agents (names bold)
-                ...buildRunsWithBoldNames(agents, formatAgent),
-
-                // ✅ Account text (only if exists)
-                ...(accountSentence
-                  ? [
-                    new TextRun({ text: `, ${accountSentence}`, size: 24 })
-                  ]
-                  : []),
-              ],
-            }),
-          ];
+          return buildWakaaladSaamiDoc({
+            agreement,
+            service,
+            formatDate,
+            GW,
+          });
         }
-
+        case "Caddeyn": {
+           return buildCaddeynCase({ agreement });
+        }
 
         default:
           return [];

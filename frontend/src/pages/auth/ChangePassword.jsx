@@ -39,7 +39,7 @@ const ChangePassword = () => {
     try {
       setLoading(true);
       const res = await changePasswordApi(form);
-      toast.success(res?.message || "Password waa la beddelay ✅");
+      toast.success(res?.message || "Password waa la beddelay ");
 
       setForm({
         oldPassword: "",
