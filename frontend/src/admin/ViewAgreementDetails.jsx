@@ -6,7 +6,7 @@ import AgreementInfo from "./AgreementInfo";
 import ServiceDetails from "./ServiceDetails";
 import PersonsWitnesses from "./PersonsWitnesses";
 import { getAgreementWithService } from "../api/agreementDetails.api";
-import { timeAgo } from "./timeAgo";
+import { timeAgo } from "../helpers/timeAgo";
 
 import Loader from "../components/ui/Loader";
 import Button from "../components/ui/Button";

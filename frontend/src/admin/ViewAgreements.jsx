@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
 
-import { formatDate } from "../components/numberToSomaliWords";
+import { formatDate } from "../helpers/formatDate";
 import { getAgreements } from "../api/reception.api";
 import { deleteAgreement } from "../api/agreements.api";
 

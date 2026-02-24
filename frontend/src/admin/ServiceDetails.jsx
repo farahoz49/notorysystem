@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import numberToSomaliWords, { formatCurrency } from "../components/numberToSomaliWords";
+import numberToSomaliWords from "../helpers/NumberToSomali";
+import { formatCurrency } from "../helpers/formatCurrency";
 import { createService, deleteService, updateService } from "../api/services.api";
 import { linkServiceToAgreement, unlinkServiceFromAgreement } from "../api/LinkService.api";
 import Button from "../components/ui/Button";

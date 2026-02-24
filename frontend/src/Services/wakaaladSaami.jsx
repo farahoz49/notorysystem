@@ -180,15 +180,17 @@ export const buildWakaaladSaamiDoc = ({ agreement, service, formatDate, GW }) =>
 
   // ✅ return paragraphs/tables array
   return [
+      // TITLE
     new Paragraph({
       alignment: AlignmentType.CENTER,
-      spacing: { after: 240 },
+      spacing: { after: 100 },
       children: [
         new TextRun({
-          text: "UJEEDDO: WAKAALAD SAAMI",
+          text: "UJEEDO: WAKAALAD GAAR AH",
           bold: true,
-          underline: {},
-          size: 28,
+          underline: true,
+          size: 24,
+          font: "Times New Roman",
         }),
       ],
     }),

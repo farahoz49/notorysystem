@@ -20,7 +20,9 @@ import {
   TabStopPosition,
 } from "docx";
 import { saveAs } from "file-saver";
-import numberToSomaliWords, { formatCurrency, formatDate } from '../components/numberToSomaliWords.jsx'
+import numberToSomaliWords from "../../helpers/NumberToSomali.js";
+import { formatCurrency } from "../../helpers/formatCurrency.js";
+import { formatDate } from "../../helpers/formatDate.js";
 import logo from '../assets/Logo1.jpg'
 import footerLogo from '../assets/footer.png'
 import { getTitles } from "./sample.js";

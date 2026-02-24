@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
-import numberToSomaliWords from "../components/numberToSomaliWords";
+import numberToSomaliWords from "../helpers/NumberToSomali";
 
 import {
   getPersons,

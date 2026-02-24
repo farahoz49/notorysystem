@@ -1,5 +1,5 @@
 import React from "react";
-import { formatDate } from "../components/numberToSomaliWords";
+import { formatDate } from "../helpers/formatDate";
 import Button from "../components/ui/Button";
 
 const PersonCard = ({

@@ -10,8 +10,8 @@ import {
   BorderStyle,
 } from "docx";
 
-import { GW } from "../admin/genderWords"; // path-kaaga sax
-import { formatDate } from "../components/numberToSomaliWords"; // path-kaaga sax
+import { GW } from "../helpers/genderWords"; // path-kaaga sax
+import { formatDate } from "../helpers/formatDate";
 
 export const buildCaddeynCase = ({ agreement }) => {
   const safe = (v) => (v === undefined || v === null ? "" : String(v).trim());
@@ -114,13 +114,14 @@ export const buildCaddeynCase = ({ agreement }) => {
     // TITLE
     new Paragraph({
       alignment: AlignmentType.CENTER,
-      spacing: { after: 240 },
+      spacing: { after: 100 },
       children: [
         new TextRun({
           text: "UJEEDDO: CADDEYN",
           bold: true,
-          underline: {},
-          size: 28,
+          underline: true,
+          size: 24,
+          font: "Times New Roman",
         }),
       ],
     }),
@@ -131,9 +132,8 @@ export const buildCaddeynCase = ({ agreement }) => {
       spacing: { after: 320 },
       children: [
         new TextRun({
-          text: `Maanta oo ay taariikhdu tahay ${formatDate(agreement.agreementDate)}, ${
-            isPluralGrantor ? "anagoo kala ah " : "anigoo ah "
-          }`,
+          text: `Maanta oo ay taariikhdu tahay ${formatDate(agreement.agreementDate)}, ${isPluralGrantor ? "anagoo kala ah " : "anigoo ah "
+            }`,
           size: 24,
         }),
 
