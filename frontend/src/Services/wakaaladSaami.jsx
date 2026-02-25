@@ -10,14 +10,23 @@ import {
   BorderStyle,
 } from "docx";
 
-// Waxaad ka keenaysaa kuwaaga existing:
-// import { GW } from "../wherever/genderWords";
-//
-// NOTE: formatDate waa adiga (existing).
-// NOTE: GW waa adiga (existing).
-
+/**
+ * ✅ WAKAALAD SAAMI (Gaar ah) - gooni ah
+ * - Multi grantors + multi agents
+ * - Names bold only (qoraalka dheer)
+ * - ✅ KU DARAY: Signature table + Witnesses + Sugitaanka Nootaayada
+ * - ✅ Titles: single/plural + male/female (sida aad sheegtay)
+ *   - Grantor single: male=WAKAALAD BIXIYAHA, female=WAKAALAD BIXISADA
+ *   - Agent single: male=LA WAKIISHA, female=LA WAKIISHADA
+ *   - Plural: Grantors="SAXIIXA WAKAALAD BIXIYAASHA", Agents="SAXIIXA WAKIILLADA"
+ */
 export const buildWakaaladSaamiDoc = ({ agreement, service, formatDate, GW }) => {
   const safe = (v) => (v === undefined || v === null ? "" : String(v).trim());
+
+  const singleOrPlural = (count, single, plural) => (count > 1 ? plural : single);
+
+  const maleFemale = (gender, male, female) =>
+    String(gender || "").toLowerCase() === "female" ? female : male;
 
   // Bold names only (FullName) rest normal
   const buildRunsWithBoldNames = (people = [], formatter) => {
@@ -26,9 +35,7 @@ export const buildWakaaladSaamiDoc = ({ agreement, service, formatDate, GW }) =>
       .map((p) => {
         const fullName = safe(p.fullName);
         const fullText = formatter(p); // starts with FullName
-        const rest = fullText.startsWith(fullName)
-          ? fullText.slice(fullName.length)
-          : `, ${fullText}`;
+        const rest = fullText.startsWith(fullName) ? fullText.slice(fullName.length) : `, ${fullText}`;
         return { fullName, rest };
       });
 
@@ -36,8 +43,8 @@ export const buildWakaaladSaamiDoc = ({ agreement, service, formatDate, GW }) =>
 
     if (items.length === 1) {
       return [
-        new TextRun({ text: items[0].fullName, bold: true, size: 24 }),
-        new TextRun({ text: items[0].rest, size: 24 }),
+        new TextRun({ text: items[0].fullName, bold: true, size: 24, font: "Times New Roman" }),
+        new TextRun({ text: items[0].rest, size: 24, font: "Times New Roman" }),
       ];
     }
 
@@ -45,10 +52,10 @@ export const buildWakaaladSaamiDoc = ({ agreement, service, formatDate, GW }) =>
     items.forEach((it, idx) => {
       if (idx > 0) {
         const isLast = idx === items.length - 1;
-        runs.push(new TextRun({ text: isLast ? " iyo " : ", ", size: 24 }));
+        runs.push(new TextRun({ text: isLast ? " iyo " : ", ", size: 24, font: "Times New Roman" }));
       }
-      runs.push(new TextRun({ text: it.fullName, bold: true, size: 24 }));
-      runs.push(new TextRun({ text: it.rest, size: 24 }));
+      runs.push(new TextRun({ text: it.fullName, bold: true, size: 24, font: "Times New Roman" }));
+      runs.push(new TextRun({ text: it.rest, size: 24, font: "Times New Roman" }));
     });
 
     return runs;
@@ -62,7 +69,7 @@ export const buildWakaaladSaamiDoc = ({ agreement, service, formatDate, GW }) =>
 
   const formatGrantor = (p) => {
     if (!p) return "";
-    const W = GW(p.gender || "male");
+    const W = GW(p?.gender || "male");
 
     const fullName = safe(p.fullName);
     const nationality = safe(p.nationality) || "Somali";
@@ -79,7 +86,7 @@ export const buildWakaaladSaamiDoc = ({ agreement, service, formatDate, GW }) =>
 
   const formatAgent = (p) => {
     if (!p) return "";
-    const W = GW(p.gender || "male");
+    const W = GW(p?.gender || "male");
 
     const fullName = safe(p.fullName);
     const nationality = safe(p.nationality) || "Somali";
@@ -109,9 +116,7 @@ export const buildWakaaladSaamiDoc = ({ agreement, service, formatDate, GW }) =>
   const hormuudAcc = safe(svc.accountHormuud);
   const salaamAcc = safe(svc.accountSalaam);
 
-  const reportDate = svc?.Date
-    ? formatDate(svc.Date)
-    : formatDate(agreement.agreementDate);
+  const reportDate = svc?.Date ? formatDate(svc.Date) : formatDate(agreement?.agreementDate);
 
   const hasHormuud = !!hormuudAcc;
   const hasSalaam = !!salaamAcc;
@@ -129,48 +134,52 @@ export const buildWakaaladSaamiDoc = ({ agreement, service, formatDate, GW }) =>
     `in uu maamuli karo, lacag ka saari karo, lacag dhigi karo, u dacwoon karo, u doodi karo, qareenna u qaban karo, ` +
     `isla markaasna uu leeyahay maamul la mid ah midka sharcigu i siiyey oo kale.`;
 
-  // Signatures
+  // ================= SIGNATURES (single/plural + male/female) =================
   const signatureLine = "______________________________";
 
-  const grantorGender = String(grantors?.[0]?.gender || "male").toLowerCase();
-  const isFemaleGrantor = grantorGender === "female";
+  const grantorGender = grantors?.[0]?.gender || "male";
+  const agentGender = agents?.[0]?.gender || "male";
 
-  const leftTitle = isPluralGrantor
-    ? "SAXIIXA WAKAALAD BIXIYAASHA"
-    : isFemaleGrantor
-      ? "SAXIIXA WAKAALAD BIXISADA"
-      : "SAXIIXA WAKAALAD BIXIYAHA";
+  const leftTitle = singleOrPlural(
+    grantors.length,
+    `SAXIIXA ${maleFemale(grantorGender, "WAKAALAD BIXIYAHA", "WAKAALAD BIXISADA")}`,
+    "SAXIIXA WAKAALAD BIXIYAASHA"
+  );
 
-  const rightTitle = isPluralAgent
-    ? "SAXIIXA LA WAKIISHADDA"
-    : "SAXIIXA LA WAKIISHADA";
+  const rightTitle = singleOrPlural(
+    agents.length,
+    `SAXIIXA ${maleFemale(agentGender, "LA WAKIISHA", "LA WAKIISHADA")}`,
+    "SAXIIXA WAKIILLADA"
+  );
 
   const buildSignatureChildren = (title, people = []) => {
     const children = [
       new Paragraph({
         alignment: AlignmentType.CENTER,
         spacing: { after: 120 },
-        children: [new TextRun({ text: title, bold: true, size: 24, underline: {} })],
+        children: [new TextRun({ text: title, bold: true, size: 24, underline: {}, font: "Times New Roman" })],
       }),
     ];
 
-    (people || []).filter(Boolean).forEach((p, idx) => {
-      children.push(
-        new Paragraph({
-          alignment: AlignmentType.CENTER,
-          spacing: { after: 60 },
-          children: [new TextRun({ text: safe(p.fullName).toUpperCase(), bold: true, size: 24 })],
-        })
-      );
+    (people || [])
+      .filter(Boolean)
+      .forEach((p, idx) => {
+        children.push(
+          new Paragraph({
+            alignment: AlignmentType.CENTER,
+            spacing: { after: 60 },
+            children: [new TextRun({ text: safe(p?.fullName).toUpperCase(), bold: true, size: 24, font: "Times New Roman" })],
+          })
+        );
 
-      children.push(
-        new Paragraph({
-          alignment: AlignmentType.CENTER,
-          spacing: { after: idx === people.length - 1 ? 0 : 140 },
-          children: [new TextRun({ text: signatureLine, size: 24 })],
-        })
-      );
-    });
+        children.push(
+          new Paragraph({
+            alignment: AlignmentType.CENTER,
+            spacing: { after: idx === people.length - 1 ? 0 : 140 },
+            children: [new TextRun({ text: signatureLine, size: 24, font: "Times New Roman" })],
+          })
+        );
+      });
 
     return children;
   };
@@ -178,9 +187,149 @@ export const buildWakaaladSaamiDoc = ({ agreement, service, formatDate, GW }) =>
   const leftCellChildren = buildSignatureChildren(leftTitle, grantors);
   const rightCellChildren = buildSignatureChildren(rightTitle, agents);
 
+  const hiddenBorders = {
+    top: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+    bottom: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+    left: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+    right: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+  };
+
+  // ================= MARQAATIYAASHA =================
+  const witnessesTitle = new Paragraph({
+    alignment: AlignmentType.CENTER,
+    spacing: { before: 200, after: 120 },
+    children: [
+      new TextRun({
+        text: "SAXIIXA MARQAATIYAASHA",
+        bold: true,
+        underline: true,
+        size: 24,
+        font: "Times New Roman",
+      }),
+    ],
+  });
+
+  const witnessNames = (agreement?.witnesses || []).filter(Boolean);
+
+  const witnessesTable =
+    witnessNames.length > 0
+      ? new Table({
+          width: { size: 100, type: WidthType.PERCENTAGE },
+          borders: {
+            top: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+            bottom: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+            left: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+            right: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+            insideHorizontal: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+            insideVertical: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+          },
+          rows: Array.from({ length: Math.ceil(witnessNames.length / 2) }).map((_, i) => {
+            const leftW = witnessNames[i * 2];
+            const rightW = witnessNames[i * 2 + 1];
+
+            const cell = (name) =>
+              new TableCell({
+                borders: hiddenBorders,
+                width: { size: 50, type: WidthType.PERCENTAGE },
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    spacing: { after: 120 },
+                    children: [
+                      new TextRun({
+                        text: (name || "").toUpperCase(),
+                        bold: true,
+                        size: 22,
+                        font: "Times New Roman",
+                      }),
+                    ],
+                  }),
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [new TextRun({ text: "__________________________", size: 22, font: "Times New Roman" })],
+                  }),
+                ],
+              });
+
+            return new TableRow({
+              children: [cell(leftW), cell(rightW)],
+            });
+          }),
+        })
+      : null;
+
+  // ================= SUGITAANKA NOOTAAYADA =================
+  const notarySection = [
+    new Paragraph({
+      alignment: AlignmentType.CENTER,
+      spacing: { before: 240, after: 120 },
+      children: [
+        new TextRun({
+          text: "SUGITAANKA NOOTAAYADA",
+          bold: true,
+          underline: true,
+          size: 24,
+          font: "Times New Roman",
+        }),
+      ],
+    }),
+
+    new Paragraph({
+      alignment: AlignmentType.JUSTIFIED,
+      spacing: { after: 120 },
+      children: [
+        new TextRun({
+          text: `REF: ${safe(agreement?.refNo)}, Tr. ${formatDate(agreement?.agreementDate)} `,
+          size: 22,
+          bold: true,
+          underline: true,
+          font: "Times New Roman",
+        }),
+        new TextRun({ text: "Anigoo ah ", size: 24, font: "Times New Roman" }),
+        new TextRun({
+          text: "Dr. Maxamed Cabdiraxmaan Sheekh Maxamed, ",
+          size: 24,
+          bold: true,
+          font: "Times New Roman",
+        }),
+        new TextRun({
+          text:
+            "Nootaayaha Xafiiska Nootaayaha Boqole, waxaan sugayaa in saxiixyada kor ku xusan ay yihiin kuwo run ah oo ku dhacay si xor ah, laguna saxiixay horteyda, waana sugitaan ansax ah oo waafaqsan Shareecada Islaamka iyo qaanuunka dalka.",
+          size: 24,
+          font: "Times New Roman",
+        }),
+      ],
+    }),
+
+    new Paragraph({
+      alignment: AlignmentType.CENTER,
+      spacing: { after: 80 },
+      children: [new TextRun({ text: "NOOTAAYAHA", bold: true, size: 24, font: "Times New Roman" })],
+    }),
+
+    new Paragraph({
+      alignment: AlignmentType.CENTER,
+      spacing: { after: 60 },
+      children: [
+        new TextRun({
+          text: "Dr. Maxamed Cabdiraxmaan Sheekh Maxamed",
+          bold: true,
+          size: 24,
+          font: "Times New Roman",
+        }),
+      ],
+    }),
+
+    new Paragraph({
+      alignment: AlignmentType.CENTER,
+      spacing: { after: 40 },
+      children: [new TextRun({ text: "__________________________", size: 22, font: "Times New Roman" })],
+    }),
+  ];
+
   // ✅ return paragraphs/tables array
   return [
-      // TITLE
+    // TITLE
     new Paragraph({
       alignment: AlignmentType.CENTER,
       spacing: { after: 100 },
@@ -200,29 +349,31 @@ export const buildWakaaladSaamiDoc = ({ agreement, service, formatDate, GW }) =>
       spacing: { after: 320 },
       children: [
         new TextRun({
-          text: `Maanta oo ay taariikhdu tahay ${formatDate(agreement.agreementDate)}, ${introWho}`,
+          text: `Maanta oo ay taariikhdu tahay ${formatDate(agreement?.agreementDate)}, ${introWho}`,
           size: 24,
+          font: "Times New Roman",
         }),
 
         ...buildRunsWithBoldNames(grantors, formatGrantor),
 
-        new TextRun({ text: `${healthText}${statementText}`, size: 24 }),
+        new TextRun({ text: `${healthText}${statementText}`, size: 24, font: "Times New Roman" }),
 
         ...buildRunsWithBoldNames(agents, formatAgent),
 
         ...(hasHormuud || hasSalaam
           ? [
-              new TextRun({ text: ", ", size: 24 }),
-              ...(hasHormuud ? [new TextRun({ text: hormuudText, size: 24 })] : []),
-              ...(hasHormuud && hasSalaam ? [new TextRun({ text: "", size: 24, break: 1 })] : []),
-              ...(hasSalaam ? [new TextRun({ text: salaamText, size: 24 })] : []),
+              new TextRun({ text: ", ", size: 24, font: "Times New Roman" }),
+              ...(hasHormuud ? [new TextRun({ text: hormuudText, size: 24, font: "Times New Roman" })] : []),
+              ...(hasHormuud && hasSalaam ? [new TextRun({ text: "", size: 24, break: 1, font: "Times New Roman" })] : []),
+              ...(hasSalaam ? [new TextRun({ text: salaamText, size: 24, font: "Times New Roman" })] : []),
             ]
           : []),
 
-        new TextRun({ text: ".", size: 24 }),
+        new TextRun({ text: ".", size: 24, font: "Times New Roman" }),
       ],
     }),
 
+    // SIGNATURES TABLE
     new Table({
       width: { size: 100, type: WidthType.PERCENTAGE },
       borders: {
@@ -238,28 +389,24 @@ export const buildWakaaladSaamiDoc = ({ agreement, service, formatDate, GW }) =>
           children: [
             new TableCell({
               width: { size: 50, type: WidthType.PERCENTAGE },
-              borders: {
-                top: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
-                bottom: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
-                left: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
-                right: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
-              },
+              borders: hiddenBorders,
               children: leftCellChildren,
             }),
 
             new TableCell({
               width: { size: 50, type: WidthType.PERCENTAGE },
-              borders: {
-                top: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
-                bottom: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
-                left: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
-                right: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
-              },
+              borders: hiddenBorders,
               children: rightCellChildren,
             }),
           ],
         }),
       ],
     }),
+
+    // ✅ MARQAATIYAASHA
+    ...(witnessesTable ? [witnessesTitle, witnessesTable] : []),
+
+    // ✅ SUGITAANKA NOOTAAYADA
+    ...notarySection,
   ];
 };

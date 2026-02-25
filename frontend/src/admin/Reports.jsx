@@ -1,151 +1,363 @@
-// import { useEffect, useState } from "react";
-// import axios from "axios";
+// src/pages/Report.jsx
+import React, { useEffect, useMemo, useState } from "react";
+import toast from "react-hot-toast";
+import { useSelector } from "react-redux";
 
-// const Saami = () => {
-//   const [Saamis, setSaamis] = useState([]);
-//   const [formData, setFormData] = useState({
-//     companyName: "",
-//     acount: "",
-//     SaamiDate: "",
-//   });
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
-//   const API_URL = "/api/Saamis";
+import Button from "../components/ui/Button";
+import Input from "../components/ui/Input";
+import { formatDate } from "../helpers/formatDate";
+import { getAgreementsReportApi } from "../api/reports.api";
+import { getAllUsersApi } from "../api/users.api";
 
-//   // 🔄 Get all Saamis
-//   const fetchSaamis = async () => {
-//     try {
-//       const res = await axios.get(API_URL);
-//       setSaamis(res.data);
-//     } catch (error) {
-//       console.error(error);
-//     }
-//   };
+const selectClass =
+  "px-4 py-2.5 rounded-xl border border-black/20 bg-white text-black shadow-sm outline-none transition-all duration-200 focus:ring-2 focus:ring-black focus:border-black w-full";
 
-//   useEffect(() => {
-//     fetchSaamis();
-//   }, []);
+const Report = () => {
+  const { user } = useSelector((s) => s.auth);
+  const isAdmin = user?.role === "ADMIN";
 
-//   // ✍️ Handle input
-//   const handleChange = (e) => {
-//     setFormData({
-//       ...formData,
-//       [e.target.name]: e.target.value,
-//     });
-//   };
+  const today = new Date().toISOString().slice(0, 10);
 
-//   // ➕ Add Saami
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-//     try {
-//       await axios.post(API_URL, formData);
-//       setFormData({ companyName: "", acount: "", SaamiDate: "" });
-//       fetchSaamis();
-//     } catch (error) {
-//       alert("Error while saving Saami");
-//     }
-//   };
+  // ✅ Filters
+  const [office, setOffice] = useState("Main office");
+  const [service, setService] = useState("all");
+  const [from, setFrom] = useState("");
+  const [to, setTo] = useState("");
+  const [createdBy, setCreatedBy] = useState("all"); // admin only
 
-//   // 🗑️ Delete Saami
-//   const handleDelete = async (id) => {
-//     if (!window.confirm("Ma hubtaa inaad delete gareyso?")) return;
-//     await axios.delete(`${API_URL}/${id}`);
-//     fetchSaamis();
-//   };
+  // ✅ Data
+  const [rows, setRows] = useState([]);
+  const [totals, setTotals] = useState({ officeFee: 0 });
+  const [loading, setLoading] = useState(false);
 
-//   return (
-//     <div className="p-6 max-w-4xl mx-auto">
-//       <h2 className="text-2xl font-bold mb-4">Saami Management</h2>
+  // ✅ marka hore ha soo bandhigin
+  const [hasSearched, setHasSearched] = useState(false);
 
-//       {/* ➕ Form */}
-//       <form onSubmit={handleSubmit} className="grid grid-cols-3 gap-4 mb-6">
-//         <input
-//           type="text"
-//           name="companyName"
-//           placeholder="Company Name"
-//           value={formData.companyName}
-//           onChange={handleChange}
-//           required
-//           className="border p-2 rounded"
-//         />
+  // ✅ admin users
+  const [users, setUsers] = useState([]);
 
-//         <input
-//           type="number"
-//           name="acount"
-//           placeholder="Amount"
-//           value={formData.acount}
-//           onChange={handleChange}
-//           required
-//           className="border p-2 rounded"
-//         />
+  // Load users for admin dropdown
+  useEffect(() => {
+    if (!isAdmin) return;
+    (async () => {
+      try {
+        const u = await getAllUsersApi();
+        setUsers(u || []);
+      } catch (e) {
+        console.log("getAllUsersApi error:", e);
+      }
+    })();
+  }, [isAdmin]);
 
-//         <input
-//           type="date"
-//           name="SaamiDate"
-//           value={formData.SaamiDate}
-//           onChange={handleChange}
-//           className="border p-2 rounded"
-//         />
+  const titleRange = useMemo(() => {
+    if (!from || !to) return "";
+    const f = new Date(from);
+    const t = new Date(to);
+    const fmt = (d) =>
+      d.toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      });
+    return `Tr. Inta u dhaxeysa ${fmt(f)} - ${fmt(t)}`;
+  }, [from, to]);
 
-//         <button
-//           type="submit"
-//           className="col-span-3 bg-blue-600 text-white py-2 rounded"
-//         >
-//           Add Saami
-//         </button>
-//       </form>
+  const handleSearch = async () => {
+    if (!from || !to) {
+      toast.error("Fadlan dooro: laga bilaabo & ilaa taariikh");
+      return;
+    }
 
-//       {/* 📄 Table */}
-//       <table className="w-full border">
-//         <thead className="bg-gray-200">
-//           <tr>
-//             <th className="border p-2">Company</th>
-//             <th className="border p-2">Amount</th>
-//             <th className="border p-2">Date</th>
-//             <th className="border p-2">Action</th>
-//           </tr>
-//         </thead>
-//         <tbody>
-//           {Saamis.map((Saami) => (
-//             <tr key={Saami._id}>
-//               <td className="border p-2">{Saami.companyName}</td>
-//               <td className="border p-2">{Saami.acount}</td>
-//               <td className="border p-2">
-//                 {Saami.SaamiDate
-//                   ? new Date(Saami.SaamiDate).toLocaleDateString()
-//                   : "-"}
-//               </td>
-//               <td className="border p-2 text-center">
-//                 <button
-//                   onClick={() => handleDelete(Saami._id)}
-//                   className="bg-red-600 text-white px-3 py-1 rounded"
-//                 >
-//                   Delete
-//                 </button>
-//               </td>
-//             </tr>
-//           ))}
-//           {Saamis.length === 0 && (
-//             <tr>
-//               <td colSpan="4" className="text-center p-4">
-//                 No Saamis found
-//               </td>
-//             </tr>
-//           )}
-//         </tbody>
-//       </table>
-//     </div>
-//   );
-// };
+    setLoading(true);
+    try {
+      const data = await getAgreementsReportApi({
+        from,
+        to,
+        service,
+        createdBy: isAdmin ? createdBy : undefined,
+      });
 
-// export default Saami;
-import React from 'react'
+      setRows(data?.rows || []);
+      setTotals(data?.totals || { officeFee: 0 });
+      setHasSearched(true);
+    } catch (err) {
+      toast.error(err?.response?.data?.message || "Report fetch failed");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-const Reports = () => {
+  const resetAll = () => {
+    setOffice("Main office");
+    setService("all");
+    setFrom("");
+    setTo("");
+    setCreatedBy("all");
+    setRows([]);
+    setTotals({ officeFee: 0 });
+    setHasSearched(false);
+  };
+
+  const exportPDF = () => {
+    if (!hasSearched) {
+      toast.error("Marka hore Raadi samee si PDF loo sameeyo");
+      return;
+    }
+
+    const doc = new jsPDF("l", "pt", "a4");
+
+    // Header
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(18);
+    doc.text("Mashruucyada", 40, 45);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(11);
+    doc.text(office, 40, 68);
+    doc.text(titleRange || "", 40, 88);
+
+    const userText = isAdmin
+      ? `User: ${
+          createdBy === "all"
+            ? "Dhamaan"
+            : users.find((u) => u._id === createdBy)?.username || createdBy
+        }`
+      : `User: ${user?.username || ""}`;
+
+    doc.text(userText, 40, 108);
+    doc.text(`Adeega: ${service === "all" ? "Dhamaan" : service}`, 40, 128);
+
+    // Table body
+    const body = rows.map((r, idx) => [
+      String(idx + 1),
+      r.refNo || "",
+      r.service || "",
+      r.daraf1 || "",
+      r.daraf2 || "",
+      String(r.officeFee ?? 0),
+      formatDate(r.taariikh),
+      ...(isAdmin ? [r.createdBy || ""] : []),
+    ]);
+
+    autoTable(doc, {
+      startY: 150,
+      head: [
+        [
+          "S/N",
+          "Rep. Nambar",
+          "Adeega",
+          "Darafka 1aad",
+          "Darafka 2aad",
+          "Khidmada",
+          "Taariikh",
+          ...(isAdmin ? ["CreatedBy"] : []),
+        ],
+      ],
+      body,
+      styles: { font: "helvetica", fontSize: 9, cellPadding: 6 },
+      headStyles: { fillColor: [0, 0, 0], textColor: 255 },
+      alternateRowStyles: { fillColor: [245, 245, 245] },
+      margin: { left: 30, right: 30 },
+    });
+
+    // Totals
+    const y = doc.lastAutoTable.finalY + 25;
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.text(`Wadar Khidmada: ${totals?.officeFee ?? 0}`, 40, y);
+
+    doc.save(`Mashruucyada_${from}_${to}.pdf`);
+  };
+
   return (
-    <div>
-      Comming SoN
-    </div>
-  )
-}
+    <div className="max-w-7xl mx-auto p-6">
+      {/* Header */}
+      <div className="bg-white rounded-2xl border border-black/10 shadow-sm p-5 mb-5">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="text-2xl font-bold text-black">Warbixinta</h2>
+            <p className="text-sm text-gray-600">
+              {titleRange || "Dooro filter-ka kadib raadi"}
+            </p>
+          </div>
 
-export default Reports
+          <div className="flex gap-2">
+            <Button onClick={handleSearch} disabled={loading} className="px-8">
+              {loading ? "Loading..." : "Raadi"}
+            </Button>
+            <Button onClick={resetAll} className="px-8">
+              Nadiifi
+            </Button>
+            <Button onClick={exportPDF} disabled={!hasSearched} className="px-8">
+              PDF
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Filters (nidaamsan sida aad rabtay) */}
+      <div className="bg-white rounded-2xl border border-black/10 shadow-sm p-5 mb-5">
+        <div className="flex items-center gap-2 mb-4">
+          <input type="radio" checked readOnly />
+          <span className="text-sm font-medium">Mashruuc yada</span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Office */}
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-semibold text-gray-600">Dooro Xafiis</label>
+            <select className={selectClass} value={office} onChange={(e) => setOffice(e.target.value)}>
+              <option value="Main office">Main office</option>
+            </select>
+          </div>
+
+          {/* Service */}
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-semibold text-gray-600">Adeega</label>
+            <select className={selectClass} value={service} onChange={(e) => setService(e.target.value)}>
+              <option value="all">Dhamaan</option>
+              <option value="Wareejin">Wareejin</option>
+              <option value="Wakaalad">Wakaalad</option>
+              <option value="Damaanad">Damaanad</option>
+              <option value="Caddeyn">Caddeyn</option>
+              <option value="Heshiisyo">Heshiisyo / Xeerar</option>
+            </select>
+          </div>
+
+          {/* User (Admin only) */}
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-semibold text-gray-600">User</label>
+            <select
+              className={selectClass}
+              value={isAdmin ? createdBy : "mine"}
+              onChange={(e) => setCreatedBy(e.target.value)}
+              disabled={!isAdmin}
+            >
+              {isAdmin ? (
+                <>
+                  <option value="all">Dhamaan</option>
+                  {users.map((u) => (
+                    <option key={u._id} value={u._id}>
+                      {u.username}
+                    </option>
+                  ))}
+                </>
+              ) : (
+                <option value="mine">{user?.username}</option>
+              )}
+            </select>
+          </div>
+
+          {/* From */}
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-semibold text-gray-600">laga bilaabo taariikh</label>
+            <Input type="date" value={from} onChange={(e) => setFrom(e.target.value)} />
+          </div>
+
+          {/* To */}
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-semibold text-gray-600">ilaa taariikh</label>
+            <Input type="date" value={to} onChange={(e) => setTo(e.target.value)} />
+          </div>
+
+          {/* Quick buttons */}
+          <div className="flex gap-2 items-end">
+            <button
+              type="button"
+              onClick={() => {
+                setFrom(today);
+                setTo(today);
+              }}
+              className="px-4 py-2 rounded-xl border border-black/20 bg-white text-black hover:bg-black hover:text-white transition"
+            >
+              Maanta
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                const now = new Date();
+                const start = new Date();
+                start.setDate(now.getDate() - 7);
+                setFrom(start.toISOString().slice(0, 10));
+                setTo(now.toISOString().slice(0, 10));
+              }}
+              className="px-4 py-2 rounded-xl border border-black/20 bg-white text-black hover:bg-black hover:text-white transition"
+            >
+              Isbuucan
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Table */}
+      <div className="bg-white rounded-2xl border border-black/10 shadow-sm overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-black text-white">
+              <tr>
+                <th className="p-3 text-left whitespace-nowrap">S/N</th>
+                <th className="p-3 text-left whitespace-nowrap">Rep. Nambar</th>
+                <th className="p-3 text-left whitespace-nowrap">Adeega</th>
+                <th className="p-3 text-left whitespace-nowrap">Darafka 1aad</th>
+                <th className="p-3 text-left whitespace-nowrap">Darafka 2aad</th>
+                <th className="p-3 text-left whitespace-nowrap">Khidmada</th>
+                <th className="p-3 text-left whitespace-nowrap">Taariikh</th>
+                {isAdmin && <th className="p-3 text-left whitespace-nowrap">CreatedBy</th>}
+              </tr>
+            </thead>
+
+            <tbody>
+              {!hasSearched && (
+                <tr>
+                  <td colSpan={isAdmin ? 8 : 7} className="text-center p-10 text-gray-500">
+                    Fadlan dooro filter-ka (taariikh + adeeg) kadib taabo <b>Raadi</b>.
+                  </td>
+                </tr>
+              )}
+
+              {hasSearched &&
+                rows.map((r, idx) => (
+                  <tr key={r._id} className="border-t border-black/10 hover:bg-black/5">
+                    <td className="p-3">{idx + 1}</td>
+                    <td className="p-3 font-semibold">{r.refNo}</td>
+                    <td className="p-3">{r.service}</td>
+                    <td className="p-3 text-gray-800">{r.daraf1}</td>
+                    <td className="p-3 text-gray-800">{r.daraf2}</td>
+                    <td className="p-3">{r.officeFee}</td>
+                    <td className="p-3">{formatDate(r.taariikh)}</td>
+                    {isAdmin && <td className="p-3">{r.createdBy}</td>}
+                  </tr>
+                ))}
+
+              {hasSearched && rows.length === 0 && (
+                <tr>
+                  <td colSpan={isAdmin ? 8 : 7} className="text-center p-10 text-gray-500">
+                    Wax xog ah lama helin (date/service/user filters).
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {hasSearched && (
+          <div className="p-4 border-t border-black/10 flex items-center justify-between">
+            <div className="text-sm text-gray-700">
+              Total Records: <span className="font-semibold text-black">{rows.length}</span>
+            </div>
+            <div className="text-sm text-gray-700">
+              Wadar Khidmada:{" "}
+              <span className="font-bold text-black">{totals?.officeFee ?? 0}</span>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default Report;

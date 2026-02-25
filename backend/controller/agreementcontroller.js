@@ -474,3 +474,162 @@ export const getNextRefNo = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+export const getAgreementsReport = async (req, res) => {
+  try {
+    const isAdmin = req.user?.role === "ADMIN";
+
+    const {
+      from,          // YYYY-MM-DD (required)
+      to,            // YYYY-MM-DD (required)
+      service = "all",     // all | Wareejin | Wakaalad | Caddeyn | Damaanad | Heshiisyo
+      createdBy = "all",   // admin only: all | userId
+    } = req.query;
+
+    // ✅ Haddii date la waayo, ha soo celin wax (si frontend table empty u ahaato)
+    if (!from || !to) {
+      return res.json({ rows: [], totals: { officeFee: 0 } });
+    }
+
+    const start = new Date(from);
+    const end = new Date(to);
+    end.setHours(23, 59, 59, 999);
+
+    const filter = {
+      agreementDate: { $gte: start, $lte: end },
+    };
+
+    // ✅ Service filter
+    if (service && service !== "all") {
+      filter.service = service;
+    }
+
+    // ✅ createdBy rules
+    if (!isAdmin) {
+      filter.createdBy = req.user._id; // user -> own only
+    } else {
+      // admin
+      if (createdBy && createdBy !== "all") {
+        filter.createdBy = createdBy;
+      }
+      // haddii createdBy=all => waxba ha qaban (all users)
+    }
+
+    const agreements = await Agreement.find(filter)
+      .populate("dhinac1.sellers", "fullName")
+      .populate("dhinac2.buyers", "fullName")
+      .populate("createdBy", "username")
+      .sort({ agreementDate: 1 });
+
+    const rows = agreements.map((a) => {
+      const daraf1 =
+        (a?.dhinac1?.sellers || []).map((p) => p.fullName).filter(Boolean).join(", ") || "N/A";
+      const daraf2 =
+        (a?.dhinac2?.buyers || []).map((p) => p.fullName).filter(Boolean).join(", ") || "N/A";
+
+      return {
+        _id: a._id,
+        refNo: a.refNo,
+        service: a.service,
+        officeFee: Number(a.officeFee || 0),
+        daraf1,
+        daraf2,
+        taariikh: a.agreementDate,
+        createdBy: a?.createdBy?.username || "",
+      };
+    });
+
+    const totals = rows.reduce(
+      (acc, r) => {
+        acc.officeFee += r.officeFee;
+        return acc;
+      },
+      { officeFee: 0 }
+    );
+
+    return res.json({ rows, totals });
+  } catch (error) {
+    console.error("getAgreementsReport error:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const getAgreementsCurrentMonth = async (req, res) => {
+  try {
+    const tz = "Africa/Mogadishu"; // ✅ +03
+    const now = new Date();
+    const ym = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+
+    const agreements = await Agreement.find({
+      $expr: {
+        $eq: [
+          {
+            $dateToString: {
+              format: "%Y-%m",
+              date: "$agreementDate",
+              timezone: tz,
+            },
+          },
+          ym,
+        ],
+      },
+    })
+      .sort({ agreementDate: -1 })
+      .populate("dhinac1.sellers")
+      .populate("dhinac1.agents")
+      .populate("dhinac2.buyers")
+      .populate("dhinac2.agents")
+      .populate("dhinac2.guarantors")
+      .populate("serviceRef")
+      .populate("createdBy", "username");
+
+    res.json(agreements);
+  } catch (error) {
+    console.error("Error getting current month agreements:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const getDashboardCurrentMonth = async (req, res) => {
+  try {
+    const tz = "Africa/Mogadishu";
+    const now = new Date();
+    const ym = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+
+    const agreements = await Agreement.find({
+      $expr: {
+        $eq: [
+          {
+            $dateToString: {
+              format: "%Y-%m",
+              date: "$agreementDate",
+              timezone: tz,
+            },
+          },
+          ym,
+        ],
+      },
+    })
+      .sort({ agreementDate: -1 })
+      .select("refNo service officeFee agreementDate createdBy")
+      .populate("createdBy", "username");
+
+    const totalFee = agreements.reduce((s, a) => s + Number(a.officeFee || 0), 0);
+
+    const services = ["Wareejin", "Wakaalad", "Damaanad", "Caddeyn", "Heshiisyo", "Rahan"];
+    const serviceData = services.map((name) => ({
+      name,
+      value: agreements.filter((a) => a.service === name).length,
+    }));
+
+    res.json({
+      month: ym,
+      totals: { totalFee, totalAgreements: agreements.length },
+      serviceData,
+      latest: agreements.slice(0, 5),
+    });
+  } catch (error) {
+    console.error("Error dashboard current month:", error);
+    res.status(500).json({ message: error.message });
+  }
+};

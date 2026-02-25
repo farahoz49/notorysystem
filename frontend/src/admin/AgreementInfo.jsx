@@ -192,7 +192,7 @@ const AgreementInfo = ({ agreement, fetchData }) => {
 
     const sharesCount = Number(service.amount || 0) / 10;
 
-    
+
 
     const serviceIntroParagraphs = (
       serviceType,
@@ -219,18 +219,18 @@ const AgreementInfo = ({ agreement, fetchData }) => {
           let textParts = [];
 
           // ✅ Haddii Wakaalad jirto
-          if (wakaalad) {
-            textParts.push(
-              `haystana ${wakaalad.wakaladType || ""} lambarkeedu yahay ${wakaalad.refNo || ""},Tr. ${formatDate(wakaalad.date) || ""},kana soo baxday Xafiiska Nootaayaha iyo Latalinta Sharciga ah ee ${wakaalad.kasooBaxday || ""},uuna saxiixay Dr.${wakaalad.saxiix1 || ""}`
-            );
-          }
+          // if (wakaalad) {
+          //   textParts.push(
+          //     `haystana ${wakaalad.wakaladType || ""} lambarkeedu yahay ${wakaalad.refNo || ""},Tr. ${formatDate(wakaalad.date) || ""},kana soo baxday Xafiiska Nootaayaha iyo Latalinta Sharciga ah ee ${wakaalad.kasooBaxday || ""},uuna saxiixay Dr.${wakaalad.saxiix1 || ""}`
+          //   );
+          // }
 
-          // ✅ Haddii Tasdiiq jirto (OPTIONAL)
-          if (tasdiiq) {
-            textParts.push(
-              `waxaa kale oo jira Tasdiiq lambarkiisu yahay ${tasdiiq.refNo || ""},Tr. ${formatDate(tasdiiq.date)}`
-            );
-          }
+          // // ✅ Haddii Tasdiiq jirto (OPTIONAL)
+          // if (tasdiiq) {
+          //   textParts.push(
+          //     `waxaa kale oo jira Tasdiiq lambarkiisu yahay ${tasdiiq.refNo || ""},Tr. ${formatDate(tasdiiq.date)}`
+          //   );
+          // }
 
           return textParts.join(", ");
 
@@ -347,7 +347,7 @@ const AgreementInfo = ({ agreement, fetchData }) => {
             personInfoRuns,
             seller0,
             buyer0,
-
+            GW,
             hasSellerAgent,
             hasBuyerAgent,
             sellerAgentDetails,
@@ -392,6 +392,7 @@ const AgreementInfo = ({ agreement, fetchData }) => {
             sellerAgentDetails,
             buyerAgentDetails,
             wakaaladText,
+            GW,
           });
 
 
@@ -591,7 +592,7 @@ const AgreementInfo = ({ agreement, fetchData }) => {
         new TextRun({
           text: "SAXIIXA MARQAATIYAASHA",
           bold: true,
-          underline : true,
+          underline: true,
           size: 24,
         }),
       ],
@@ -646,7 +647,7 @@ const AgreementInfo = ({ agreement, fetchData }) => {
             text: "SUGITAANKA NOOTAAYADA",
             bold: true,
             size: 24,
-            underline : true,
+            underline: true,
             font: "Times New Roman",
           }),
         ],
@@ -862,13 +863,13 @@ const AgreementInfo = ({ agreement, fetchData }) => {
 
             // ===== MARQAATIYAASHA =====
 
-            witnessesTitle,
-            ...(witnessesTable ? [witnessesTable] : []),
+            ///  witnessesTitle,
+            //...(witnessesTable ? [witnessesTable] : []),
 
 
 
             // ===== SUGITAANKA NOOTAAYADA =====
-            ...notarySection,
+            //   ...notarySection,
 
 
             // QORAALKA HESHIISKA

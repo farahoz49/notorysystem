@@ -92,7 +92,12 @@ export const buildCaddeynCase = ({ agreement }) => {
 
     return runs;
   };
-
+ const hiddenBorders = {
+    top: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+    bottom: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+    left: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+    right: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+  };
   // ✅ hal qof -> gender words; dad badan -> “qabtaan”
   const healthText = isPluralGrantor
     ? " kana caafimaad qabaan dhanka maskaxda iyo jirkaba, xiskeennuna taam yahay, cid nagu qasbeysana aysan jirin Caddeyntan, waxaan qoralkan ugu caddeynaynaa "
@@ -110,11 +115,159 @@ export const buildCaddeynCase = ({ agreement }) => {
 
   const signatureLine = "______________________________";
 
+// ================= MARQAATIYAASHA =================
+const witnessesTitle = new Paragraph({
+  alignment: AlignmentType.CENTER,
+  spacing: { before: 200, after: 120 },
+  children: [
+    new TextRun({
+      text: "SAXIIXA MARQAATIYAASHA",
+      bold: true,
+      underline: true,
+      size: 24,
+      font: "Times New Roman",
+    }),
+  ],
+});
+
+const witnessesTable =
+  agreement?.witnesses && agreement.witnesses.length > 0
+    ? new Table({
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        borders: {
+          top: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+          bottom: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+          left: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+          right: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+          insideHorizontal: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+          insideVertical: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+        },
+        rows: [
+          new TableRow({
+            children: agreement.witnesses.map((w) =>
+              new TableCell({
+                borders: hiddenBorders,
+                width: { size: 50, type: WidthType.PERCENTAGE },
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    spacing: { after: 120 },
+                    children: [
+                      new TextRun({
+                        text: (w || "").toUpperCase(),
+                        bold: true,
+                        size: 22,
+                        font: "Times New Roman",
+                      }),
+                    ],
+                  }),
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [
+                      new TextRun({
+                        text: "__________________________",
+                        size: 22,
+                        font: "Times New Roman",
+                      }),
+                    ],
+                  }),
+                ],
+              })
+            ),
+          }),
+        ],
+      })
+    : null;
+
+// ================= SUGITAANKA NOOTAAYADA =================
+const notarySection = [
+  new Paragraph({
+    alignment: AlignmentType.CENTER,
+    spacing: { before: 240, after: 120 },
+    children: [
+      new TextRun({
+        text: "SUGITAANKA NOOTAAYADA",
+        bold: true,
+        underline: true,
+        size: 24,
+        font: "Times New Roman",
+      }),
+    ],
+  }),
+
+  new Paragraph({
+    alignment: AlignmentType.JUSTIFIED,
+    spacing: { after: 120 },
+    children: [
+      new TextRun({
+        text: `REF: ${safe(agreement?.refNo)}, Tr. ${formatDate(agreement?.agreementDate)} `,
+        size: 22,
+        bold: true,
+        underline: true,
+        font: "Times New Roman",
+      }),
+        new TextRun({ text: "Anigoo ah ", size: 24, font: "Times New Roman" }),
+      new TextRun({
+        text: "Dr. Maxamed Cabdiraxmaan Sheekh Maxamed, ",
+        size: 24,
+        bold: true,
+        font: "Times New Roman",
+      }),
+      new TextRun({
+        text:
+          "Nootaayaha Xafiiska Nootaayaha Boqole, waxaan sugayaa in saxiixyada kor ku xusan ay yihiin kuwo run ah oo ku dhacay si xor ah, laguna saxiixay horteyda, waana sugitaan ansax ah oo waafaqsan Shareecada Islaamka iyo qaanuunka dalka.",
+        size: 24,
+        font: "Times New Roman",
+      }),
+    ],
+  }),
+
+
+
+  new Paragraph({
+    alignment: AlignmentType.CENTER,
+    spacing: { after: 80 },
+    children: [
+      new TextRun({
+        text: "NOOTAAYAHA",
+        bold: true,
+        size: 24,
+        font: "Times New Roman",
+      }),
+    ],
+  }),
+
+  new Paragraph({
+    alignment: AlignmentType.CENTER,
+    spacing: { after: 60 },
+    children: [
+      new TextRun({
+        text: "Dr. Maxamed Cabdiraxmaan Sheekh Maxamed",
+        bold: true,
+        size: 24,
+        font: "Times New Roman",
+      }),
+    ],
+  }),
+
+  new Paragraph({
+    alignment: AlignmentType.CENTER,
+    spacing: { after: 40 },
+    children: [
+      new TextRun({
+        text: "__________________________",
+        size: 22,
+        font: "Times New Roman",
+      }),
+    ],
+  }),
+];
+
   return [
     // TITLE
     new Paragraph({
       alignment: AlignmentType.CENTER,
-      spacing: { after: 100 },
+      spacing: { after: 200},
       children: [
         new TextRun({
           text: "UJEEDDO: CADDEYN",
@@ -220,5 +373,10 @@ export const buildCaddeynCase = ({ agreement }) => {
         }),
       ],
     }),
+      ...(witnessesTable ? [witnessesTitle, witnessesTable] : []),
+
+    // ✅ SUGITAANKA NOOTAAYADA
+    ...notarySection,
+    
   ];
 };

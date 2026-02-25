@@ -1,11 +1,20 @@
 // src/docTemplates/baabuur.js
-import { Paragraph, TextRun, AlignmentType } from "docx";
+import {
+  Paragraph,
+  TextRun,
+  Table,
+  TableRow,
+  TableCell,
+  WidthType,
+  AlignmentType,
+  BorderStyle,
+} from "docx";
 
 /**
- * buildBaabuurDoc
- * - same style as mooto.jsx (separate template file)
- * - returns array of Paragraphs
- * - signatures/witness/notary -> keep in parent (AgreementInfo.jsx) if global
+ * buildBaabuurDoc (SIDA SAAMI.JS + MOOTO.JS OO KALE)
+ * - Includes: personLine + buildPeopleRuns + agents + wakaalad + signatures + witnesses + notary
+ * - Keeps ALL contents of baabuur (type, chassis, model, color, cylinder, plate, ownership, price)
+ * - Returns array of docx elements (Paragraph/Table...)
  */
 export const buildBaabuurDoc = ({
   agreement,
@@ -14,45 +23,230 @@ export const buildBaabuurDoc = ({
   formatCurrency,
   numberToSomaliWords,
   getTitles,
-  getPhrases,
-  // data prepared in parent (like your current code)
-  sellerNames,
-  buyerNames,
-  sellernationality,
-  buyernationality,
-  sellerMotherName,
-  buyerMotherName,
-  sellerBirthPlace,
-  buyerBirthPlace,
-  sellerBirthYear,
-  buyerBirthYear,
-  sellerAddress,
-  buyerAddress,
-  sellerdocumentType,
-  buyerdocumentType,
-  sellerdocumentNumber,
-  BuyerdocumentNumber,
-  sellerPhone,
-  buyerPhone,
-  hasSellerAgent,
-  hasBuyerAgent,
-  sellerAgentDetails,
-  buyerAgentDetails,
-  wakaaladText,
+  getPhrases, // optional
+  GW,
 }) => {
-  const T = getTitles(agreement.serviceType, agreement.agreementType);
-  const P = getPhrases(agreement.serviceType, agreement.agreementType);
+  const safe = (v) => (v === undefined || v === null ? "" : String(v).trim());
 
-  const carType = service?.type || "";
-  const chassisNo = service?.chassisNo || "";
-  const modelYear = service?.modelYear || "";
-  const color = service?.color || "";
-  const cylinder = service?.cylinder || "";
-  const plateNo = service?.plateNo || "";
-  const issuedByPlate = service?.issuedByPlate || "";
+  // ================== helpers ==================
+  const joinNames = (people = []) => {
+    const names = (people || []).map((p) => p?.fullName).filter(Boolean);
+    if (names.length === 0) return "";
+    if (names.length === 1) return names[0];
+    if (names.length === 2) return `${names[0]} iyo ${names[1]}`;
+    return `${names.slice(0, -1).join(", ")} iyo ${names[names.length - 1]}`;
+  };
+
+  const personLine = (p, roleColor, isBuyer = false) => {
+    const W = GW(p?.gender || "male");
+
+    return [
+      new TextRun({
+        text: `${safe(p?.fullName)} `,
+        bold: true,
+        color: roleColor,
+        size: 24,
+        font: "Times New Roman",
+      }),
+      new TextRun({
+        text: `${safe(p?.nationality)} `,
+        color: roleColor,
+        size: 24,
+        font: "Times New Roman",
+      }),
+
+      new TextRun({ text: `ah, `, size: 24, font: "Times New Roman" }),
+      new TextRun({ text: W.childOfMaleFemale, size: 24, font: "Times New Roman" }),
+      new TextRun({
+        text: `${safe(p?.motherName)} `,
+        bold: true,
+        color: roleColor,
+        size: 24,
+        font: "Times New Roman",
+      }),
+
+      new TextRun({ text: `${W.dhalasho} `, size: 24, font: "Times New Roman" }),
+      new TextRun({
+        text: `${safe(p?.birthPlace)} `,
+        bold: true,
+        color: roleColor,
+        size: 24,
+        font: "Times New Roman",
+      }),
+
+      new TextRun({ text: `sannadkii `, size: 24, font: "Times New Roman" }),
+      new TextRun({
+        text: `${safe(p?.birthYear)} `,
+        bold: true,
+        color: roleColor,
+        size: 24,
+        font: "Times New Roman",
+      }),
+
+      new TextRun({ text: `${W.lived} `, size: 24, font: "Times New Roman" }),
+      new TextRun({
+        text: `${safe(p?.address)} `,
+        bold: true,
+        color: roleColor,
+        size: 24,
+        font: "Times New Roman",
+      }),
+
+      new TextRun({ text: `lehna `, size: 24, font: "Times New Roman" }),
+      new TextRun({
+        text: `${safe(p?.documentType)} `,
+        bold: true,
+        color: roleColor,
+        size: 24,
+        font: "Times New Roman",
+      }),
+
+      new TextRun({ text: `NO `, size: 24, font: "Times New Roman" }),
+      new TextRun({
+        text: `${safe(p?.documentNumber)} `,
+        bold: true,
+        color: roleColor,
+        size: 24,
+        font: "Times New Roman",
+      }),
+
+      new TextRun({
+        text: `ee ku lifaaqan warqadaan, Tell `,
+        size: 24,
+        font: "Times New Roman",
+      }),
+      new TextRun({
+        text: `${safe(p?.phone)}`,
+        bold: true,
+        color: roleColor,
+        size: 24,
+        font: "Times New Roman",
+      }),
+    ];
+  };
+
+  const buildPeopleRuns = (people = [], roleColor, isBuyer = false) => {
+    const arr = (people || []).filter(Boolean);
+    const runs = [];
+    arr.forEach((p, idx) => {
+      if (idx > 0) {
+        const isLast = idx === arr.length - 1;
+        runs.push(
+          new TextRun({
+            text: isLast ? " iyo " : ", ",
+            size: 24,
+            font: "Times New Roman",
+          })
+        );
+      }
+      runs.push(...personLine(p, roleColor, isBuyer));
+    });
+    return runs;
+  };
+
+  // ================== data ==================
+  const sellers = agreement?.dhinac1?.sellers || [];
+  const buyers = agreement?.dhinac2?.buyers || [];
+
+  const sellerNames = joinNames(sellers);
+  const buyerNames = joinNames(buyers);
+
+  const sellersPlural = sellers.length > 1;
+  const buyersPlural = buyers.length > 1;
+
+  const sellerAgents = agreement?.dhinac1?.agents || [];
+  const buyerAgents = agreement?.dhinac2?.agents || [];
+
+  const hasSellerAgent = sellerAgents.length > 0;
+  const hasBuyerAgent = buyerAgents.length > 0;
+
+  const sellerDocsMap = agreement?.dhinac1?.agentDocuments || {};
+
+  const wakaaladText = (sellerAgents || [])
+    .map((agent) => {
+      const agentId = agent?._id?.toString();
+      const agentDocs = sellerDocsMap?.[agentId];
+      if (!agentDocs) return "";
+
+      const { wakaalad, tasdiiq } = agentDocs;
+      const parts = [];
+
+      if (wakaalad) {
+        parts.push(
+          `haystana ${safe(wakaalad.wakaladType)} lambarkeedu yahay ${safe(
+            wakaalad.refNo
+          )}, Tr. ${safe(wakaalad.date)?.split("T")?.[0] || ""}, kana soo baxday Xafiiska Nootaayaha iyo Latalinta Sharciga ah ee ${safe(
+            wakaalad.kasooBaxday
+          )}, uuna saxiixay Dr.${safe(wakaalad.saxiix1)}`
+        );
+      }
+
+      if (tasdiiq) {
+        parts.push(
+          `waxaa kale oo jira Tasdiiq lambarkiisu yahay ${safe(
+            tasdiiq.refNo
+          )}, Tr. ${safe(tasdiiq.date)?.split("T")?.[0] || ""}`
+        );
+      }
+
+      return parts.join(", ");
+    })
+    .filter(Boolean)
+    .join(" | ");
+
+  const sellerAgentDetails = (sellerAgents || [])
+    .map(
+      (a) =>
+        `${safe(a.fullName)}, ${safe(a.nationality)} ah, ina ${safe(
+          a.motherName
+        )}, ku dhashay ${safe(a.birthPlace)}, sannadkii ${safe(
+          a.birthYear
+        )}, degan ${safe(a.address)}, Tell: ${safe(a.phone)}`
+    )
+    .join(" | ");
+
+  const buyerAgentDetails = (buyerAgents || [])
+    .map(
+      (a) =>
+        `${safe(a.fullName)}, ${safe(a.nationality)} ah, ina ${safe(
+          a.motherName
+        )}, ku dhashay ${safe(a.birthPlace)}, sannadkii ${safe(
+          a.birthYear
+        )}, degan ${safe(a.address)}, Tell: ${safe(a.phone)}`
+    )
+    .join(" | ");
+
+  const T = getTitles(agreement?.serviceType, agreement?.agreementType, {
+    counts: {
+      sellerCount: sellers.length,
+      buyerCount: buyers.length,
+      sellerAgentCount: sellerAgents.length,
+      buyerAgentCount: buyerAgents.length,
+    },
+    genders: {
+      sellerGender: sellers?.[0]?.gender,
+      buyerGender: buyers?.[0]?.gender,
+      sellerAgentGender: sellerAgents?.[0]?.gender,
+      buyerAgentGender: buyerAgents?.[0]?.gender,
+    },
+  });
+
+  const P = typeof getPhrases === "function"
+    ? getPhrases(agreement?.serviceType, agreement?.agreementType)
+    : null;
+
+  // ================== service fields ==================
+  const carType = safe(service?.type);
+  const chassisNo = safe(service?.chassisNo);
+  const modelYear = safe(service?.modelYear);
+  const color = safe(service?.color);
+  const cylinder = safe(service?.cylinder);
+  const plateNo = safe(service?.plateNo);
+  const issuedByPlate = safe(service?.issuedByPlate);
+
   const plateIssueDate = service?.plateIssueDate ? formatDate(service.plateIssueDate) : "";
-  const ownershipType = service?.ownershipType || "";
-  const ownershipBookNo = service?.ownershipBookNo || "";
+  const ownershipType = safe(service?.ownershipType);
+  const ownershipBookNo = safe(service?.ownershipBookNo);
   const ownershipIssueDate = service?.ownershipIssueDate ? formatDate(service.ownershipIssueDate) : "";
 
   const price = agreement?.sellingPrice;
@@ -61,36 +255,317 @@ export const buildBaabuurDoc = ({
       ? `$${formatCurrency(price)} (${numberToSomaliWords(price)} Doolarka Mareykanka ah)`
       : "";
 
-  return [
-      // TITLE
- new Paragraph({
-  alignment: AlignmentType.CENTER,
-  spacing: { after: 100 },
-  children: [
-    new TextRun({
-      text:
-        agreement.agreementType === "Beec"
-          ? "UJEEDDO: KALA GADASHO Baabuur"
-          : agreement.agreementType === "Hibo"
-          ? "UJEEDDO: HIBEYN Baabuur"
-          : agreement.agreementType === "Waqaf"
-          ? "UJEEDDO: WAQFID Baabuur"
-          : "",
-      bold: true,
-      underline: true,
-      size: 24,
-      font: "Times New Roman",
+  // ================== borders ==================
+  const hiddenBorders = {
+    top: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+    bottom: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+    left: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+    right: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+  };
+
+  // ================= SIGNATURES (BAABUUR + GENDER) =================
+  const singleOrPlural = (count, single, plural) => (count > 1 ? plural : single);
+
+  const maleFemale = (gender, male, female) =>
+    String(gender || "").toLowerCase() === "female" ? female : male;
+
+  const joinSigNames = (arr = []) =>
+    (arr || [])
+      .filter(Boolean)
+      .map((p) => safe(p?.fullName))
+      .filter(Boolean)
+      .join(" , ");
+
+  const agreementType = String(agreement?.agreementType || "").trim();
+
+  const sellersArr = sellers || [];
+  const buyersArr = buyers || [];
+
+  const sellerAgentsArr = sellerAgents || [];
+  const buyerAgentsArr = buyerAgents || [];
+
+  const hasSellerSigAgent = sellerAgentsArr.length > 0;
+  const hasBuyerSigAgent = buyerAgentsArr.length > 0;
+
+  const leftPeople = hasSellerSigAgent ? sellerAgentsArr : sellersArr;
+  const rightPeople = hasBuyerSigAgent ? buyerAgentsArr : buyersArr;
+
+  const leftGender = leftPeople?.[0]?.gender || "male";
+  const rightGender = rightPeople?.[0]?.gender || "male";
+
+  const leftName =
+    leftPeople.length > 1
+      ? joinSigNames(leftPeople)
+      : safe(leftPeople?.[0]?.fullName || "").toUpperCase();
+
+  const rightName =
+    rightPeople.length > 1
+      ? joinSigNames(rightPeople)
+      : safe(rightPeople?.[0]?.fullName || "").toUpperCase();
+
+  let leftTitle = "";
+  let rightTitle = "";
+
+  if (agreementType === "Beec") {
+    leftTitle = hasSellerSigAgent
+      ? singleOrPlural(
+          sellerAgentsArr.length,
+          `SAXIIXA WAKIILKA ${maleFemale(leftGender, "ISKA IIBIYAHA", "ISKA IIBISADA")} BAABUURKA`,
+          `SAXIIXA WAKIILLADA ISKA IIBIYAASHA BAABUURKA`
+        )
+      : singleOrPlural(
+          sellersArr.length,
+          `SAXIIXA ${maleFemale(leftGender, "ISKA IIBIYAHA", "ISKA IIBISADA")} BAABUURKA`,
+          `SAXIIXA ISKA IIBIYAASHA BAABUURKA`
+        );
+
+    rightTitle = hasBuyerSigAgent
+      ? singleOrPlural(
+          buyerAgentsArr.length,
+          `SAXIIXA BEEC U AQBALAHA ${maleFemale(rightGender, "IIBSADAHA", "IIBSATADA")} BAABUURKA`,
+          `SAXIIXA BEEC U AQBALAHA IIBSADAYAASHA BAABUURKA`
+        )
+      : singleOrPlural(
+          buyersArr.length,
+          `SAXIIXA ${maleFemale(rightGender, "IIBSADAHA", "IIBSATADA")} BAABUURKA`,
+          `SAXIIXA IIBSADAYAASHA BAABUURKA`
+        );
+  } else if (agreementType === "Hibo") {
+    leftTitle = hasSellerSigAgent
+      ? singleOrPlural(
+          sellerAgentsArr.length,
+          `SAXIIXA WAKIILKA ${maleFemale(leftGender, "HIBEYAHA", "HIBEYSADA")} BAABUURKA`,
+          `SAXIIXA WAKIILLADA HIBEYAASHA BAABUURKA`
+        )
+      : singleOrPlural(
+          sellersArr.length,
+          `SAXIIXA ${maleFemale(leftGender, "HIBEYAHA", "HIBEYSADA")} BAABUURKA`,
+          `SAXIIXA HIBEYAASHA BAABUURKA`
+        );
+
+    rightTitle = hasBuyerSigAgent
+      ? singleOrPlural(
+          buyerAgentsArr.length,
+          `SAXIIXA HIBEYN U AQBALAHA ${maleFemale(rightGender, "QAATAHA", "QAATADA")} BAABUURKA`,
+          `SAXIIXA HIBEYN U AQBALAHA QAATAYAASHA BAABUURKA`
+        )
+      : singleOrPlural(
+          buyersArr.length,
+          `SAXIIXA ${maleFemale(rightGender, "QAATAHA", "QAATADA")} BAABUURKA`,
+          `SAXIIXA QAATAYAASHA BAABUURKA`
+        );
+  } else if (agreementType === "Waqaf") {
+    leftTitle = hasSellerSigAgent
+      ? singleOrPlural(
+          sellerAgentsArr.length,
+          `SAXIIXA WAKIILKA ${maleFemale(leftGender, "WAAQIFAHA", "WAAQIFADA")} BAABUURKA`,
+          `SAXIIXA WAKIILLADA WAAQIFAYAASHA BAABUURKA`
+        )
+      : singleOrPlural(
+          sellersArr.length,
+          `SAXIIXA ${maleFemale(leftGender, "WAAQIFAHA", "WAAQIFADA")} BAABUURKA`,
+          `SAXIIXA WAAQIFAYAASHA BAABUURKA`
+        );
+
+    rightTitle = hasBuyerSigAgent
+      ? singleOrPlural(
+          buyerAgentsArr.length,
+          `SAXIIXA WAQAF U AQBALAHA ${maleFemale(rightGender, "QOFKA LOO WAQFAY", "QOFTA LOO WAQFAY")} BAABUURKA`,
+          `SAXIIXA WAQAF U AQBALAHA DADKA LOO WAQFAY BAABUURKA`
+        )
+      : singleOrPlural(
+          buyersArr.length,
+          `SAXIIXA ${maleFemale(rightGender, "QOFKA LOO WAQFAY", "QOFTA LOO WAQFAY")} BAABUURKA`,
+          `SAXIIXA DADKA LOO WAQFAY BAABUURKA`
+        );
+  }
+
+  const signatureLine = "______________________________";
+
+  // ================= MARQAATIYAASHA =================
+  const witnessesTitle = new Paragraph({
+    alignment: AlignmentType.CENTER,
+    spacing: { before: 200, after: 120 },
+    children: [
+      new TextRun({
+        text: "SAXIIXA MARQAATIYAASHA",
+        bold: true,
+        underline: true,
+        size: 24,
+        font: "Times New Roman",
+      }),
+    ],
+  });
+
+  const witnessNames = (agreement?.witnesses || []).filter(Boolean);
+
+  const witnessesTable =
+    witnessNames.length > 0
+      ? new Table({
+          width: { size: 100, type: WidthType.PERCENTAGE },
+          borders: {
+            top: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+            bottom: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+            left: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+            right: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+            insideHorizontal: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+            insideVertical: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+          },
+          rows: Array.from({ length: Math.ceil(witnessNames.length / 2) }).map((_, i) => {
+            const leftW = witnessNames[i * 2];
+            const rightW = witnessNames[i * 2 + 1];
+
+            const cell = (name) =>
+              new TableCell({
+                borders: hiddenBorders,
+                width: { size: 50, type: WidthType.PERCENTAGE },
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    spacing: { after: 120 },
+                    children: [
+                      new TextRun({
+                        text: (name || "").toUpperCase(),
+                        bold: true,
+                        size: 22,
+                        font: "Times New Roman",
+                      }),
+                    ],
+                  }),
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [
+                      new TextRun({
+                        text: "__________________________",
+                        size: 22,
+                        font: "Times New Roman",
+                      }),
+                    ],
+                  }),
+                ],
+              });
+
+            return new TableRow({
+              children: [cell(leftW), cell(rightW)],
+            });
+          }),
+        })
+      : null;
+
+  // ================= SUGITAANKA NOOTAAYADA =================
+  const notarySection = [
+    new Paragraph({
+      alignment: AlignmentType.CENTER,
+      spacing: { before: 240, after: 120 },
+      children: [
+        new TextRun({
+          text: "SUGITAANKA NOOTAAYADA",
+          bold: true,
+          underline: true,
+          size: 24,
+          font: "Times New Roman",
+        }),
+      ],
     }),
-  ],
-}),
-    // QORAALKA BILOWGA
+
+    new Paragraph({
+      alignment: AlignmentType.JUSTIFIED,
+      spacing: { after: 120 },
+      children: [
+        new TextRun({
+          text: `REF: ${safe(agreement?.refNo)}, Tr. ${formatDate(agreement?.agreementDate)} `,
+          size: 22,
+          bold: true,
+          underline: true,
+          font: "Times New Roman",
+        }),
+        new TextRun({ text: "Anigoo ah ", size: 24, font: "Times New Roman" }),
+        new TextRun({
+          text: "Dr. Maxamed Cabdiraxmaan Sheekh Maxamed, ",
+          size: 24,
+          bold: true,
+          font: "Times New Roman",
+        }),
+        new TextRun({
+          text:
+            "Nootaayaha Xafiiska Nootaayaha Boqole, waxaan sugayaa in saxiixyada kor ku xusan ay yihiin kuwo run ah oo ku dhacay si xor ah, laguna saxiixay horteyda, waana sugitaan ansax ah oo waafaqsan Shareecada Islaamka iyo qaanuunka dalka.",
+          size: 24,
+          font: "Times New Roman",
+        }),
+      ],
+    }),
+
+    new Paragraph({
+      alignment: AlignmentType.CENTER,
+      spacing: { after: 80 },
+      children: [
+        new TextRun({
+          text: "NOOTAAYAHA",
+          bold: true,
+          size: 24,
+          font: "Times New Roman",
+        }),
+      ],
+    }),
+
+    new Paragraph({
+      alignment: AlignmentType.CENTER,
+      spacing: { after: 60 },
+      children: [
+        new TextRun({
+          text: "Dr. Maxamed Cabdiraxmaan Sheekh Maxamed",
+          bold: true,
+          size: 24,
+          font: "Times New Roman",
+        }),
+      ],
+    }),
+
+    new Paragraph({
+      alignment: AlignmentType.CENTER,
+      spacing: { after: 40 },
+      children: [
+        new TextRun({
+          text: "__________________________",
+          size: 22,
+          font: "Times New Roman",
+        }),
+      ],
+    }),
+  ];
+
+  // ================== RETURN ==================
+  return [
+    // TITLE
+    new Paragraph({
+      alignment: AlignmentType.CENTER,
+      spacing: { after: 100 },
+      children: [
+        new TextRun({
+          text:
+            agreement?.agreementType === "Beec"
+              ? "UJEEDDO: KALA GADASHO BAABUUR"
+              : agreement?.agreementType === "Hibo"
+              ? "UJEEDDO: HIBEYN BAABUUR"
+              : agreement?.agreementType === "Waqaf"
+              ? "UJEEDDO: WAQFID BAABUUR"
+              : "",
+          bold: true,
+          underline: true,
+          size: 24,
+          font: "Times New Roman",
+        }),
+      ],
+    }),
+
+    // Start paragraph
     new Paragraph({
       alignment: AlignmentType.JUSTIFIED,
       spacing: { after: 50 },
       children: [
         new TextRun({
           text: `Maanta oo ay taariikhdu tahay ${formatDate(
-            agreement.agreementDate
+            agreement?.agreementDate
           )}, aniga oo ah Dr. Maxamed Cabdiraxmaan Sheekh Maxamed, Nootaayaha Xafiiska Nootaayaha Boqole,xafiiskeygana ku yaal Degmada Howl-wadaag, kasoo horjeedka xawaaladda Taaj, una dhow Xarunta Hormuud, ee Magaalada Muqdisho, Jamhuuriyadda Federaalka Soomaaliya,waxaa ii hor yimid iyagoo heshiis ah,`,
           font: "Times New Roman",
           size: 24,
@@ -98,82 +573,48 @@ export const buildBaabuurDoc = ({
       ],
     }),
 
-    // SELLER TITLE
+    // Title Seller
     new Paragraph({
       alignment: AlignmentType.JUSTIFIED,
       spacing: { after: 50 },
       children: [
         new TextRun({
-          text: (T?.seller || "IIBIYAHA").toUpperCase(),
+          text: String(T?.seller || "Dhinaca 1aad").toUpperCase(),
           font: "Times New Roman",
           size: 24,
           bold: true,
-          underline: true,
+          underline: {},
         }),
       ],
     }),
 
-    // SELLER DETAILS
+    // sellers details (FULL)
     new Paragraph({
       alignment: AlignmentType.JUSTIFIED,
       spacing: { after: 50 },
-      children: [
-        new TextRun({ text: `${sellerNames} `, font: "Times New Roman", size: 24, bold: true, color: "FF0000" }),
-        new TextRun({ text: `${sellernationality} `, font: "Times New Roman", size: 24, color: "FF0000" }),
-        new TextRun({ text: `ah , ina `, font: "Times New Roman", size: 24 }),
-        new TextRun({ text: `${sellerMotherName} `, font: "Times New Roman", size: 24, bold: true, color: "FF0000" }),
-        new TextRun({ text: `ku dhashay `, font: "Times New Roman", size: 24 }),
-        new TextRun({ text: `${sellerBirthPlace} `, font: "Times New Roman", size: 24, bold: true, color: "FF0000" }),
-        new TextRun({ text: ` sannadkii `, size: 24 }),
-        new TextRun({ text: `${sellerBirthYear} `, size: 24, bold: true, color: "FF0000" }),
-        new TextRun({ text: ` degan `, size: 24 }),
-        new TextRun({ text: `${sellerAddress} `, size: 24, bold: true, color: "FF0000" }),
-        new TextRun({ text: ` lehna `, size: 24 }),
-        new TextRun({ text: `${sellerdocumentType} `, size: 24, bold: true, color: "FF0000" }),
-        new TextRun({ text: ` NO `, size: 24 }),
-        new TextRun({ text: `${sellerdocumentNumber} `, size: 24, bold: true, color: "FF0000" }),
-        new TextRun({ text: `ee ku lifaaqan warqadaan, Tell `, size: 24 }),
-        new TextRun({ text: `${sellerPhone}`, size: 24, bold: true, color: "FF0000" }),
-      ],
+      children: buildPeopleRuns(sellers, "FF0000", false),
     }),
 
-    // BUYER TITLE
+    // Title Buyer
     new Paragraph({
       alignment: AlignmentType.JUSTIFIED,
       spacing: { after: 50 },
       children: [
         new TextRun({
-          text: (T?.buyer || "IIBSADAHA").toUpperCase(),
+          text: String(T?.buyer || "Dhinaca 2aad").toUpperCase(),
           font: "Times New Roman",
           size: 24,
           bold: true,
-          underline: true,
+          underline: {},
         }),
       ],
     }),
 
-    // BUYER DETAILS
+    // buyers details (FULL)
     new Paragraph({
       alignment: AlignmentType.JUSTIFIED,
       spacing: { after: 50 },
-      children: [
-        new TextRun({ text: `${buyerNames} `, font: "Times New Roman", size: 24, bold: true, color: "008000" }),
-        new TextRun({ text: `${buyernationality} `, font: "Times New Roman", size: 24, color: "008000" }),
-        new TextRun({ text: `ah , ina `, font: "Times New Roman", size: 24 }),
-        new TextRun({ text: `${buyerMotherName} `, font: "Times New Roman", size: 24, bold: true, color: "008000" }),
-        new TextRun({ text: `ku dhashay `, font: "Times New Roman", size: 24 }),
-        new TextRun({ text: `${buyerBirthPlace} `, font: "Times New Roman", size: 24, bold: true, color: "008000" }),
-        new TextRun({ text: ` sannadkii `, size: 24 }),
-        new TextRun({ text: `${buyerBirthYear} `, size: 24, bold: true, color: "008000" }),
-        new TextRun({ text: ` degan `, size: 24 }),
-        new TextRun({ text: `${buyerAddress} `, size: 24, bold: true, color: "008000" }),
-        new TextRun({ text: ` lehna `, size: 24 }),
-        new TextRun({ text: `${buyerdocumentType} `, size: 24, bold: true, color: "008000" }),
-        new TextRun({ text: ` NO `, size: 24 }),
-        new TextRun({ text: `${BuyerdocumentNumber} `, size: 24, bold: true, color: "008000" }),
-        new TextRun({ text: `ee ku lifaaqan warqadaan, Tell `, size: 24 }),
-        new TextRun({ text: `${buyerPhone}`, size: 24, bold: true, color: "008000" }),
-      ],
+      children: buildPeopleRuns(buyers, "008000", true),
     }),
 
     // =========================
@@ -181,76 +622,82 @@ export const buildBaabuurDoc = ({
     // =========================
     new Paragraph({
       alignment: AlignmentType.JUSTIFIED,
-      spacing: { after: 100 },
+      spacing: { after: 100, before: 100 },
       children: hasSellerAgent
         ? [
-            new TextRun({ text: (T?.sellerAgent || "WAKIIL").toUpperCase(), size: 24, bold: true, underline: true }),
-            new TextRun({ text: `Anigoo ah `, size: 24, font: "Times New Roman" }),
-            new TextRun({ text: sellerAgentDetails, bold: true, color: "FF0000", size: 24 }),
-            new TextRun({ text: `, ${wakaaladText},kana wakiil ah ${T.seller} baabuurka `, size: 24 }),
-            new TextRun({ text: sellerNames, bold: true, color: "FF0000", size: 24 }),
-
             new TextRun({
-              text: `, kana caafimaad qaba dhanka maskaxda, xiskayguna taam yahay, cid igu qasabtayna aysan jirin, waxaa aan nootaayada iyo marqaatiyaasha hortooda ka cadeynayaa in aan ka iibiyey kuna wareejiyey  `,
+              text: String(T?.sellerAgent || "WAKIIL").toUpperCase(),
+              size: 24,
+              bold: true,
+              underline: {},
+            }),
+            new TextRun({ text: sellersPlural ? "Annagoo ah " : "Anigoo ah ", size: 24 }),
+            new TextRun({ text: sellerAgentDetails, bold: true, color: "FF0000", size: 24 }),
+            new TextRun({
+              text: `, ${wakaaladText}, kana wakiil ah ${T?.seller || ""} baabuurka `,
+              size: 24,
+            }),
+            new TextRun({ text: sellerNames, bold: true, color: "FF0000", size: 24 }),
+            new TextRun({
+              text: sellersPlural
+                ? `, kana caafimaad qabna dhanka maskaxda iyo jirkaba, xiskayguna taam yahay, cid nagu qasabtayna aysan jirin, waxaan ka cadeyneynaa nootaayaha iyo marqaatiyaasha hortooda in aan ka iibinay kuna wareejinay `
+                : `, kana caafimaad qaba dhanka maskaxda iyo jirkaba, xiskayguna taam yahay, cid igu qasabtayna aysan jirin, waxaan ka cadeynayaa nootaayaha iyo marqaatiyaasha hortooda in aan ka iibiyey kuna wareejiyey `,
               size: 24,
             }),
             new TextRun({ text: buyerNames, bold: true, color: "FF0000", size: 24 }),
-            new TextRun({ text: `, baabuur noociisu  yahay `, size: 24 }),
+            new TextRun({ text: `, baabuur noociisu yahay `, size: 24 }),
             new TextRun({ text: `${carType} `, size: 24 }),
-
             new TextRun({ text: `Chassis No. ${chassisNo} `, size: 24 }),
             new TextRun({ text: `modelkiisu yahay ${modelYear} `, size: 24 }),
             new TextRun({ text: `midabkiisuna yahay ${color} `, size: 24 }),
             new TextRun({ text: `Cylinder ${cylinder} `, size: 24 }),
             new TextRun({ text: `Taargo No. ${plateNo} `, size: 24 }),
-
-            new TextRun({ text: `kana soo baxday  ${issuedByPlate} `, size: 24 }),
+            new TextRun({ text: `kana soo baxday ${issuedByPlate} `, size: 24 }),
             new TextRun({ text: `Tr. ${plateIssueDate} `, size: 24 }),
-
-            new TextRun({ text: ` wuxuu ${T.seller} baabuurkaas ku milkiyay `, size: 24 }),
-            new TextRun({ text: `${ownershipType} lahaanshaha baabuurka lambarkiisu yahay `, size: 24 }),
+            new TextRun({ text: ` wuxuu ${T?.seller || ""} baabuurkaas ku milkiyay `, size: 24 }),
+            new TextRun({
+              text: `${ownershipType} lahaanshaha baabuurka lambarkiisu yahay `,
+              size: 24,
+            }),
             new TextRun({ text: `${ownershipBookNo} `, size: 24 }),
-
             new TextRun({ text: `kana soo baxday ${issuedByPlate} `, size: 24 }),
             new TextRun({ text: `Tr. ${ownershipIssueDate} `, size: 24 }),
-
             ...(priceText
               ? [
                   new TextRun({
-                    text: ` waxaan ku gaday anigoo ka wakiil ah  ${T.seller} baabuurka lacag dhan ${priceText}.`,
+                    text: ` waxaan ku gaday anigoo ka wakiil ah ${T?.seller || ""} baabuurka lacag dhan ${priceText}.`,
                     size: 24,
                   }),
                 ]
               : []),
           ]
         : [
-            new TextRun({ text: `Ugu horeyn anigoo ah `, size: 24, font: "Times New Roman" }),
+            new TextRun({ text: sellersPlural ? "Annagoo ah " : "Anigoo ah ", size: 24 }),
             new TextRun({ text: sellerNames, bold: true, color: "FF0000", size: 24 }),
             new TextRun({
-              text: `, kana caafimaad qaba dhanka maskaxda iyo jirkaba, xiskayguna taam yahay, cid igu qasabtayna aysan jirin, waxa aan ka iibiyey kuna wareejiyey `,
+              text: sellersPlural
+                ? `, kana caafimaad qabna dhanka maskaxda iyo jirkaba, xiskayguna taam yahay, cid nagu qasabtayna aysan jirin, waxaan ka iibinay kuna wareejinay `
+                : `, kana caafimaad qaba dhanka maskaxda iyo jirkaba, xiskayguna taam yahay, cid igu qasabtayna aysan jirin, waxaan ka iibiyey kuna wareejiyey `,
               size: 24,
             }),
             new TextRun({ text: buyerNames, bold: true, color: "FF0000", size: 24 }),
-
             new TextRun({ text: `, baabuur noociisu yahay `, size: 24 }),
             new TextRun({ text: `${carType} `, size: 24 }),
-
             new TextRun({ text: `Chassis No. ${chassisNo} `, size: 24 }),
             new TextRun({ text: `modelkiisu yahay ${modelYear} `, size: 24 }),
             new TextRun({ text: `midabkiisuna yahay ${color} `, size: 24 }),
             new TextRun({ text: `Cylinder ${cylinder} `, size: 24 }),
             new TextRun({ text: `Taargo No. ${plateNo} `, size: 24 }),
-
             new TextRun({ text: `kana soo baxday ${issuedByPlate} `, size: 24 }),
             new TextRun({ text: `Tr. ${plateIssueDate} `, size: 24 }),
-
-            new TextRun({ text: ` wuxuu ${T.seller} baabuurkaas ku milkiyay `, size: 24 }),
-            new TextRun({ text: `${ownershipType}a lahaanshaha baabuurka lambarkiisu yahay `, size: 24 }),
+            new TextRun({ text: ` wuxuu ${T?.seller || ""} baabuurkaas ku milkiyay `, size: 24 }),
+            new TextRun({
+              text: `${ownershipType}a lahaanshaha baabuurka lambarkiisu yahay `,
+              size: 24,
+            }),
             new TextRun({ text: `${ownershipBookNo} `, size: 24 }),
-
             new TextRun({ text: `kana soo baxday ${issuedByPlate} `, size: 24 }),
             new TextRun({ text: `Tr. ${ownershipIssueDate} `, size: 24 }),
-
             ...(priceText
               ? [
                   new TextRun({
@@ -270,11 +717,18 @@ export const buildBaabuurDoc = ({
       spacing: { after: 100 },
       children: hasBuyerAgent
         ? [
-            new TextRun({ text: (T?.buyerAgent || "WAKIIL").toUpperCase(), size: 24, underline: true, bold: true }),
-            new TextRun({ text: "Anigoo ah ", size: 24 }),
+            new TextRun({
+              text: String(T?.buyerAgent || "WAKIIL").toUpperCase(),
+              size: 24,
+              underline: {},
+              bold: true,
+            }),
+            new TextRun({ text: buyersPlural ? "Annagoo ah " : "Anigoo ah ", size: 24 }),
             new TextRun({ text: buyerAgentDetails, bold: true, size: 24 }),
             new TextRun({
-              text: `, kana caafimaad qaba dhanka maskaxda iyo jirkaba, xiskayguna taam yahay, cid igu qasabtayna aysan jirin, waxa aan aqbalay iibkaan anigoo ku qanacsan raalina ka ah .Sidaasi darteed laga bilaabo taariikhda kor ku xusan, maamulkii iyo manfacii baabuurkaas waxay si sharci ah ugu wareegeen iibsade `,
+              text: buyersPlural
+                ? `, ahna ${T?.buyerAgent || ""}, kana caafimaad qabna dhanka maskaxda iyo jirkaba, xiskayguna taam yahay, cid nagu qasabtayna aysan jirin, waxa aan aqbalnay iibkaan anagoo ku qanacsan raalina ka ah. Sidaasi darteed laga bilaabo taariikhda kor ku xusan, maamulkii iyo manfacii baabuurkaas waxay si sharci ah ugu wareegeen `
+                : `, ahna ${T?.buyerAgent || ""}, kana caafimaad qaba dhanka maskaxda iyo jirkaba, xiskayguna taam yahay, cid igu qasabtayna aysan jirin, waxa aan aqbalay iibkaan anigoo ku qanacsan raalina ka ah. Sidaasi darteed laga bilaabo taariikhda kor ku xusan, maamulkii iyo manfacii baabuurkaas waxay si sharci ah ugu wareegeen `,
               size: 24,
             }),
             new TextRun({ text: buyerNames, bold: true, color: "FF0000", size: 24 }),
@@ -284,10 +738,12 @@ export const buildBaabuurDoc = ({
             }),
           ]
         : [
-            new TextRun({ text: `Anigoo ah iibsadaha `, size: 24, font: "Times New Roman" }),
+            new TextRun({ text: buyersPlural ? "Annagoo ah " : "Anigoo ah ", size: 24 }),
             new TextRun({ text: buyerNames, bold: true, color: "FF0000", size: 24 }),
             new TextRun({
-              text: `, kana caafimaad qaba dhanka maskaxda iyo jirkaba, xiskayguna taam yahay, cid igu qasabtayna aysan jirin, waxa aan aqbalay iibkaan anigoo ku qanacsan raalina ka ah .Sidaasi darteed laga bilaabo taariikhda kor ku xusan, maamulkii iyo manfacii baabuurkaas waxay si sharci ah ugu wareegeen iibsade `,
+              text: buyersPlural
+                ? `, ahna ${T?.buyer || ""}, kana caafimaad qabna dhanka maskaxda iyo jirkaba, xiskayguna taam yahay, cid nagu qasabtayna aysan jirin, waxa aan aqbalnay iibkaan anagoo ku qanacsan raalina ka ah. Sidaasi darteed laga bilaabo taariikhda kor ku xusan, maamulkii iyo manfacii baabuurkaas waxay si sharci ah ugu wareegeen `
+                : `, ahna ${T?.buyer || ""}, kana caafimaad qaba dhanka maskaxda iyo jirkaba, xiskayguna taam yahay, cid i qasabtayna aysan jirin, waxa aan aqbalay iibkaan anigoo ku qanacsan raalina ka ah. Sidaasi darteed laga bilaabo taariikhda kor ku xusan, maamulkii iyo manfacii baabuurkaas waxay si sharci ah ugu wareegeen `,
               size: 24,
             }),
             new TextRun({ text: buyerNames, bold: true, color: "FF0000", size: 24 }),
@@ -297,5 +753,69 @@ export const buildBaabuurDoc = ({
             }),
           ],
     }),
+
+    // SIGNATURE TABLE
+    new Table({
+      width: { size: 100, type: WidthType.PERCENTAGE },
+      borders: {
+        top: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+        bottom: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+        left: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+        right: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+        insideHorizontal: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+        insideVertical: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+      },
+      rows: [
+        new TableRow({
+          children: [
+            new TableCell({
+              width: { size: 50, type: WidthType.PERCENTAGE },
+              borders: hiddenBorders,
+              children: [
+                new Paragraph({
+                  alignment: AlignmentType.CENTER,
+                  spacing: { after: 120 },
+                  children: [new TextRun({ text: leftTitle, bold: true, size: 22, underline: {} })],
+                }),
+                new Paragraph({
+                  alignment: AlignmentType.CENTER,
+                  spacing: { after: 80 },
+                  children: [new TextRun({ text: safe(leftName), bold: true, size: 22 })],
+                }),
+                new Paragraph({
+                  alignment: AlignmentType.CENTER,
+                  children: [new TextRun({ text: signatureLine, size: 22 })],
+                }),
+              ],
+            }),
+
+            new TableCell({
+              width: { size: 50, type: WidthType.PERCENTAGE },
+              borders: hiddenBorders,
+              children: [
+                new Paragraph({
+                  alignment: AlignmentType.CENTER,
+                  spacing: { after: 120 },
+                  children: [new TextRun({ text: rightTitle, bold: true, size: 22, underline: {} })],
+                }),
+                new Paragraph({
+                  alignment: AlignmentType.CENTER,
+                  spacing: { after: 80 },
+                  children: [new TextRun({ text: safe(rightName), bold: true, size: 22 })],
+                }),
+                new Paragraph({
+                  alignment: AlignmentType.CENTER,
+                  children: [new TextRun({ text: signatureLine, size: 22 })],
+                }),
+              ],
+            }),
+          ],
+        }),
+      ],
+    }),
+
+    ...(witnessesTable ? [witnessesTitle, witnessesTable] : []),
+
+    ...notarySection,
   ];
 };

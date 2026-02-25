@@ -32,3 +32,11 @@ export const deactivateUserById = async (id) => {
   const res = await api.put(`${BASE}/inactive/${id}`, {});
   return res.data;
 };
+// src/api/users.api.js
+
+
+export const getAllUsersApi = async () => {
+  const { data } = await api.get("/users"); // hubi route-kaaga saxda ah
+  // haddii response uu yahay {success:true,data:[...]}
+  return data?.data || [];
+};

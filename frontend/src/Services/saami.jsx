@@ -238,142 +238,7 @@ export const buildSaamiDoc = ({
     left: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
     right: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
   };
-  // ================= SIGNATURES (SAAMI ONLY + GENDER) =================
-const singleOrPlural = (count, single, plural) => (count > 1 ? plural : single);
-
-const maleFemale = (gender, male, female) =>
-  String(gender || "").toLowerCase() === "female" ? female : male;
-
-const joinSigNames = (arr = []) =>
-  (arr || [])
-    .filter(Boolean)
-    .map((p) => safe(p?.fullName))
-    .filter(Boolean)
-    .join(" , ");
-
-const agreementType = String(agreement?.agreementType || "").trim(); // Beec | Hibo | Waqaf
-
-const sellersArr = sellers || [];
-const buyersArr = buyers || [];
-
-const sellerAgentsArr = sellerAgents || [];
-const buyerAgentsArr = buyerAgents || [];
-
-const hasSellerSigAgent = sellerAgentsArr.length > 0;
-const hasBuyerSigAgent = buyerAgentsArr.length > 0;
-
-// ✅ haddii wakiil jiro, wakiilka ayaa saxiixaya
-const leftPeople = hasSellerSigAgent ? sellerAgentsArr : sellersArr;
-const rightPeople = hasBuyerSigAgent ? buyerAgentsArr : buyersArr;
-
-const leftGender = leftPeople?.[0]?.gender || "male";
-const rightGender = rightPeople?.[0]?.gender || "male";
-
-const leftName =
-  leftPeople.length > 1 ? joinSigNames(leftPeople) : safe(leftPeople?.[0]?.fullName.toUpperCase());
-
-const rightName =
-  rightPeople.length > 1 ? joinSigNames(rightPeople) : safe(rightPeople?.[0]?.fullName.toUpperCase());
-
-// -------- TITLES (Beec / Hibo / Waqaf) --------
-let leftTitle = "";
-let rightTitle = "";
-
-/* =========================
-   B E E C
-========================= */
-if (agreementType === "Beec") {
-  // SELLER (main vs agent)
-  leftTitle = hasSellerSigAgent
-    ? singleOrPlural(
-        sellerAgentsArr.length,
-        `SAXIIXA WAKIILKA ${maleFemale(leftGender, "ISKA IIBIYAHA", "ISKA IIBISADA")} SAAMIGA`,
-        `SAXIIXA WAKIILLADA ISKA IIBIYAASHA SAAMIGA`
-      )
-    : singleOrPlural(
-        sellersArr.length,
-        `SAXIIXA ${maleFemale(leftGender, "ISKA IIBIYAHA", "ISKA IIBISADA")} `,
-        `SAXIIXA ISKA IIBIYAASHA SAAMIGA`
-      );
-
-  // BUYER (main vs agent)
-  rightTitle = hasBuyerSigAgent
-    ? singleOrPlural(
-        buyerAgentsArr.length,
-        `SAXIIXA BEEC U AQBALAHA ${maleFemale(rightGender, "IIBSADAHA", "IIBSATADA")} SAAMIGA`,
-        `SAXIIXA BEEC U AQBALAHA IIBSADAYAASHA SAAMIGA`
-      )
-    : singleOrPlural(
-        buyersArr.length,
-        `SAXIIXA ${maleFemale(rightGender, "IIBSADAHA", "IIBSATADA")} SAAMIGA`,
-        `SAXIIXA IIBSADAYAASHA SAAMIGA`
-      );
-}
-
-/* =========================
-   H I B O
-========================= */
-else if (agreementType === "Hibo") {
-  // SELLER = HIBEYE
-  leftTitle = hasSellerSigAgent
-    ? singleOrPlural(
-        sellerAgentsArr.length,
-        `SAXIIXA WAKIILKA ${maleFemale(leftGender, "HIBEYAHA", "HIBEYSADA")} SAAMIGA`,
-        `SAXIIXA WAKIILLADA HIBEYAASHA SAAMIGA`
-      )
-    : singleOrPlural(
-        sellersArr.length,
-        `SAXIIXA ${maleFemale(leftGender, "HIBEYAHA", "HIBEYSADA")} SAAMIGA`,
-        `SAXIIXA HIBEYAASHA SAAMIGA`
-      );
-
-  // BUYER = QAATAHA
-  rightTitle = hasBuyerSigAgent
-    ? singleOrPlural(
-        buyerAgentsArr.length,
-        `SAXIIXA HIBEYN U AQBALAHA ${maleFemale(rightGender, "QAATAHA", "QAATADA")} SAAMIGA`,
-        `SAXIIXA HIBEYN U AQBALAHA QAATAYAASHA SAAMIGA`
-      )
-    : singleOrPlural(
-        buyersArr.length,
-        `SAXIIXA ${maleFemale(rightGender, "QAATAHA", "QAATADA")} SAAMIGA`,
-        `SAXIIXA QAATAYAASHA SAAMIGA`
-      );
-}
-
-/* =========================
-   W A Q A F
-========================= */
-else if (agreementType === "Waqaf") {
-  // SELLER = WAAQIF
-  leftTitle = hasSellerSigAgent
-    ? singleOrPlural(
-        sellerAgentsArr.length,
-        `SAXIIXA WAKIILKA ${maleFemale(leftGender, "WAAQIFAHA", "WAAQIFADA")} SAAMIGA`,
-        `SAXIIXA WAKIILLADA WAAQIFAYAASHA SAAMIGA`
-      )
-    : singleOrPlural(
-        sellersArr.length,
-        `SAXIIXA ${maleFemale(leftGender, "WAAQIFAHA", "WAAQIFADA")} SAAMIGA`,
-        `SAXIIXA WAAQIFAYAASHA SAAMIGA`
-      );
-
-  // BUYER = QOFKA LOO WAQFAY
-  rightTitle = hasBuyerSigAgent
-    ? singleOrPlural(
-        buyerAgentsArr.length,
-        `SAXIIXA WAQAF U AQBALAHA ${maleFemale(rightGender, "QOFKA LOO WAQFAY", "QOFTA LOO WAQFAY")} SAAMIGA`,
-        `SAXIIXA WAQAF U AQBALAHA DADKA LOO WAQFAY SAAMIGA`
-      )
-    : singleOrPlural(
-        buyersArr.length,
-        `SAXIIXA ${maleFemale(rightGender, "QOFKA LOO WAQFAY", "QOFTA LOO WAQFAY")} SAAMIGA`,
-        `SAXIIXA DADKA LOO WAQFAY SAAMIGA`
-      );
-}
-
-const signatureLine = "______________________________";
-
+ 
   const sharesCount = Number(service?.amount || 0) / 10;
 
   const saamiHeaderSection = () => [
@@ -495,9 +360,296 @@ const signatureLine = "______________________________";
             }),
           ],
         }),
+        
       ],
     }),
+    
+    
   ];
+ // ================= SIGNATURES (SAAMI ONLY + GENDER) =================
+const singleOrPlural = (count, single, plural) => (count > 1 ? plural : single);
+
+const maleFemale = (gender, male, female) =>
+  String(gender || "").toLowerCase() === "female" ? female : male;
+
+const joinSigNames = (arr = []) =>
+  (arr || [])
+    .filter(Boolean)
+    .map((p) => safe(p?.fullName))
+    .filter(Boolean)
+    .join(" , ");
+
+const agreementType = String(agreement?.agreementType || "").trim(); // Beec | Hibo | Waqaf
+
+const sellersArr = sellers || [];
+const buyersArr = buyers || [];
+
+const sellerAgentsArr = sellerAgents || [];
+const buyerAgentsArr = buyerAgents || [];
+
+const hasSellerSigAgent = sellerAgentsArr.length > 0;
+const hasBuyerSigAgent = buyerAgentsArr.length > 0;
+
+// ✅ haddii wakiil jiro, wakiilka ayaa saxiixaya
+const leftPeople = hasSellerSigAgent ? sellerAgentsArr : sellersArr;
+const rightPeople = hasBuyerSigAgent ? buyerAgentsArr : buyersArr;
+
+const leftGender = leftPeople?.[0]?.gender || "male";
+const rightGender = rightPeople?.[0]?.gender || "male";
+
+const leftName =
+  leftPeople.length > 1 ? joinSigNames(leftPeople) : safe(leftPeople?.[0]?.fullName.toUpperCase());
+
+const rightName =
+  rightPeople.length > 1 ? joinSigNames(rightPeople) : safe(rightPeople?.[0]?.fullName.toUpperCase());
+
+// -------- TITLES (Beec / Hibo / Waqaf) --------
+let leftTitle = "";
+let rightTitle = "";
+
+/* =========================
+   B E E C
+========================= */
+if (agreementType === "Beec") {
+  // SELLER (main vs agent)
+  leftTitle = hasSellerSigAgent
+    ? singleOrPlural(
+        sellerAgentsArr.length,
+        `SAXIIXA WAKIILKA ${maleFemale(leftGender, "ISKA IIBIYAHA", "ISKA IIBISADA")} SAAMIGA`,
+        `SAXIIXA WAKIILLADA ISKA IIBIYAASHA SAAMIGA`
+      )
+    : singleOrPlural(
+        sellersArr.length,
+        `SAXIIXA ${maleFemale(leftGender, "ISKA IIBIYAHA", "ISKA IIBISADA")} SAAMIGA `,
+        `SAXIIXA ISKA IIBIYAASHA SAAMIGA`
+      );
+
+  // BUYER (main vs agent)
+  rightTitle = hasBuyerSigAgent
+    ? singleOrPlural(
+        buyerAgentsArr.length,
+        `SAXIIXA BEEC U AQBALAHA ${maleFemale(rightGender, "IIBSADAHA", "IIBSATADA")} SAAMIGA`,
+        `SAXIIXA BEEC U AQBALAHA IIBSADAYAASHA SAAMIGA`
+      )
+    : singleOrPlural(
+        buyersArr.length,
+        `SAXIIXA ${maleFemale(rightGender, "IIBSADAHA", "IIBSATADA")} SAAMIGA`,
+        `SAXIIXA IIBSADAYAASHA SAAMIGA`
+      );
+}
+
+/* =========================
+   H I B O
+========================= */
+else if (agreementType === "Hibo") {
+  // SELLER = HIBEYE
+  leftTitle = hasSellerSigAgent
+    ? singleOrPlural(
+        sellerAgentsArr.length,
+        `SAXIIXA WAKIILKA ${maleFemale(leftGender, "HIBEYAHA", "HIBEYSADA")} SAAMIGA`,
+        `SAXIIXA WAKIILLADA HIBEYAASHA SAAMIGA`
+      )
+    : singleOrPlural(
+        sellersArr.length,
+        `SAXIIXA ${maleFemale(leftGender, "HIBEYAHA", "HIBEYSADA")} SAAMIGA`,
+        `SAXIIXA HIBEYAASHA SAAMIGA`
+      );
+
+  // BUYER = QAATAHA
+  rightTitle = hasBuyerSigAgent
+    ? singleOrPlural(
+        buyerAgentsArr.length,
+        `SAXIIXA HIBEYN U AQBALAHA ${maleFemale(rightGender, "QAATAHA", "QAATADA")} SAAMIGA`,
+        `SAXIIXA HIBEYN U AQBALAHA QAATAYAASHA SAAMIGA`
+      )
+    : singleOrPlural(
+        buyersArr.length,
+        `SAXIIXA ${maleFemale(rightGender, "QAATAHA", "QAATADA")} SAAMIGA`,
+        `SAXIIXA QAATAYAASHA SAAMIGA`
+      );
+}
+
+/* =========================
+   W A Q A F
+========================= */
+else if (agreementType === "Waqaf") {
+  // SELLER = WAAQIF
+  leftTitle = hasSellerSigAgent
+    ? singleOrPlural(
+        sellerAgentsArr.length,
+        `SAXIIXA WAKIILKA ${maleFemale(leftGender, "WAAQIFAHA", "WAAQIFADA")} SAAMIGA`,
+        `SAXIIXA WAKIILLADA WAAQIFAYAASHA SAAMIGA`
+      )
+    : singleOrPlural(
+        sellersArr.length,
+        `SAXIIXA ${maleFemale(leftGender, "WAAQIFAHA", "WAAQIFADA")} SAAMIGA`,
+        `SAXIIXA WAAQIFAYAASHA SAAMIGA`
+      );
+
+  // BUYER = QOFKA LOO WAQFAY
+  rightTitle = hasBuyerSigAgent
+    ? singleOrPlural(
+        buyerAgentsArr.length,
+        `SAXIIXA WAQAF U AQBALAHA ${maleFemale(rightGender, "QOFKA LOO WAQFAY", "QOFTA LOO WAQFAY")} SAAMIGA`,
+        `SAXIIXA WAQAF U AQBALAHA DADKA LOO WAQFAY SAAMIGA`
+      )
+    : singleOrPlural(
+        buyersArr.length,
+        `SAXIIXA ${maleFemale(rightGender, "QOFKA LOO WAQFAY", "QOFTA LOO WAQFAY")} SAAMIGA`,
+        `SAXIIXA DADKA LOO WAQFAY SAAMIGA`
+      );
+}
+
+const signatureLine = "______________________________";
+
+
+// ================= MARQAATIYAASHA =================
+const witnessesTitle = new Paragraph({
+  alignment: AlignmentType.CENTER,
+  spacing: { before: 200, after: 120 },
+  children: [
+    new TextRun({
+      text: "SAXIIXA MARQAATIYAASHA",
+      bold: true,
+      underline: true,
+      size: 24,
+      font: "Times New Roman",
+    }),
+  ],
+});
+
+const witnessesTable =
+  agreement?.witnesses && agreement.witnesses.length > 0
+    ? new Table({
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        borders: {
+          top: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+          bottom: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+          left: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+          right: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+          insideHorizontal: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+          insideVertical: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+        },
+        rows: [
+          new TableRow({
+            children: agreement.witnesses.map((w) =>
+              new TableCell({
+                borders: hiddenBorders,
+                width: { size: 50, type: WidthType.PERCENTAGE },
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    spacing: { after: 120 },
+                    children: [
+                      new TextRun({
+                        text: (w || "").toUpperCase(),
+                        bold: true,
+                        size: 22,
+                        font: "Times New Roman",
+                      }),
+                    ],
+                  }),
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [
+                      new TextRun({
+                        text: "__________________________",
+                        size: 22,
+                        font: "Times New Roman",
+                      }),
+                    ],
+                  }),
+                ],
+              })
+            ),
+          }),
+        ],
+      })
+    : null;
+
+// ================= SUGITAANKA NOOTAAYADA =================
+const notarySection = [
+  new Paragraph({
+    alignment: AlignmentType.CENTER,
+    spacing: { before: 240, after: 120 },
+    children: [
+      new TextRun({
+        text: "SUGITAANKA NOOTAAYADA",
+        bold: true,
+        underline: true,
+        size: 24,
+        font: "Times New Roman",
+      }),
+    ],
+  }),
+
+  new Paragraph({
+    alignment: AlignmentType.JUSTIFIED,
+    spacing: { after: 120 },
+    children: [
+      new TextRun({
+        text: `REF: ${safe(agreement?.refNo)}, Tr. ${formatDate(agreement?.agreementDate)} `,
+        size: 22,
+        bold: true,
+        underline: true,
+        font: "Times New Roman",
+      }),
+        new TextRun({ text: "Anigoo ah ", size: 24, font: "Times New Roman" }),
+      new TextRun({
+        text: "Dr. Maxamed Cabdiraxmaan Sheekh Maxamed, ",
+        size: 24,
+        bold: true,
+        font: "Times New Roman",
+      }),
+      new TextRun({
+        text:
+          "Nootaayaha Xafiiska Nootaayaha Boqole, waxaan sugayaa in saxiixyada kor ku xusan ay yihiin kuwo run ah oo ku dhacay si xor ah, laguna saxiixay horteyda, waana sugitaan ansax ah oo waafaqsan Shareecada Islaamka iyo qaanuunka dalka.",
+        size: 24,
+        font: "Times New Roman",
+      }),
+    ],
+  }),
+
+
+
+  new Paragraph({
+    alignment: AlignmentType.CENTER,
+    spacing: { after: 80 },
+    children: [
+      new TextRun({
+        text: "NOOTAAYAHA",
+        bold: true,
+        size: 24,
+        font: "Times New Roman",
+      }),
+    ],
+  }),
+
+  new Paragraph({
+    alignment: AlignmentType.CENTER,
+    spacing: { after: 60 },
+    children: [
+      new TextRun({
+        text: "Dr. Maxamed Cabdiraxmaan Sheekh Maxamed",
+        bold: true,
+        size: 24,
+        font: "Times New Roman",
+      }),
+    ],
+  }),
+
+  new Paragraph({
+    alignment: AlignmentType.CENTER,
+    spacing: { after: 40 },
+    children: [
+      new TextRun({
+        text: "__________________________",
+        size: 22,
+        font: "Times New Roman",
+      }),
+    ],
+  }),
+];
 
   // ================== RETURN ==================
   return [
@@ -679,6 +831,7 @@ const signatureLine = "______________________________";
             }),
           ],
     }),
+    
       // SIGNATURE TABLE
     new Table({
       width: { size: 100, type: WidthType.PERCENTAGE },
@@ -750,7 +903,15 @@ const signatureLine = "______________________________";
             }),
           ],
         }),
+        
       ],
     }),
+        // ✅ MARQAATIYAASHA
+    ...(witnessesTable ? [witnessesTitle, witnessesTable] : []),
+
+    // ✅ SUGITAANKA NOOTAAYADA
+    ...notarySection,
+    
   ];
+  
 };

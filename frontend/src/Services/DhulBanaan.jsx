@@ -136,63 +136,182 @@ export const buildDhulBanaanDoc = ({
     right: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
   };
 
-  const localSignatures = () => {
-    const normalizeGender = (g) => (String(g || "male").toLowerCase() === "female" ? "female" : "male");
-    const sellerGender = normalizeGender(seller0?.gender);
-    const buyerGender = normalizeGender(buyer0?.gender);
+ // ================= SIGNATURES (SAAMI ONLY + GENDER) =================
+const singleOrPlural = (count, single, plural) => (count > 1 ? plural : single);
 
-    const singleOrPlural = (count, single, plural) => (count > 1 ? plural : single);
-    const maleFemale = (gender, male, female) => (gender === "female" ? female : male);
+const maleFemale = (gender, male, female) =>
+  String(gender || "").toLowerCase() === "female" ? female : male;
 
-    const isWareejin = String(agreement?.service || "").toLowerCase() === "wareejin";
+const joinSigNames = (arr = []) =>
+  (arr || [])
+    .filter(Boolean)
+    .map((p) => safe(p?.fullName))
+    .filter(Boolean)
+    .join(" , ");
 
-    const sellerMain = (gender, count) =>
-      isWareejin
-        ? singleOrPlural(count, maleFemale(gender, "ISKA IIBIYAHA", "ISKA IIBISADA"), "ISKA IIBIYAASHA")
-        : singleOrPlural(count, maleFemale(gender, "WAKAALAD BIXIYAHA", "WAKAALAD BIXISADA"), "WAKAALAD BIXIYAASHA");
+const agreementType = String(agreement?.agreementType || "").trim(); // Beec | Hibo | Waqaf
 
-    const sellerAgent = (gender, count) =>
-      singleOrPlural(count, maleFemale(gender, "LA WAKIISHAHA", "LA WAKIISHADA"), "LA WAKIISHAYAASHA");
+const sellersArr = sellers || [];
+const buyersArr = buyers || [];
 
-    const buyerMain = (gender, count) =>
-      isWareejin
-        ? singleOrPlural(count, maleFemale(gender, "IIBSADAHA", "IIBSATADA"), "IIBSADAYAASHA")
-        : singleOrPlural(count, maleFemale(gender, "LA WAKIISHAHA", "LA WAKIISHADA"), "LA WAKIISHAYAASHA");
+const sellerAgentsArr = sellerAgents || [];
+const buyerAgentsArr = buyerAgents || [];
 
-    const buyerAgent = (gender, count) =>
-      singleOrPlural(count, maleFemale(gender, "LA WAKIISHAHA", "LA WAKIISHADA"), "LA WAKIISHAYAASHA");
+const hasSellerSigAgent = sellerAgentsArr.length > 0;
+const hasBuyerSigAgent = buyerAgentsArr.length > 0;
 
-    const sellerSignTitle = hasSellerAgent
-      ? `SAXIIXA ${sellerAgent(sellerGender, sellerAgents.length)}`
-      : `SAXIIXA ${sellerMain(sellerGender, sellers.length)} `;
+// ✅ haddii wakiil jiro, wakiilka ayaa saxiixaya
+const leftPeople = hasSellerSigAgent ? sellerAgentsArr : sellersArr;
+const rightPeople = hasBuyerSigAgent ? buyerAgentsArr : buyersArr;
 
-    const sellerSignNames = hasSellerAgent ? sellerAgents.map((a) => a.fullName) : sellers.map((s) => s.fullName);
+const leftGender = leftPeople?.[0]?.gender || "male";
+const rightGender = rightPeople?.[0]?.gender || "male";
 
-    const buyerSignTitle = hasBuyerAgent
-      ? `SAXIIXA ${buyerAgent(buyerGender, buyerAgents.length)}`
-      : `SAXIIXA ${buyerMain(buyerGender, buyers.length)}`;
+const leftName =
+  leftPeople.length > 1 ? joinSigNames(leftPeople) : safe(leftPeople?.[0]?.fullName.toUpperCase());
 
-    const buyerSignNames = hasBuyerAgent ? buyerAgents.map((a) => a.fullName) : buyers.map((b) => b.fullName);
+const rightName =
+  rightPeople.length > 1 ? joinSigNames(rightPeople) : safe(rightPeople?.[0]?.fullName.toUpperCase());
 
-    return new Table({
-      width: { size: 100, type: WidthType.PERCENTAGE },
-      rows: [
-        new TableRow({
-          children: [
-            new TableCell({
-              borders: hiddenBorders,
-              children: [
-                new Paragraph({
-                  alignment: AlignmentType.CENTER,
-                  children: [new TextRun({ text: sellerSignTitle, bold: true, size: 22, font: "Times New Roman" })],
-                }),
-                ...sellerSignNames.flatMap((name) => [
+// -------- TITLES (Beec / Hibo / Waqaf) --------
+let leftTitle = "";
+let rightTitle = "";
+
+/* =========================
+   B E E C
+========================= */
+if (agreementType === "Beec") {
+  // SELLER (main vs agent)
+  leftTitle = hasSellerSigAgent
+    ? singleOrPlural(
+        sellerAgentsArr.length,
+        `SAXIIXA WAKIILKA ${maleFemale(leftGender, "ISKA IIBIYAHA", "ISKA IIBISADA")} DHULKA`,
+        `SAXIIXA WAKIILLADA ISKA IIBIYAASHA DHULKA`
+      )
+    : singleOrPlural(
+        sellersArr.length,
+        `SAXIIXA ${maleFemale(leftGender, "ISKA IIBIYAHA", "ISKA IIBISADA")} DHULKA `,
+        `SAXIIXA ISKA IIBIYAASHA DHULKA`
+      );
+
+  // BUYER (main vs agent)
+  rightTitle = hasBuyerSigAgent
+    ? singleOrPlural(
+        buyerAgentsArr.length,
+        `SAXIIXA BEEC U AQBALAHA ${maleFemale(rightGender, "IIBSADAHA", "IIBSATADA")} DHULKA`,
+        `SAXIIXA BEEC U AQBALAHA IIBSADAYAASHA DHULKA`
+      )
+    : singleOrPlural(
+        buyersArr.length,
+        `SAXIIXA ${maleFemale(rightGender, "IIBSADAHA", "IIBSATADA")} DHULKA`,
+        `SAXIIXA IIBSADAYAASHA DHULKA`
+      );
+}
+
+/* =========================
+   H I B O
+========================= */
+else if (agreementType === "Hibo") {
+  // SELLER = HIBEYE
+  leftTitle = hasSellerSigAgent
+    ? singleOrPlural(
+        sellerAgentsArr.length,
+        `SAXIIXA WAKIILKA ${maleFemale(leftGender, "HIBEYAHA", "HIBEYSADA")} DHULKA`,
+        `SAXIIXA WAKIILLADA HIBEYAASHA DHULKA`
+      )
+    : singleOrPlural(
+        sellersArr.length,
+        `SAXIIXA ${maleFemale(leftGender, "HIBEYAHA", "HIBEYSADA")} DHULKA`,
+        `SAXIIXA HIBEYAASHA DHULKA`
+      );
+
+  // BUYER = QAATAHA
+  rightTitle = hasBuyerSigAgent
+    ? singleOrPlural(
+        buyerAgentsArr.length,
+        `SAXIIXA HIBEYN U AQBALAHA ${maleFemale(rightGender, "QAATAHA", "QAATADA")} DHULKA`,
+        `SAXIIXA HIBEYN U AQBALAHA QAATAYAASHA DHULKA`
+      )
+    : singleOrPlural(
+        buyersArr.length,
+        `SAXIIXA ${maleFemale(rightGender, "QAATAHA", "QAATADA")} DHULKA`,
+        `SAXIIXA QAATAYAASHA DHULKA`
+      );
+}
+
+/* =========================
+   W A Q A F
+========================= */
+else if (agreementType === "Waqaf") {
+  // SELLER = WAAQIF
+  leftTitle = hasSellerSigAgent
+    ? singleOrPlural(
+        sellerAgentsArr.length,
+        `SAXIIXA WAKIILKA ${maleFemale(leftGender, "WAAQIFAHA", "WAAQIFADA")} DHULKA`,
+        `SAXIIXA WAKIILLADA WAAQIFAYAASHA DHULKA`
+      )
+    : singleOrPlural(
+        sellersArr.length,
+        `SAXIIXA ${maleFemale(leftGender, "WAAQIFAHA", "WAAQIFADA")} DHULKA`,
+        `SAXIIXA WAAQIFAYAASHA DHULKA`
+      );
+
+  // BUYER = QOFKA LOO WAQFAY
+  rightTitle = hasBuyerSigAgent
+    ? singleOrPlural(
+        buyerAgentsArr.length,
+        `SAXIIXA WAQAF U AQBALAHA ${maleFemale(rightGender, "QOFKA LOO WAQFAY", "QOFTA LOO WAQFAY")} DHULKA`,
+        `SAXIIXA WAQAF U AQBALAHA DADKA LOO WAQFAY DHULKA`
+      )
+    : singleOrPlural(
+        buyersArr.length,
+        `SAXIIXA ${maleFemale(rightGender, "QOFKA LOO WAQFAY", "QOFTA LOO WAQFAY")} DHULKA`,
+        `SAXIIXA DADKA LOO WAQFAY DHULKA`
+      );
+}
+
+const signatureLine = "______________________________";
+
+// ================= MARQAATIYAASHA =================
+const witnessesTitle = new Paragraph({
+  alignment: AlignmentType.CENTER,
+  spacing: { before: 200, after: 120 },
+  children: [
+    new TextRun({
+      text: "SAXIIXA MARQAATIYAASHA",
+      bold: true,
+      underline: true,
+      size: 24,
+      font: "Times New Roman",
+    }),
+  ],
+});
+
+const witnessesTable =
+  agreement?.witnesses && agreement.witnesses.length > 0
+    ? new Table({
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        borders: {
+          top: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+          bottom: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+          left: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+          right: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+          insideHorizontal: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+          insideVertical: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+        },
+        rows: [
+          new TableRow({
+            children: agreement.witnesses.map((w) =>
+              new TableCell({
+                borders: hiddenBorders,
+                width: { size: 50, type: WidthType.PERCENTAGE },
+                children: [
                   new Paragraph({
                     alignment: AlignmentType.CENTER,
-                    spacing: { after: 100 },
+                    spacing: { after: 120 },
                     children: [
                       new TextRun({
-                        text: safe(name).toUpperCase(),
+                        text: (w || "").toUpperCase(),
                         bold: true,
                         size: 22,
                         font: "Times New Roman",
@@ -201,46 +320,105 @@ export const buildDhulBanaanDoc = ({
                   }),
                   new Paragraph({
                     alignment: AlignmentType.CENTER,
-                    spacing: { after: 20 },
-                    children: [new TextRun({ text: "__________________________", size: 22 })],
-                  }),
-                ]),
-              ],
-            }),
-            new TableCell({
-              borders: hiddenBorders,
-              children: [
-                new Paragraph({
-                  alignment: AlignmentType.CENTER,
-                  children: [new TextRun({ text: buyerSignTitle, bold: true, size: 22, font: "Times New Roman" })],
-                }),
-                ...buyerSignNames.flatMap((name) => [
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    spacing: { after: 20 },
                     children: [
                       new TextRun({
-                        text: safe(name).toUpperCase(),
-                        bold: true,
+                        text: "__________________________",
                         size: 22,
                         font: "Times New Roman",
                       }),
                     ],
                   }),
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    spacing: { after: 20 },
-                    children: [new TextRun({ text: "__________________________", size: 22 })],
-                  }),
-                ]),
-              ],
-            }),
-          ],
-        }),
-      ],
-    });
-  };
+                ],
+              })
+            ),
+          }),
+        ],
+      })
+    : null;
 
+// ================= SUGITAANKA NOOTAAYADA =================
+const notarySection = [
+  new Paragraph({
+    alignment: AlignmentType.CENTER,
+    spacing: { before: 240, after: 120 },
+    children: [
+      new TextRun({
+        text: "SUGITAANKA NOOTAAYADA",
+        bold: true,
+        underline: true,
+        size: 24,
+        font: "Times New Roman",
+      }),
+    ],
+  }),
+
+  new Paragraph({
+    alignment: AlignmentType.JUSTIFIED,
+    spacing: { after: 120 },
+    children: [
+      new TextRun({
+        text: `REF: ${safe(agreement?.refNo)}, Tr. ${formatDate(agreement?.agreementDate)} `,
+        size: 22,
+        bold: true,
+        underline: true,
+        font: "Times New Roman",
+      }),
+        new TextRun({ text: "Anigoo ah ", size: 24, font: "Times New Roman" }),
+      new TextRun({
+        text: "Dr. Maxamed Cabdiraxmaan Sheekh Maxamed, ",
+        size: 24,
+        bold: true,
+        font: "Times New Roman",
+      }),
+      new TextRun({
+        text:
+          "Nootaayaha Xafiiska Nootaayaha Boqole, waxaan sugayaa in saxiixyada kor ku xusan ay yihiin kuwo run ah oo ku dhacay si xor ah, laguna saxiixay horteyda, waana sugitaan ansax ah oo waafaqsan Shareecada Islaamka iyo qaanuunka dalka.",
+        size: 24,
+        font: "Times New Roman",
+      }),
+    ],
+  }),
+
+
+
+  new Paragraph({
+    alignment: AlignmentType.CENTER,
+    spacing: { after: 80 },
+    children: [
+      new TextRun({
+        text: "NOOTAAYAHA",
+        bold: true,
+        size: 24,
+        font: "Times New Roman",
+      }),
+    ],
+  }),
+
+  new Paragraph({
+    alignment: AlignmentType.CENTER,
+    spacing: { after: 60 },
+    children: [
+      new TextRun({
+        text: "Dr. Maxamed Cabdiraxmaan Sheekh Maxamed",
+        bold: true,
+        size: 24,
+        font: "Times New Roman",
+      }),
+    ],
+  }),
+
+  new Paragraph({
+    alignment: AlignmentType.CENTER,
+    spacing: { after: 40 },
+    children: [
+      new TextRun({
+        text: "__________________________",
+        size: 22,
+        font: "Times New Roman",
+      }),
+    ],
+  }),
+];
   // ========= RETURN (DhulBanaan main content) =========
   const content = [
       // TITLE
@@ -505,12 +683,92 @@ export const buildDhulBanaanDoc = ({
             }),
           ],
     }),
+      // SIGNATURE TABLE
+    new Table({
+      width: { size: 100, type: WidthType.PERCENTAGE },
+      borders: {
+        top: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+        bottom: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+        left: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+        right: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+        insideHorizontal: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+        insideVertical: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+      },
+      rows: [
+        new TableRow({
+          children: [
+            new TableCell({
+              width: { size: 50, type: WidthType.PERCENTAGE },
+              borders: {
+                top: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+                bottom: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+                left: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+                right: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+              },
+              children: [
+                new Paragraph({
+                  alignment: AlignmentType.CENTER,
+                  spacing: { after: 120 },
+                  children: [
+                    new TextRun({ text: leftTitle, bold: true, size: 22, underline: {} }),
+                  ],
+                }),
+                new Paragraph({
+                  alignment: AlignmentType.CENTER,
+                  spacing: { after: 80 },
+                  children: [new TextRun({ text: safe(leftName), bold: true, size: 22 })],
+                }),
+                new Paragraph({
+                  alignment: AlignmentType.CENTER,
+                  children: [new TextRun({ text: signatureLine, size: 22 })],
+                }),
+              ],
+            }),
+
+            new TableCell({
+              width: { size: 50, type: WidthType.PERCENTAGE },
+              borders: {
+                top: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+                bottom: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+                left: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+                right: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+              },
+              children: [
+                new Paragraph({
+                  alignment: AlignmentType.CENTER,
+                  spacing: { after: 120 },
+                  children: [
+                    new TextRun({ text: rightTitle, bold: true, size: 22, underline: {} }),
+                  ],
+                }),
+                new Paragraph({
+                  alignment: AlignmentType.CENTER,
+                  spacing: { after: 80 },
+                  children: [new TextRun({ text: safe(rightName), bold: true, size: 22 })],
+                }),
+                new Paragraph({
+                  alignment: AlignmentType.CENTER,
+                  children: [new TextRun({ text: signatureLine, size: 22 })],
+                }),
+              ],
+            }),
+          ],
+        }),
+        
+      ],
+    }),
+        // ✅ MARQAATIYAASHA
+    ...(witnessesTable ? [witnessesTitle, witnessesTable] : []),
+
+    // ✅ SUGITAANKA NOOTAAYADA
+    ...notarySection,
+    
+  
+    
   ];
 
-  // ✅ haddii aad rabto saxiixyo “DhulBanaan only” (NOT recommended haddii global signatureTable jira)
-  if (includeLocalSignatures) {
-    content.push(localSignatures());
-  }
+ 
 
   return content;
+  
 };
