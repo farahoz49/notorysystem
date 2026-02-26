@@ -15,6 +15,7 @@ import baabuurRoutes from './routes/BaabuurRoute.js'
 import wakaaladSaamiRoutes from "./routes/wakaaladSaamiroutes.js";
 
 import cors from "cors"
+import { getNextRefNo } from './controller/agreementcontroller.js';
 const app = express();
 const PORT = 8000
 
@@ -46,6 +47,7 @@ app.use('/api/forgetpassword', TokenRoute);
 
 
 conectBD();
+
 app.listen(PORT ,()=>{
     console.log(`Server is running on port ${PORT}`);
 

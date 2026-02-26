@@ -14,33 +14,33 @@ const agreementSchema = new mongoose.Schema(
       index: true,
     },
 
-   service: {
-  type: String,
-  enum: ["Wareejin", "Wakaalad" , "Caddeyn" , "Damaanad" , "Heshiisyo"],
-  required: true,
-},
+    service: {
+      type: String,
+      enum: ["Wareejin", "Wakaalad", "Caddeyn", "Damaanad", "Heshiisyo"],
+      required: true,
+    },
 
-serviceType: {
-  type: String,
-  enum: [
-    "DhulBanaan",
-    "baabuur",
-    "Mooto",
-    "Saami",
-    "Wakaalad Guud",
-    "Wakaalad_Gaar_ah",
-    "Wakaalad_Saami",
-    "Wakaalad kale",
-    "Caddeyn",
-    "Damaanad",
-    "Heshiisyo",
-    "Daaminul maal", 
-    "Shaqaaleysiin",
-    "Heshiis Dhex Maray Laba Daraf",
-    "Aas’aasid Shirkad"
-  ],
-  required: true,
-},
+    serviceType: {
+      type: String,
+      enum: [
+        "DhulBanaan",
+        "baabuur",
+        "Mooto",
+        "Saami",
+        "Wakaalad Guud",
+        "Wakaalad_Gaar_ah",
+        "Wakaalad_Saami",
+        "Wakaalad kale",
+        "Caddeyn",
+        "Damaanad",
+        "Heshiisyo",
+        "Daaminul maal",
+        "Shaqaaleysiin",
+        "Heshiis Dhex Maray Laba Daraf",
+        "Aas’aasid Shirkad"
+      ],
+      required: true,
+    },
 
 
     serviceRef: {
@@ -50,7 +50,7 @@ serviceType: {
 
     agreementType: {
       type: String,
-    
+
       enum: ["Beec", "Hibo", "Waqaf"],
     },
 
@@ -125,6 +125,14 @@ serviceType: {
         }, { _id: false })
       },
     },
+    // ✅ Images with description (user writes)
+    images: [
+      {
+        url: { type: String, required: true, trim: true },
+        description: { type: String, trim: true, default: "" },
+        createdAt: { type: Date, default: Date.now },
+      },
+    ],
 
     witnesses: [
       {
@@ -149,7 +157,7 @@ agreementSchema.pre("validate", function (next) {
   }
 
   if (this.service === "Wakaalad") {
-    const allowed = ["Wakaalad Guud", "Wakaalad_Gaar_ah", "Wakaalad_Saami" , "Wakaalad kale"];
+    const allowed = ["Wakaalad Guud", "Wakaalad_Gaar_ah", "Wakaalad_Saami", "Wakaalad kale"];
     if (!allowed.includes(this.serviceType)) {
       return next(new Error("Invalid serviceType for Wakaalad"));
     }

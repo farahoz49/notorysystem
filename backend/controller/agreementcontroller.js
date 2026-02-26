@@ -2,27 +2,50 @@ import Agreement from "../model/Agreement.js";
 import mongoose from "mongoose";
 import Wakaalad from "../model/Wakaalad.js";
 import Tasdiiq from "../model/Tasdiiq.js";
+import { uploadBufferToCloudinary } from "../utils/uploadToCloudinary.js";
 
 /* ===============================
    HELPER: GENERATE REF NO
    Format: 001/BQL/2026
 ================================ */
+// const generateRefNo = async () => {
+//   const year = new Date().getFullYear();
+
+//   const lastAgreement = await Agreement.findOne({
+//     refNo: new RegExp(`/${year}$`),
+//   }).sort({ createdAt: -1 });
+
+//   let nextNumber = 1;
+//   if (lastAgreement) {
+//     const lastNum = parseInt(lastAgreement.refNo.split("/")[0]);
+//     nextNumber = lastNum + 1;
+//   }
+
+//   return `${String(nextNumber).padStart(3, "0")}/BQL/${year}`;
+  
+// };
+
 const generateRefNo = async () => {
   const year = new Date().getFullYear();
 
-  const lastAgreement = await Agreement.findOne({
-    refNo: new RegExp(`/${year}$`),
-  }).sort({ createdAt: -1 });
+  const docs = await Agreement.find(
+    { refNo: { $regex: `/BQL/${year}$` } },
+    { refNo: 1, _id: 0 }
+  );
 
+  const nums = docs
+    .map((d) => parseInt(String(d.refNo).split("/")[0], 10))
+    .filter((n) => Number.isFinite(n))
+    .sort((a, b) => a - b);
+
+  const set = new Set(nums);
+
+  // ✅ Find smallest missing positive number
   let nextNumber = 1;
-  if (lastAgreement) {
-    const lastNum = parseInt(lastAgreement.refNo.split("/")[0]);
-    nextNumber = lastNum + 1;
-  }
+  while (set.has(nextNumber)) nextNumber++;
 
   return `${String(nextNumber).padStart(3, "0")}/BQL/${year}`;
 };
-
 /* ===============================
    GET AGREEMENT BY ID - SIMPLIFY POPULATE
 ================================ */
@@ -34,7 +57,7 @@ export const getAgreementById = async (req, res) => {
       .populate("dhinac2.buyers")
       .populate("dhinac2.agents")
       .populate("dhinac2.guarantors")
-        .populate("serviceRef")   // <-- Halkan ku dar
+      .populate("serviceRef")   // <-- Halkan ku dar
 
       .populate("createdBy", "username");
 
@@ -92,9 +115,9 @@ export const getAgreements = async (req, res) => {
       .populate("dhinac2.buyers")
       .populate("dhinac2.agents")
       .populate("dhinac2.guarantors")
-      
-      
-  .populate("serviceRef")   // <-- Halkan ku dar
+
+
+      .populate("serviceRef")   // <-- Halkan ku dar
 
       .populate("createdBy", "username");
 
@@ -258,6 +281,89 @@ export const createAgreement = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+export const addImagesToAgreementCloudinary = async (req, res) => {
+  try {
+    const { agreementId } = req.params;
+
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ message: "No images uploaded" });
+    }
+
+    const uploads = await Promise.all(
+      req.files.map((f) =>
+        uploadBufferToCloudinary(f.buffer, `agreements/${agreementId}`)
+      )
+    );
+
+    const urls = uploads.map((u) => u.secure_url);
+
+    return res.json({ urls }); // ✅ kaliya urls
+  } catch (error) {
+    console.error("upload cloudinary error:", error);
+    return res.status(500).json({ message: error.message });
+  }
+};
+export const addImageMetaToAgreement = async (req, res) => {
+  try {
+    const { agreementId } = req.params;
+    const { url, description = "" } = req.body;
+
+    if (!url) return res.status(400).json({ message: "url is required" });
+
+    const agreement = await Agreement.findByIdAndUpdate(
+      agreementId,
+      { $push: { images: { url, description } } },
+      { new: true }
+    );
+
+    if (!agreement) return res.status(404).json({ message: "Agreement not found" });
+
+    return res.json({ message: "Image saved", agreement });
+  } catch (error) {
+    console.error("addImageMetaToAgreement error:", error);
+    return res.status(500).json({ message: error.message });
+  }
+};
+export const removeAgreementImage = async (req, res) => {
+  try {
+    const { agreementId } = req.params;
+    const { imageUrl } = req.body;
+
+    if (!imageUrl) return res.status(400).json({ message: "imageUrl is required" });
+
+    const agreement = await Agreement.findByIdAndUpdate(
+      agreementId,
+      { $pull: { images: imageUrl } },
+      { new: true }
+    );
+
+    if (!agreement) return res.status(404).json({ message: "Agreement not found" });
+
+    return res.json({ message: "Image removed", agreement });
+  } catch (error) {
+    console.error("removeAgreementImage error:", error);
+    return res.status(500).json({ message: error.message });
+  }
+};
+export const deleteAgreementImage = async (req, res) => {
+  try {
+    const { agreementId, imageId } = req.params;
+
+    const agreement = await Agreement.findByIdAndUpdate(
+      agreementId,
+      { $pull: { images: { _id: imageId } } },
+      { new: true }
+    );
+
+    if (!agreement) return res.status(404).json({ message: "Agreement not found" });
+
+    return res.json({ message: "Image deleted", agreement });
+  } catch (error) {
+    console.error("deleteAgreementImage error:", error);
+    return res.status(500).json({ message: error.message });
+  }
+};
+
 
 /* =====================================================
    ADD PERSON (SELLER / BUYER / AGENT / GUARANTOR)
@@ -370,7 +476,7 @@ export const removePersonFromAgreement = async (req, res) => {
     // Handle agentDocument populate separately
     if (agreement.dhinac1?.agentDocument?.docRef) {
       const docType = agreement.dhinac1.agentDocument.docType;
-      
+
       if (docType === "Wakaalad") {
         await agreement.populate({
           path: "dhinac1.agentDocument.docRef",
@@ -472,6 +578,43 @@ export const getNextRefNo = async (req, res) => {
   } catch (error) {
     console.error("Error getting next ref no:", error);
     res.status(500).json({ message: error.message });
+  }
+};
+// GET /api/agreements/missing-refnos?year=2026
+export const getMissingRefNos = async (req, res) => {
+  try {
+    const year = Number(req.query.year) || new Date().getFullYear();
+
+    const docs = await Agreement.find(
+      { refNo: { $regex: `/BQL/${year}$` } },
+      { refNo: 1, _id: 0 }
+    );
+
+    const nums = docs
+      .map((d) => parseInt(String(d.refNo).split("/")[0], 10))
+      .filter((n) => Number.isFinite(n))
+      .sort((a, b) => a - b);
+
+    const max = nums[nums.length - 1] || 0;
+
+    const set = new Set(nums);
+    const missing = [];
+    for (let i = 1; i <= max; i++) {
+      if (!set.has(i)) missing.push(i);
+    }
+
+    // format: ["001","008","018"]
+    const formatted = missing.map((n) => String(n).padStart(3, "0"));
+
+    return res.json({
+      year,
+      max,
+      total: nums.length,
+      missing: formatted,
+    });
+  } catch (error) {
+    console.error("getMissingRefNos error:", error);
+    return res.status(500).json({ message: error.message });
   }
 };
 
