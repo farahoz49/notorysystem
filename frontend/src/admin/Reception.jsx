@@ -9,12 +9,14 @@ import {
   createPerson,
   getNextRefNo,
   createAgreement,
+  getMissingRefNos
 } from "../api/reception.api";
 import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
 const Reception = () => {
   const [persons, setPersons] = useState([]);
   const [refNo, setRefNo] = useState("");
+  const [missingRefNos, setMissingRefNos] = useState([]);
   const navigate = useNavigate();
   const serviceTypeOptions = {
     Wareejin: [
@@ -73,12 +75,15 @@ const Reception = () => {
   useEffect(() => {
     const init = async () => {
       try {
-        const [personsData, refData] = await Promise.all([
+        const year = new Date().getFullYear();
+        const [personsData, refData ,missData] = await Promise.all([
           getPersons(),
           getNextRefNo(),
+          getMissingRefNos(year)
         ]);
         setPersons(personsData || []);
         setRefNo(refData?.refNo || "");
+        setMissingRefNos(missData?.missing || []);
       } catch (err) {
         toast.error(err?.response?.data?.message || "Failed to load data");
       }
@@ -185,7 +190,7 @@ const Reception = () => {
   };
 
   const createNewPerson = async () => {
-    if (!newPersonModal.fullName.trim() ) {
+    if (!newPersonModal.fullName.trim()) {
       toast.error("Magaca Waa Qasab");
       return;
     }
@@ -396,6 +401,14 @@ focus:ring-2 focus:ring-black focus:border-black shadow-sm"
                 value={refNo}
                 readOnly
 
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Ref No Missing</label>
+              <Input
+                type="text"
+                value={missingRefNos.length ? missingRefNos.join(", ") : "No missing"}
+                readOnly
               />
             </div>
             <div>

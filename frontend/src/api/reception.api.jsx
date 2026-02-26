@@ -46,3 +46,7 @@ export const getAgreements = async (params = {}) => {
   const res = await api.get("/agreements", { params });
   return res.data;
 };
+export const getMissingRefNos = async (year) => {
+  const res = await api.get("/agreements/missing-refnos", { params: { year } });
+  return res.data;
+};

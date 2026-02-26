@@ -20,6 +20,7 @@ import {
 } from "../api/tasdiiqs.api";
 
 import { linkAgentDocument, unlinkAgentDocument } from "../api/agreementAgentDocs.api";
+import ImagesSection from "./ImagesSection";
 
 const PersonsWitnesses = ({ agreement, fetchData }) => {
   const [activeModal, setActiveModal] = useState(null);
@@ -160,16 +161,16 @@ const PersonsWitnesses = ({ agreement, fetchData }) => {
     toast.success("Tasdiiq deleted");
   };
   // helper: wakaalad service types
-const isWakaalad =
-  ["Wakaalad Guud", "Wakaalad_Gaar_ah"].includes(agreement?.serviceType);
+  const isWakaalad =
+    ["Wakaalad Guud", "Wakaalad_Gaar_ah"].includes(agreement?.serviceType);
 
-// button texts
-const sellerBtnText = isWakaalad ? "Wakaalad Bixiye" : "iska iibiye";
-const buyerBtnText  = isWakaalad ? "La Wakiishe"     : "iibsade";
+  // button texts
+  const sellerBtnText = isWakaalad ? "Wakaalad Bixiye" : "iska iibiye";
+  const buyerBtnText = isWakaalad ? "La Wakiishe" : "iibsade";
 
-// optional: titles too (haddii aad rabto title-ka inuu is beddelo)
-const sellerTitle = isWakaalad ? "Wakaalad Bixiye" : "iska iibiye";
-const buyerTitle  = isWakaalad ? "La Wakiishe"     : "iibsade";
+  // optional: titles too (haddii aad rabto title-ka inuu is beddelo)
+  const sellerTitle = isWakaalad ? "Wakaalad Bixiye" : "iska iibiye";
+  const buyerTitle = isWakaalad ? "La Wakiishe" : "iibsade";
 
 
   return (
@@ -235,7 +236,7 @@ const buyerTitle  = isWakaalad ? "La Wakiishe"     : "iibsade";
           setActiveModal({ type: "linkDocument", agent, side: side || "dhinac2" });
         }}
       />
-
+      <ImagesSection agreement={agreement} fetchData={fetchData} />
       <WitnessesSection agreement={agreement} fetchData={fetchData} />
 
       <DocumentModals

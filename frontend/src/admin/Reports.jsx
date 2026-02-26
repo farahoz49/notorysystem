@@ -101,77 +101,104 @@ const Report = () => {
     setHasSearched(false);
   };
 
-  const exportPDF = () => {
-    if (!hasSearched) {
-      toast.error("Marka hore Raadi samee si PDF loo sameeyo");
-      return;
-    }
+ const exportPDF = () => {
+  if (!hasSearched) {
+    toast.error("Marka hore Raadi samee si PDF loo sameeyo");
+    return;
+  }
 
-    const doc = new jsPDF("l", "pt", "a4");
+  // ✅ HAL DOC KALIYA (A4 Portrait, mm)
+  const doc = new jsPDF({
+    orientation: "p",
+    unit: "mm",
+    format: "a4",
+  });
 
-    // Header
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(18);
-    doc.text("Mashruucyada", 40, 45);
+  // ===== HEADER =====
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(16);
+  doc.text("Mashruucyada", 10, 15);
 
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(11);
-    doc.text(office, 40, 68);
-    doc.text(titleRange || "", 40, 88);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(10);
+  doc.text(office, 10, 22);
+  if (titleRange) doc.text(titleRange, 10, 28);
 
-    const userText = isAdmin
-      ? `User: ${
-          createdBy === "all"
-            ? "Dhamaan"
-            : users.find((u) => u._id === createdBy)?.username || createdBy
-        }`
-      : `User: ${user?.username || ""}`;
+  const userText = isAdmin
+    ? `User: ${
+        createdBy === "all"
+          ? "Dhamaan"
+          : users.find((u) => u._id === createdBy)?.username || createdBy
+      }`
+    : `User: ${user?.username || ""}`;
 
-    doc.text(userText, 40, 108);
-    doc.text(`Adeega: ${service === "all" ? "Dhamaan" : service}`, 40, 128);
+  doc.text(userText, 10, 34);
+  doc.text(`Adeega: ${service === "all" ? "Dhamaan" : service}`, 10, 40);
 
-    // Table body
-    const body = rows.map((r, idx) => [
-      String(idx + 1),
-      r.refNo || "",
-      r.service || "",
-      r.daraf1 || "",
-      r.daraf2 || "",
-      String(r.officeFee ?? 0),
-      formatDate(r.taariikh),
-      ...(isAdmin ? [r.createdBy || ""] : []),
-    ]);
+  // ===== TABLE BODY =====
+  const body = rows.map((r, idx) => [
+    String(idx + 1),
+    r.refNo || "",
+    r.service || "",
+    r.daraf1 || "",
+    r.daraf2 || "",
+  //  String(r.officeFee ?? 0),
+    formatDate(r.taariikh),
+    ...(isAdmin ? [r.createdBy || ""] : []),
+  ]);
 
-    autoTable(doc, {
-      startY: 150,
-      head: [
-        [
-          "S/N",
-          "Rep. Nambar",
-          "Adeega",
-          "Darafka 1aad",
-          "Darafka 2aad",
-          "Khidmada",
-          "Taariikh",
-          ...(isAdmin ? ["CreatedBy"] : []),
-        ],
-      ],
-      body,
-      styles: { font: "helvetica", fontSize: 9, cellPadding: 6 },
-      headStyles: { fillColor: [0, 0, 0], textColor: 255 },
-      alternateRowStyles: { fillColor: [245, 245, 245] },
-      margin: { left: 30, right: 30 },
-    });
+  autoTable(doc, {
+    startY: 45, // ✅ header ka dib (mm)
+    head: [[
+      "S/N",
+      "Rep. Nambar",
+      "Adeega",
+      "Darafka 1aad",
+      "Darafka 2aad",
+     // "Khidmada",
+      "Taariikh",
+      ...(isAdmin ? ["CreatedBy"] : []),
+    ]],
+    body,
 
-    // Totals
-    const y = doc.lastAutoTable.finalY + 25;
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(12);
-    doc.text(`Wadar Khidmada: ${totals?.officeFee ?? 0}`, 40, y);
+    // ✅ A4 settings
+    margin: { top: 15, left: 10, right: 10, bottom: 15 },
+    pageBreak: "auto",
+    rowPageBreak: "avoid",
 
-    doc.save(`Mashruucyada_${from}_${to}.pdf`);
-  };
+    styles: {
+      font: "helvetica",
+      fontSize: 8.5,
+      cellPadding: 2,
+      overflow: "linebreak",
+      valign: "middle",
+    },
+    headStyles: { fillColor: [0, 0, 0], textColor: 255 },
+    alternateRowStyles: { fillColor: [245, 245, 245] },
 
+    // ✅ widths (A4 portrait)
+    columnStyles: {
+      0: { cellWidth: 10 },  // S/N
+      1: { cellWidth: 30 }, // Ref
+      2: { cellWidth: 18 }, // Service
+      3: { cellWidth: 38 }, // Daraf1
+      4: { cellWidth: 38 }, // Daraf2
+     // 5: { cellWidth: 16, halign: "right" }, // Fee
+      6: { cellWidth: 25 }, // Date
+      ...(isAdmin ? { 7: { cellWidth: 22 } } : {}), // CreatedBy
+    },
+  });
+
+  // ===== TOTALS =====
+  const finalY = doc.lastAutoTable?.finalY || 45;
+  const y = Math.min(finalY + 8, 280); // A4 height ~297mm
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(11);
+  doc.text(`Wadar Khidmada: ${totals?.officeFee ?? 0}`, 10, y);
+
+  doc.save(`Mashruucyada_${from}_${to}.pdf`);
+};
   return (
     <div className="max-w-7xl mx-auto p-6">
       {/* Header */}
@@ -205,7 +232,7 @@ const Report = () => {
           <span className="text-sm font-medium">Mashruuc yada</span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
           {/* Office */}
           <div className="flex flex-col gap-1">
             <label className="text-xs font-semibold text-gray-600">Dooro Xafiis</label>
@@ -264,7 +291,7 @@ const Report = () => {
           </div>
 
           {/* Quick buttons */}
-          <div className="flex gap-2 items-end">
+          {/* <div className="flex gap-2 items-end">
             <button
               type="button"
               onClick={() => {
@@ -289,7 +316,7 @@ const Report = () => {
             >
               Isbuucan
             </button>
-          </div>
+          </div> */}
         </div>
       </div>
 
