@@ -16,6 +16,13 @@ const personSchema = new mongoose.Schema({
     
   },
   documentNumber: { type: String,  },
+  // ✅ HAL FILE (pdf OR image)
+  documentFile: {
+    url: { type: String, default: "" },
+    mimeType: { type: String, default: "" },
+    originalName: { type: String, default: "" },
+    size: { type: Number, default: 0 },
+  },
   
   createdAt: { type: Date, default: Date.now }
 });

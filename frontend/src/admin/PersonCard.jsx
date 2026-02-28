@@ -19,13 +19,16 @@ const PersonCard = ({
   // Support older shape { docType, docRef } and new shape { wakaalad, tasdiiq }
   const wakaaladRef = agentDocument?.wakaalad || (agentDocument?.docType === "Wakaalad" && agentDocument?.docRef);
   const tasdiiqRef = agentDocument?.tasdiiq || (agentDocument?.docType === "Tasdiiq" && agentDocument?.docRef);
-
+  const doc = person?.documentFile;
+  const hasDoc = !!doc?.url;
+  const isPdf = doc?.mimeType === "application/pdf" || doc?.url?.toLowerCase().endsWith(".pdf");
+  const isImage = doc?.mimeType?.startsWith("image/") || /\.(png|jpg|jpeg|webp|gif|bmp)$/i.test(doc?.url || "");
 
   return (
     <div className="border rounded-lg p-4 mb-4 bg-gray-300 shadow-sm hover:shadow-md transition ">
       <div className="flex justify-between items-start mb-3">
         <div>
-       
+
           {showDocumentOptions && (
             <div className="flex items-center gap-3 mt-1">
               <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
@@ -38,46 +41,92 @@ const PersonCard = ({
         </div>
 
         <div className="flex gap-2">
-          
+
           <Button
-            onClick={onEdit} 
+            onClick={onEdit}
             title="Edit Person"
           >
             Edit
           </Button>
-         <Button
-          onClick={onDelete}
-          className="bg-red-600 text-white px-3 py-1.5 rounded text-sm hover:bg-red-700 transition"
-          title="Delete Person"
-        >
-          Delete
-        </Button>
+          <Button
+            onClick={onDelete}
+            className="bg-red-600 text-white px-3 py-1.5 rounded text-sm hover:bg-red-700 transition"
+            title="Delete Person"
+          >
+            Delete
+          </Button>
 
         </div>
       </div>
 
-   <div className="overflow-x-auto">
-  <table className="min-w-full border border-gray-300 text-sm">
-    <thead className="bg-gray-100 text-left">
-      <tr>
-        <th className="border px-3 py-2">Magaca</th>
-        <th className="border px-3 py-2">Hooyada</th>
-  
-        <th className="border px-3 py-2">Aqoonsi</th>
-        
-      </tr>
-    </thead>
+      <div className="overflow-x-auto">
+        <table className="min-w-full border border-gray-300 text-sm">
+          <thead className="bg-gray-100 text-left">
+            <tr>
+              <th className="border px-3 py-2">Magaca</th>
+              <th className="border px-3 py-2">Hooyada</th>
 
-    <tbody>
-      <tr className="hover:bg-gray-50">
-        <td className="border px-3 py-2">{person.fullName || "N/A"}</td>
-        <td className="border px-3 py-2">{person.motherName || "N/A"}</td>
-        <td className="border px-3 py-2">{person.documentType || "N/A"}</td>
-        
-      </tr>
-    </tbody>
-  </table>
-</div>
+              <th className="border px-3 py-2">Aqoonsi</th>
+              {/* <th className="border px-3 py-2">Document</th> */}
+
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr className="hover:bg-gray-50">
+              <td className="border px-3 py-2">{person.fullName || "N/A"}</td>
+              <td className="border px-3 py-2">{person.motherName || "N/A"}</td>
+              <td className="border px-3 py-2">{person.documentType || "N/A"}</td>
+
+
+            </tr>
+          </tbody>
+        </table>
+        {hasDoc && (
+          <div className="mt-3 p-3 bg-white rounded border">
+            <div className="flex items-center justify-between gap-3">
+              <div className="text-sm">
+                <div className="font-medium">Document:</div>
+                <div className="text-gray-600 text-xs">
+                  {doc.originalName || (isPdf ? "PDF File" : "Image File")}
+                </div>
+              </div>
+
+              <a
+                href={doc.url}
+                target="_blank"
+                rel="noreferrer"
+                className="text-blue-700 underline text-sm"
+              >
+                Open
+              </a>
+            </div>
+
+            {/* ✅ Image preview */}
+            {isImage && (
+              <img
+                src={doc.url}
+                alt="document"
+                className="mt-3 w-full max-h-64 object-contain rounded border"
+              />
+            )}
+
+            {/* ✅ PDF preview (optional) */}
+            {isPdf && (
+              <div className="mt-3">
+                <iframe
+                  title="pdf-preview"
+                  src={doc.url}
+                  className="w-full h-64 rounded border"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Haddii preview-ka uusan furmin, “Open” guji.
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
 
       {showDocumentOptions && (
         <div className="border-t pt-4">
@@ -87,13 +136,13 @@ const PersonCard = ({
               {!wakaaladRef && !tasdiiqRef ? (
                 <>
                   <Button
-                    onClick={() => onLinkDocument && onLinkDocument('Wakaalad')} 
+                    onClick={() => onLinkDocument && onLinkDocument('Wakaalad')}
                     title="Link Wakaalad to Agent"
                   >
                     Ku dar wakaalad
                   </Button>
-                  <Button 
-                    onClick={() => onLinkDocument && onLinkDocument('Tasdiiq')} 
+                  <Button
+                    onClick={() => onLinkDocument && onLinkDocument('Tasdiiq')}
                     title="Link Tasdiiq to Agent"
                   >
                     Ku dar tasdiiq
@@ -102,20 +151,20 @@ const PersonCard = ({
               ) : (
                 <>
                   {wakaaladRef && (
-                    <button 
-                      onClick={() => { 
-                        if (window.confirm('Remove Wakaalad from agent?')) onRemoveDocument && onRemoveDocument('Wakaalad'); 
-                      }} 
+                    <button
+                      onClick={() => {
+                        if (window.confirm('Remove Wakaalad from agent?')) onRemoveDocument && onRemoveDocument('Wakaalad');
+                      }}
                       className="bg-red-600 text-white px-3 py-1.5 rounded text-sm hover:bg-red-700 transition"
                     >
                       Remove Wakaalad
                     </button>
                   )}
                   {tasdiiqRef && (
-                    <button 
-                      onClick={() => { 
-                        if (window.confirm('Remove Tasdiiq from agent?')) onRemoveDocument && onRemoveDocument('Tasdiiq'); 
-                      }} 
+                    <button
+                      onClick={() => {
+                        if (window.confirm('Remove Tasdiiq from agent?')) onRemoveDocument && onRemoveDocument('Tasdiiq');
+                      }}
                       className="bg-red-600 text-white px-3 py-1.5 rounded text-sm hover:bg-red-700 transition"
                     >
                       Remove Tasdiiq
@@ -133,12 +182,12 @@ const PersonCard = ({
                   <div>
                     <h6 className="font-bold text-green-700">Wakaalad</h6>
                     <div className="text-xs text-gray-500 mt-1">
-                     { wakaaladRef?.wakaladType}-{ wakaaladRef?.refNo} - {formatDate( wakaaladRef?.date)}
+                      {wakaaladRef?.wakaladType}-{wakaaladRef?.refNo} - {formatDate(wakaaladRef?.date)}
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <button 
-                      onClick={() => onLinkDocument && onLinkDocument('Wakaalad')} 
+                    <button
+                      onClick={() => onLinkDocument && onLinkDocument('Wakaalad')}
                       className="text-blue-600 hover:text-blue-800 text-sm font-medium"
                     >
                       Change Wakaalad
@@ -155,12 +204,12 @@ const PersonCard = ({
                     <h6 className="font-bold text-yellow-700">Tasdiiq</h6>
                     <p className="text-sm text-gray-600">Linked to this agent</p>
                     <div className="text-xs text-gray-500 mt-1">
-                     Tasdiiq NUmber {tasdiiqRef?.refNo} - {formatDate( tasdiiqRef?.date)}
+                      Tasdiiq NUmber {tasdiiqRef?.refNo} - {formatDate(tasdiiqRef?.date)}
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <button 
-                      onClick={() => onLinkDocument && onLinkDocument('Tasdiiq')} 
+                    <button
+                      onClick={() => onLinkDocument && onLinkDocument('Tasdiiq')}
                       className="text-blue-600 hover:text-blue-800 text-sm font-medium"
                     >
                       Change Tasdiiq

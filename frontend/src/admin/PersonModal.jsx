@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import Input from "../components/ui/Input";
 import Button from "../components/ui/Button";
+import Modal from "../components/ui/Modal";
+
+import { createNationality, getNationalities } from "../api/persons.api";
 
 const PersonModal = ({
   mode,
@@ -12,10 +15,30 @@ const PersonModal = ({
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
+  const [documentFile, setDocumentFile] = useState(null);
+  const [nationalities, setNationalities] = useState([]);
+  const [newNationality, setNewNationality] = useState("");
+  const [openNationalityModal, setOpenNationalityModal] = useState(false);
+  const [savingNationality, setSavingNationality] = useState(false);
+
   const [selectedExistingPerson, setSelectedExistingPerson] = useState(null);
   const [isExistingMode, setIsExistingMode] = useState(mode === "add" ? "cusub" : "update");
   const [searchQuery, setSearchQuery] = useState("");
+  const existingUrl = personData?.documentFile?.url || "";
+  useEffect(() => {
+    loadNationalities();
+  }, []);
 
+  const loadNationalities = async () => {
+    try {
+      const data = await getNationalities();
+      setNationalities(data);
+    } catch (err) {
+      console.error("Failed to load nationalities", err);
+      setNationalities([]);
+    }
+  };
+  
   useEffect(() => {
     if (searchQuery.trim() && isExistingMode === "keydsan") {
       const results = allPersons.filter(person =>
@@ -31,16 +54,26 @@ const PersonModal = ({
 
   const handleSubmit = async () => {
     if (isSubmitting) return;
-    
+
     setIsSubmitting(true);
     try {
       if (isExistingMode === "keydsan" && selectedExistingPerson) {
-        // Send existing person data to parent
         await onSubmit(selectedExistingPerson);
-      } else {
-        // Send new person data to parent
-        await onSubmit(personData);
+        return;
       }
+
+      // ✅ create/update new person with optional file
+      const fd = new FormData();
+
+      Object.entries(personData || {}).forEach(([k, v]) => {
+        if (v !== undefined && v !== null) fd.append(k, v);
+      });
+
+      if (documentFile) {
+        fd.append("documentFile", documentFile); // ✅ must match multer: single("documentFile")
+      }
+
+      await onSubmit(fd);
     } catch (error) {
       console.error("Error submitting person:", error);
     } finally {
@@ -59,7 +92,7 @@ const PersonModal = ({
     setSelectedExistingPerson(null);
     setSearchQuery("");
     setSearchResults([]);
-    
+
     if (mode === "cusub") {
       setPersonData({
         fullName: "",
@@ -100,6 +133,7 @@ const PersonModal = ({
     gender: sanitize(selectedExistingPerson.gender),
     documentType: sanitize(selectedExistingPerson.documentType),
     documentNumber: sanitize(selectedExistingPerson.documentNumber),
+
   } : null;
 
   // debug: surface any event-like values that would break rendering
@@ -123,8 +157,8 @@ const PersonModal = ({
           <h3 className="font-bold text-lg">
             {mode === "add" ? "Add Person" : "Update Person"}
           </h3>
-          <Button 
-            onClick={onClose} 
+          <Button
+            onClick={onClose}
             className="text-xl hover:text-gray-600"
             disabled={isSubmitting}
           >
@@ -150,6 +184,76 @@ const PersonModal = ({
             </button>
           </div>
         )}
+            <Modal
+              open={openNationalityModal}
+              title="Ku dar Jinsiyad Cusub"
+              onClose={() => {
+                if (savingNationality) return;
+                setOpenNationalityModal(false);
+                setNewNationality("");
+              }}
+              loading={false}
+              footer={
+                <div className="flex justify-end gap-2">
+                  <Button
+                    variant="secondary"
+                    onClick={() => {
+                      if (savingNationality) return;
+                      setOpenNationalityModal(false);
+                      setNewNationality("");
+                    }}
+                    disabled={savingNationality}
+                  >
+                    Cancel
+                  </Button>
+
+                  <Button
+                    onClick={async () => {
+                      const name = newNationality.trim();
+                      if (!name) return;
+
+                      try {
+                        setSavingNationality(true);
+                        const created = await createNationality(name);
+
+                        // refresh list
+                        await loadNationalities();
+
+                        // auto select cusub
+                        setPersonData((prev) => ({ ...prev, nationality: created.name }));
+
+                        setOpenNationalityModal(false);
+                        setNewNationality("");
+                      } catch (err) {
+                        console.error(err);
+                        // haddii aad toast leedahay:
+                        // toast.error(err.response?.data?.message || "Nationality already exists");
+                      } finally {
+                        setSavingNationality(false);
+                      }
+                    }}
+                    disabled={savingNationality || !newNationality.trim()}
+                  >
+                    {savingNationality ? "Saving..." : "Save"}
+                  </Button>
+                </div>
+              }
+            >
+              <div className="space-y-3">
+                <label className="block text-sm font-medium text-gray-700">
+                  Jinsiyadda cusub
+                </label>
+                <Input
+                  value={newNationality}
+                  onChange={(e) => setNewNationality(e.target.value)}
+                  placeholder="Tusaale: Somali/Italian"
+                  disabled={savingNationality}
+                />
+                <p className="text-xs text-gray-500">
+                  {/* Marka aad save garayso, select-ka si toos ah ayuu u cusboonaanayaa. */}
+                </p>
+              </div>
+            </Modal>
 
         {isExistingMode === "keydsan" && mode === "add" && (
           <div className="col-span-2 space-y-4">
@@ -161,14 +265,14 @@ const PersonModal = ({
               className="border border-gray-300 p-3 rounded w-full"
               disabled={isSubmitting}
             />
-            
+
             {searchQuery.trim() && searchResults.length === 0 && (
               <p className="text-gray-500 text-sm">Lama helin person-ka.</p>
             )}
-            
+
             {searchResults.length > 0 && (
               <div className="border border-gray-300 rounded bg-white max-h-40 overflow-y-auto">
-                    {searchResults.map((person) => (
+                {searchResults.map((person) => (
                   <div
                     key={person._id}
                     className="p-3 border-b hover:bg-gray-50 cursor-pointer"
@@ -183,7 +287,7 @@ const PersonModal = ({
                 ))}
               </div>
             )}
-            
+
             {safeSelected && (
               <div className="p-4 bg-blue-50 rounded-lg">
                 <h4 className="font-bold text-blue-700 mb-2">Person La Doortay:</h4>
@@ -202,164 +306,218 @@ const PersonModal = ({
 
         {(isExistingMode === "cusub" || mode === "update") && (
           <>
-  {/* Magaca */}
-  <div>
-    <label className="block text-sm font-medium text-gray-700 mb-1">
-      Magaca <span className="text-red-600">*</span>
-      <span className="text-xs text-gray-500 ml-2">loo baahan yahay</span>
-    </label>
-    <Input
-      value={safePersonData.fullName}
-      onChange={(e) => setPersonData({ ...personData, fullName: e.target.value })}
-      placeholder="Magaca oo buuxa"
-      className="border border-gray-300 p-3 rounded w-full"
-      disabled={isSubmitting}
-      required
-    />
-  </div>
+        
+            {/* Magaca */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Magaca <span className="text-red-600">*</span>
+                <span className="text-xs text-gray-500 ml-2">loo baahan yahay</span>
+              </label>
+              <Input
+                value={safePersonData.fullName}
+                onChange={(e) => setPersonData({ ...personData, fullName: e.target.value })}
+                placeholder="Magaca oo buuxa"
+                className="border border-gray-300 p-3 rounded w-full"
+                disabled={isSubmitting}
+                required
+              />
+            </div>
 
-  {/* Telefoon */}
-  <div>
-    <label className="block text-sm font-medium text-gray-700 mb-1">
-      Telefoon <span className="text-red-600">*</span>
-      <span className="text-xs text-gray-500 ml-2">loo baahan yahay</span>
-    </label>
-    <Input
-      value={personData.phone}
-      onChange={(e) => setPersonData({ ...personData, phone: e.target.value })}
-      placeholder="Telefoon"
-      className="border border-gray-300 p-3 rounded w-full"
-      disabled={isSubmitting}
-      required
-    />
-  </div>
+            {/* Telefoon */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Telefoon <span className="text-red-600">*</span>
+                <span className="text-xs text-gray-500 ml-2">loo baahan yahay</span>
+              </label>
+              <Input
+                value={personData.phone}
+                onChange={(e) => setPersonData({ ...personData, phone: e.target.value })}
+                placeholder="Telefoon"
+                className="border border-gray-300 p-3 rounded w-full"
+                disabled={isSubmitting}
+                required
+              />
+            </div>
 
-  {/* Hooyada */}
-  <div>
-    <label className="block text-sm font-medium text-gray-700 mb-1">
-      Hooyada
-      <span className="text-xs text-gray-500 ml-2">laga tegi karo</span>
-    </label>
-    <Input
-      value={personData.motherName}
-      onChange={(e) => setPersonData({ ...personData, motherName: e.target.value })}
-      placeholder="Magaca Hooyada"
-      className="border border-gray-300 p-3 rounded w-full"
-      disabled={isSubmitting}
-    />
-  </div>
+            {/* Hooyada */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Hooyada
+                <span className="text-xs text-gray-500 ml-2">laga tegi karo</span>
+              </label>
+              <Input
+                value={personData.motherName}
+                onChange={(e) => setPersonData({ ...personData, motherName: e.target.value })}
+                placeholder="Magaca Hooyada"
+                className="border border-gray-300 p-3 rounded w-full"
+                disabled={isSubmitting}
+              />
+            </div>
 
-  {/* Ku dhashay/tay magaalada */}
-  <div>
-    <label className="block text-sm font-medium text-gray-700 mb-1">
-      Ku Dhashay/tay magaalada
-      <span className="text-xs text-gray-500 ml-2">laga tegi karo</span>
-    </label>
-    <Input
-      value={personData.birthPlace}
-      onChange={(e) => setPersonData({ ...personData, birthPlace: e.target.value })}
-      placeholder="Tusaale: Muqdisho"
-      className="border border-gray-300 p-3 rounded w-full"
-      disabled={isSubmitting}
-    />
-  </div>
+            {/* Ku dhashay/tay magaalada */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Ku Dhashay/tay magaalada
+                <span className="text-xs text-gray-500 ml-2">laga tegi karo</span>
+              </label>
+              <Input
+                value={personData.birthPlace}
+                onChange={(e) => setPersonData({ ...personData, birthPlace: e.target.value })}
+                placeholder="Tusaale: Muqdisho"
+                className="border border-gray-300 p-3 rounded w-full"
+                disabled={isSubmitting}
+              />
+            </div>
 
-  {/* Sanadka */}
-  <div>
-    <label className="block text-sm font-medium text-gray-700 mb-1">
-      Sanadka
-      <span className="text-xs text-gray-500 ml-2">laga tegi karo</span>
-    </label>
-    <Input
-      value={personData.birthYear}
-      onChange={(e) => setPersonData({ ...personData, birthYear: e.target.value })}
-      placeholder="Tusaale: 2001"
-      className="border border-gray-300 p-3 rounded w-full"
-      disabled={isSubmitting}
-    />
-  </div>
+            {/* Sanadka */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Sanadka
+                <span className="text-xs text-gray-500 ml-2">laga tegi karo</span>
+              </label>
+              <Input
+                value={personData.birthYear}
+                onChange={(e) => setPersonData({ ...personData, birthYear: e.target.value })}
+                placeholder="Tusaale: 2001"
+                className="border border-gray-300 p-3 rounded w-full"
+                disabled={isSubmitting}
+              />
+            </div>
 
-  {/* Jinsi */}
-  <div>
-    <label className="block text-sm font-medium text-gray-700 mb-1">
-      Jinsi
-      <span className="text-xs text-gray-500 ml-2">Lab / Dhedig</span>
-    </label>
-    <select
-      value={personData.gender}
-      onChange={(e) => setPersonData({ ...personData, gender: e.target.value })}
-      className="border border-gray-300 p-3 rounded w-full"
-      disabled={isSubmitting}
-    >
-      <option value="">-- dooro --</option>
-      <option value="Male">Lab</option>
-      <option value="Female">Dhedig</option>
-    </select>
-  </div>
+            {/* Jinsi */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Jinsi
+                <span className="text-xs text-gray-500 ml-2">Lab / Dhedig</span>
+              </label>
+              <select
+                value={personData.gender}
+                onChange={(e) => setPersonData({ ...personData, gender: e.target.value })}
+                className="border border-gray-300 p-3 rounded w-full"
+                disabled={isSubmitting}
+              >
+                <option value="">-- dooro --</option>
+                <option value="Male">Lab</option>
+                <option value="Female">Dhedig</option>
+              </select>
+            </div>
 
-  {/* Dagan hadda / Degmada */}
-  <div>
-    <label className="block text-sm font-medium text-gray-700 mb-1">
-      Dagan Hadda (Degmada)
-      <span className="text-xs text-gray-500 ml-2">laga tegi karo</span>
-    </label>
-    <Input
-      value={personData.address}
-      onChange={(e) => setPersonData({ ...personData, address: e.target.value })}
-      placeholder="Tusaale: Hodan"
-      className="border border-gray-300 p-3 rounded w-full"
-      disabled={isSubmitting}
-    />
-  </div>
+            {/* Dagan hadda / Degmada */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Dagan Hadda (Degmada)
+                <span className="text-xs text-gray-500 ml-2">laga tegi karo</span>
+              </label>
+              <Input
+                value={personData.address}
+                onChange={(e) => setPersonData({ ...personData, address: e.target.value })}
+                placeholder="Tusaale: Hodan"
+                className="border border-gray-300 p-3 rounded w-full"
+                disabled={isSubmitting}
+              />
+            </div>
 
-  {/* Jinsiyada */}
-  <div>
-    <label className="block text-sm font-medium text-gray-700 mb-1">
-      Jinsiyada
-    </label>
-    <Input
-      value={personData.nationality}
-      onChange={(e) => setPersonData({ ...personData, nationality: e.target.value })}
-      placeholder="-- dooro / qor --"
-      className="border border-gray-300 p-3 rounded w-full"
-      disabled={isSubmitting}
-    />
-  </div>
+            {/* Jinsiyada */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Jinsiyada
+              </label>
 
-  {/* Aqoonsi */}
-  <div>
-    <label className="block text-sm font-medium text-gray-700 mb-1">
-      Aqoonsi
-    </label>
-    <select
-      value={personData.documentType}
-      onChange={(e) => setPersonData({ ...personData, documentType: e.target.value })}
-      className="border border-gray-300 p-3 rounded w-full"
-      disabled={isSubmitting}
-    >
-      <option value="">-- dooro --</option>
-      <option value="Passport">Passport</option>
-      <option value="ID Card">ID Card</option>
-      <option value="Kaarka Aqoonsiga (NIRA)">Kaarka Aqoonsiga (NIRA)</option>
-      <option value="Sugnan">Sugnan</option>
-    </select>
-  </div>
+              <div className="flex gap-2">
+                <select
+                  value={personData.nationality}
+                  onChange={(e) =>
+                    setPersonData({ ...personData, nationality: e.target.value })
+                  }
+                  className="border p-3 rounded w-full"
+                  disabled={isSubmitting}
+                >
+                  <option value="">-- dooro --</option>
+                  {nationalities.map((n) => (
+                    <option key={n._id} value={n.name}>
+                      {n.name}
+                    </option>
+                  ))}
+                </select>
 
-  {/* Lambarka Aqoonsiga */}
-  <div className="col-span-2">
-    <label className="block text-sm font-medium text-gray-700 mb-1">
-      Lambarka Aqoonsiga
-      <span className="text-xs text-gray-500 ml-2">laga tegi karo</span>
-    </label>
-    <Input
-      value={safePersonData.documentNumber}
-      onChange={(e) => setPersonData({ ...personData, documentNumber: e.target.value })}
-      placeholder="Document Number"
-      className="border border-gray-300 p-3 rounded w-full"
-      disabled={isSubmitting}
-    />
-  </div>
-</>
+                <Button
+                  type="button"
+                  onClick={() => setOpenNationalityModal(true)}
+                  disabled={isSubmitting}
+                >
+                  +
+                </Button>
+              </div>
+            </div>
+
+            {/* Aqoonsi */}
+            <div className="col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Aqoonsi
+              </label>
+              <select
+                value={personData.documentType}
+                onChange={(e) => setPersonData({ ...personData, documentType: e.target.value })}
+                className="border border-gray-300 p-3 rounded w-full"
+                disabled={isSubmitting}
+              >
+                <option value="">-- dooro --</option>
+                <option value="Passport">Passport</option>
+                <option value="ID Card">ID Card</option>
+                <option value="Kaarka Aqoonsiga (NIRA)">Kaarka Aqoonsiga (NIRA)</option>
+                <option value="Sugnan">Sugnan</option>
+              </select>
+            </div>
+
+            {/* Lambarka Aqoonsiga */}
+            <div className="col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Lambarka Aqoonsiga
+                <span className="text-xs text-gray-500 ml-2">laga tegi karo</span>
+              </label>
+              <Input
+                value={safePersonData.documentNumber}
+                onChange={(e) => setPersonData({ ...personData, documentNumber: e.target.value })}
+                placeholder="Document Number"
+                className="border border-gray-300 p-3 rounded w-full"
+                disabled={isSubmitting}
+              />
+            </div>
+            {/* Document File (PDF or Image) */}
+            <div className="col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Document File (PDF ama Sawir)
+                <span className="text-xs text-gray-500 ml-2">laga tegi karo</span>
+              </label>
+
+              <input
+                type="file"
+                accept="application/pdf,image/*"
+                onChange={(e) => setDocumentFile(e.target.files?.[0] || null)}
+                className="border border-gray-300 p-3 rounded w-full"
+                disabled={isSubmitting}
+              />
+
+              {/* show selected file name */}
+              {documentFile && (
+                <p className="text-xs text-gray-600 mt-1">
+                  File: {documentFile.name}
+                </p>
+              )}
+
+              {/* show existing file link (update) */}
+              {!documentFile && existingUrl && (
+                <a
+                  href={existingUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-sm text-blue-600 underline mt-1 inline-block"
+                >
+                  View current document
+                </a>
+              )}
+            </div>
+          </>
         )}
 
         <div className="col-span-2 flex gap-3 justify-end mt-4">

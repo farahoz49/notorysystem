@@ -144,6 +144,26 @@ const titlesByService = {
       buyerAgent: "waqaf u aqbalaha loo waqfaha baabuurka",
     },
   },
+  Wakaalad_Gaar_ah: {
+  bixisada: {
+    // qofka bixinaya wakaaladda
+    seller: "wakaalad bixiyaha",
+    // qofka la wakiilanayo
+    buyer: "la wakiishaha",
+
+    // wakiillo (haddii dhinacyada ay wakiillo kale ku saxiixayaan)
+    sellerAgent: "wakiilka wakaalad bixiyaha:",
+    buyerAgent: "wakiilka la wakiishaha",
+  },
+
+  // haddii aad leedahay nooc kale (optional)
+  la_wakiishaha: {
+    seller: "wakaalad bixiyaha",
+    buyer: "la wakiishaha",
+    sellerAgent: "wakiilka wakaalad bixiyaha:",
+    buyerAgent: "wakiilka la wakiishaha",
+  },
+},
 };
 
 /**

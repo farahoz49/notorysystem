@@ -71,70 +71,13 @@ const AgreementInfo = ({ agreement, fetchData }) => {
     }
   };
 
-  const serviceHelper = (agreement) => {
-    const service = (agreement.service || "").toLowerCase();
-    const isWareejin = service === "wareejin";
-
-    const singleOrPlural = (count, single, plural) => (count > 1 ? plural : single);
-    const maleFemale = (gender, male, female) =>
-      String(gender || "").toLowerCase() === "female" ? female : male;
-
-    return {
-      isWareejin,
-
-      ujeeddo: isWareejin
-        ? `KALA GADASHO ${(agreement.serviceType || "").toUpperCase()}`
-        : (agreement.serviceType || "").toUpperCase(),
-
-      // SELLER/BIXIYE
-      sellerMain: (gender, count) =>
-        isWareejin
-          ? singleOrPlural(
-            count,
-            maleFemale(gender, "ISKA IIBIYAHA", "ISKA IIBISADA"),
-            "ISKA IIBIYAASHA"
-          )
-          : singleOrPlural(
-            count,
-            maleFemale(gender, "WAKAALAD BIXIYAHA", "WAKAALAD BIXISADA"),
-            "WAKAALAD BIXIYAASHA"
-          ),
-
-      sellerAgent: (gender, count) =>
-        singleOrPlural(
-          count,
-          maleFemale(gender, "LA WAKIISHAHA", "LA WAKIISHADA"),
-          "LA WAKIISHAYAASHA"
-        ),
-
-      // BUYER/QOFKA LA SIIYO
-      buyerMain: (gender, count) =>
-        isWareejin
-          ? singleOrPlural(
-            count,
-            maleFemale(gender, "IIBSADAHA", "IIBSATADA"),
-            "IIBSADAYAASHA"
-          )
-          : singleOrPlural(
-            count,
-            maleFemale(gender, "LA WAKIISHAHA", "LA WAKIISHADA"),
-            "LA WAKIISHAYAASHA"
-          ),
-
-      buyerAgent: (gender, count) =>
-        singleOrPlural(
-          count,
-          maleFemale(gender, "LA WAKIISHAHA", "LA WAKIISHADA"),
-          "LA WAKIISHAYAASHA"
-        ),
-    };
-  };
+ 
 
 
 
   // ================= DOWNLOAD WORD =================
   const downloadWord = async () => {
-    const svc = serviceHelper(agreement);
+    
 
     const sellers = agreement.dhinac1?.sellers || [];
     const buyers = agreement.dhinac2?.buyers || [];
@@ -179,18 +122,11 @@ const AgreementInfo = ({ agreement, fetchData }) => {
 
     const headerImageBuffer = base64ToUint8Array(headerBase64);
     const footerImageBuffer = base64ToUint8Array(footerBase64);
-    const hiddenBorders = {
-      top: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
-      bottom: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
-      left: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
-      right: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
-    };
+  
 
 
 
-    const P = getPhrases(agreement.serviceType, agreement.agreementType);
-
-    const sharesCount = Number(service.amount || 0) / 10;
+    
 
 
 
@@ -460,272 +396,7 @@ const AgreementInfo = ({ agreement, fetchData }) => {
 
 
 
-    // ================= SAXIIX LOGIC =================
-    const sellerSignTitle = hasSellerAgent
-      ? `SAXIIXA ${svc.sellerAgent(sellerGender, sellerAgents.length)}`
-      : `SAXIIXA ${svc.sellerMain(sellerGender, sellers.length)} `;
-
-    const sellerSignNames = hasSellerAgent
-      ? sellerAgents.map(a => a.fullName)
-      : sellers.map(s => s.fullName);
-
-    const buyerSignTitle = hasBuyerAgent
-      ? `SAXIIXA ${svc.buyerAgent(buyerGender, buyerAgents.length)}`
-      : `SAXIIXA ${svc.buyerMain(buyerGender, buyers.length)}`;
-
-    const buyerSignNames = hasBuyerAgent
-      ? buyerAgents.map(a => a.fullName)
-      : buyers.map(b => b.fullName);
-    // ================= SAXIIXYADA (2 COLUMN – NO BORDER) =================
-    const signatureTable = new Table({
-      width: { size: 100, type: WidthType.PERCENTAGE },
-      rows: [
-        new TableRow({
-          children: [
-            // ================= SELLER COLUMN =================
-            new TableCell({
-              borders: hiddenBorders,
-              children: [
-                // TITLE
-                new Paragraph({
-                  alignment: AlignmentType.CENTER,
-                  children: [
-                    new TextRun({
-                      text: sellerSignTitle,
-                      bold: true,
-                      size: 22,
-                      font: "Times New Roman",
-                    }),
-                  ],
-                }),
-
-                // NAMES + SIGN LINE
-                ...sellerSignNames.flatMap((name) => [
-                  // NAME
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    spacing: { after: 100 },
-                    children: [
-                      new TextRun({
-                        text: (name || "").toUpperCase(),
-                        bold: true,
-
-                        size: 22,
-                        font: "Times New Roman",
-                      }),
-                    ],
-                  }),
-
-                  // SIGN LINE (CENTER)
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    spacing: { after: 20 },
-                    children: [
-                      new TextRun({
-                        text: "__________________________",
-                        size: 22,
-                      }),
-                    ],
-                  }),
-                ]),
-              ],
-            }),
-
-            // ================= BUYER COLUMN =================
-            new TableCell({
-              borders: hiddenBorders,
-              children: [
-                // TITLE
-                new Paragraph({
-                  alignment: AlignmentType.CENTER,
-                  children: [
-                    new TextRun({
-                      text: buyerSignTitle,
-                      bold: true,
-                      size: 22,
-                      font: "Times New Roman",
-                    }),
-                  ],
-                }),
-
-                // NAMES + SIGN LINE
-                ...buyerSignNames.flatMap((name) => [
-                  // NAME
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    spacing: { after: 20 },
-                    children: [
-                      new TextRun({
-                        text: (name || "").toUpperCase(),
-                        bold: true,
-
-                        size: 22,
-                        font: "Times New Roman",
-                      }),
-                    ],
-                  }),
-
-                  // SIGN LINE (CENTER)
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    spacing: { after: 20 },
-                    children: [
-                      new TextRun({
-                        text: "__________________________",
-                        size: 22,
-                      }),
-                    ],
-                  }),
-                ]),
-              ],
-            }),
-          ],
-        }),
-      ],
-    });
-
-    // ================= MARQAATIYAASHA =================
-    const witnessesTitle = new Paragraph({
-      alignment: AlignmentType.CENTER,
-      spacing: { before: 20, after: 20 },
-      children: [
-        new TextRun({
-          text: "SAXIIXA MARQAATIYAASHA",
-          bold: true,
-          underline: true,
-          size: 24,
-        }),
-      ],
-    });
-
-
-
-    const witnessesTable =
-      agreement.witnesses && agreement.witnesses.length > 0
-        ? new Table({
-          width: { size: 100, type: WidthType.PERCENTAGE },
-          rows: [
-            new TableRow({
-              children: agreement.witnesses.map((w) =>
-                new TableCell({
-                  borders: hiddenBorders,
-                  children: [
-                    new Paragraph({
-                      alignment: AlignmentType.CENTER,
-                      spacing: { after: 20 },
-                      children: [
-                        new TextRun({
-                          text: (w || "").toUpperCase(),
-                          bold: true,
-                          size: 22,
-                          font: "Times New Roman",
-                        }),
-                        new TextRun({
-                          text: "\n__________________________",
-                          size: 22,
-                        }),
-                      ],
-                    }),
-                  ],
-                })
-              ),
-            }),
-          ],
-        })
-        : null;
-
-
-
-    // ================= SUGITAANKA NOOTAAYADA =================
-    const notarySection = [
-      // TITLE
-      new Paragraph({
-        alignment: AlignmentType.CENTER,
-        spacing: { before: 20, after: 20 },
-        children: [
-          new TextRun({
-            text: "SUGITAANKA NOOTAAYADA",
-            bold: true,
-            size: 24,
-            underline: true,
-            font: "Times New Roman",
-          }),
-        ],
-      }),
-
-      // REF + DATE (CENTER)
-      new Paragraph({
-        alignment: AlignmentType.CENTER,
-        spacing: { after: 20 },
-        children: [
-          new TextRun({
-            text: `REF: ${agreement.refNo}, Tr. ${formatDate(agreement.agreementDate)}`,
-            size: 22,
-            bold: true,
-            underline: true,
-            font: "Times New Roman",
-          }),
-          new TextRun({
-            text: " Anigoo ah ",
-            size: 24,
-            font: "Times New Roman",
-          }),
-          new TextRun({
-            text: "Dr. Maxamed Cabdiraxmaan Sheekh Maxamed, ",
-            size: 24,
-            bold: true,
-            font: "Times New Roman",
-          }),
-          new TextRun({
-            text:
-              "Nootaayaha Xafiiska Nootaayaha Boqole, waxaan sugayaa in saxiixyada kor ku xusan ay yihiin kuwo run ah oo ku dhacay si xor ah, " +
-              "laguna saxiixay horteyda, waana sugitaan ansax ah oo waafaqsan Shareecada Islaamka iyo qaanuunka dalka.",
-            size: 24,
-            font: "Times New Roman",
-          }),
-        ],
-      }),
-
-
-      // TITLE NOOTAAYAHA
-      new Paragraph({
-        alignment: AlignmentType.CENTER,
-        spacing: { after: 20 },
-        children: [
-          new TextRun({
-            text: "NOOTAAYAHA",
-            bold: true,
-            size: 24,
-            font: "Times New Roman",
-          }),
-        ],
-      }),
-
-      // NAME + SIGN LINE
-      new Paragraph({
-        alignment: AlignmentType.CENTER,
-        spacing: { after: 20 },
-        children: [
-          new TextRun({
-            text: "Dr. Maxamed Cabdiraxmaan Sheekh Maxamed",
-            bold: true,
-            size: 24,
-            font: "Times New Roman",
-          }),
-        ],
-      }),
-
-      new Paragraph({
-        alignment: AlignmentType.CENTER,
-        spacing: { after: 20 },
-        children: [
-          new TextRun({
-            text: "__________________________",
-            size: 20,
-          }),
-        ],
-      }),
-    ];
+   
 
     const doc = new Document({
       sections: [
@@ -831,20 +502,7 @@ const AgreementInfo = ({ agreement, fetchData }) => {
               ],
             }),
 
-            // // ✅ UJEEDDO (CENTER)
-            // new Paragraph({
-            //   alignment: AlignmentType.CENTER,
-            //   spacing: { after: 100 },
-            //   children: [
-            //     new TextRun({
-            //       text: `UJEEDDO: ${serviceHelper(agreement).ujeeddo}`,
-            //       bold: true,
-            //       underline: true,
-            //       size: 24,
-            //       font: "Times New Roman",
-            //     }),
-            //   ],
-            // }),
+          
             ...serviceIntroParagraphs(
               agreement.serviceType,
               sellers,
@@ -858,21 +516,7 @@ const AgreementInfo = ({ agreement, fetchData }) => {
 
             ),
 
-            // ===== SAXIIXYADA =====
-            //signatureTable,
-
-            // ===== MARQAATIYAASHA =====
-
-            ///  witnessesTitle,
-            //...(witnessesTable ? [witnessesTable] : []),
-
-
-
-            // ===== SUGITAANKA NOOTAAYADA =====
-            //   ...notarySection,
-
-
-            // QORAALKA HESHIISKA
+         
 
           ]
 

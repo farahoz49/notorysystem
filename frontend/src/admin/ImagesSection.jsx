@@ -1,4 +1,6 @@
-import React, { useMemo, useState } from "react";
+// src/components/ImagesSection.jsx
+import React, { useEffect, useMemo, useState } from "react";
+import { getTitles } from "../helpers/genderRules"
 import toast from "react-hot-toast";
 import { saveAs } from "file-saver";
 import {
@@ -23,11 +25,23 @@ import {
   deleteAgreementImage,
 } from "../api/agreements.api";
 
+/* ===========================
+   HELPERS
+=========================== */
+const safe = (v) => (v === undefined || v === null ? "" : String(v).trim());
+
+const joinNames = (arr = []) =>
+  (arr || [])
+    .filter(Boolean)
+    .map((p) => safe(p?.fullName))
+    .filter(Boolean)
+    .join(" , ");
+
 // ✅ docx supports only: png | jpeg | gif | bmp
 const getImageTypeFromUrl = (url = "") => {
   const clean = url.split("?")[0].toLowerCase();
   if (clean.endsWith(".png")) return "png";
-  if (clean.endsWith(".jpg")) return "jpeg";   // ✅ changed
+  if (clean.endsWith(".jpg")) return "jpeg";
   if (clean.endsWith(".jpeg")) return "jpeg";
   if (clean.endsWith(".gif")) return "gif";
   if (clean.endsWith(".bmp")) return "bmp";
@@ -47,7 +61,8 @@ const urlToUint8ArrayAndType = async (url) => {
   // ✅ normalize types for docx
   let type = "png";
   if (blob.type?.includes("png")) type = "png";
-  else if (blob.type?.includes("jpeg") || blob.type?.includes("jpg")) type = "jpeg"; // ✅ changed
+  else if (blob.type?.includes("jpeg") || blob.type?.includes("jpg"))
+    type = "jpeg";
   else if (blob.type?.includes("gif")) type = "gif";
   else if (blob.type?.includes("bmp")) type = "bmp";
   else type = getImageTypeFromUrl(url);
@@ -62,17 +77,127 @@ const hiddenBorders = {
   right: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
 };
 
+// ✅ Name & Title (Seller/Buyer) with Agent priority
+const getSellerNameForImage = (agreement) => {
+  const sellers = agreement?.dhinac1?.sellers || [];
+  const sellerAgents = agreement?.dhinac1?.agents || [];
+  return sellerAgents.length ? joinNames(sellerAgents) : joinNames(sellers);
+};
+
+const getBuyerNameForImage = (agreement) => {
+  const buyers = agreement?.dhinac2?.buyers || [];
+  const buyerAgents = agreement?.dhinac2?.agents || [];
+  return buyerAgents.length ? joinNames(buyerAgents) : joinNames(buyers);
+};
+
+// import { getTitles } from "../helpers/getTitles";  // path-kaaga sax
+
+const cap = (s = "") => String(s).trim().toUpperCase();
+
+
+
+const getImageHeadingsFromAgreement = (agreement, getTitlesFn) => {
+  const serviceType = agreement?.serviceType;      // mooto | baabuur | ...
+  const agreementType = agreement?.agreementType;  // Beec | Hibo | Waqaf
+
+  const sellers = agreement?.dhinac1?.sellers || [];
+  const buyers = agreement?.dhinac2?.buyers || [];
+  const sellerAgents = agreement?.dhinac1?.agents || [];
+  const buyerAgents = agreement?.dhinac2?.agents || [];
+
+  const hasSellerAgent = sellerAgents.length > 0;
+  const hasBuyerAgent = buyerAgents.length > 0;
+
+  const leftPeople = hasSellerAgent ? sellerAgents : sellers;
+  const rightPeople = hasBuyerAgent ? buyerAgents : buyers;
+
+  const leftName = joinNames(leftPeople);
+  const rightName = joinNames(rightPeople);
+
+  // genders + counts (agent haddii jiro -> agent-ka ayaa la eegayaa)
+  const T = getTitlesFn(serviceType, agreementType, {
+    counts: {
+      sellerCount: sellers.length || 1,
+      buyerCount: buyers.length || 1,
+      sellerAgentCount: sellerAgents.length || 1,
+      buyerAgentCount: buyerAgents.length || 1,
+    },
+    genders: {
+      sellerGender: sellers?.[0]?.gender,
+      buyerGender: buyers?.[0]?.gender,
+      sellerAgentGender: sellerAgents?.[0]?.gender,
+      buyerAgentGender: buyerAgents?.[0]?.gender,
+    },
+  });
+
+  // ✅ title-ka saxda ah (agent/non-agent)
+  const leftTitle = hasSellerAgent ? T.sellerAgent : T.seller;
+  const rightTitle = hasBuyerAgent ? T.buyerAgent : T.buyer;
+
+  // Word format: "TITLE :" line + NAME line
+  return {
+    left: { title: cap(leftTitle) + " :", name: cap(leftName) },
+    right: { title: cap(rightTitle) + " :", name: cap(rightName) },
+  };
+};
+
+const makeHeading = (title, name) => [
+  new Paragraph({
+    alignment: AlignmentType.CENTER,
+    children: [
+      new TextRun({
+        text: safe(title).toUpperCase(),
+        bold: true,
+        underline: {},
+        size: 22,
+        font: "Times New Roman",
+      }),
+    ],
+  }),
+  new Paragraph({
+    alignment: AlignmentType.CENTER,
+    spacing: { after: 120 },
+    children: [
+      new TextRun({
+        text: safe(name).toUpperCase(),
+        bold: true,
+        size: 22,
+        font: "Times New Roman",
+      }),
+    ],
+  }),
+];
+
+/* ===========================
+   COMPONENT
+=========================== */
 const ImagesSection = ({ agreement, fetchData }) => {
   const [open, setOpen] = useState(false);
 
   // ✅ expects images = [{ _id, url, description }]
   const images = useMemo(() => agreement?.images || [], [agreement]);
 
+  // ✅ default description for Add modal (optional)
+  // 0,2,4... => seller side   | 1,3,5... => buyer side
+  const defaultDescription = useMemo(() => {
+    const nextIndex = images.length; // new image index
+    if (nextIndex % 2 === 0) return getSellerNameForImage(agreement) || "Seller";
+    return getBuyerNameForImage(agreement) || "Buyer";
+  }, [images.length, agreement]);
+
   const downloadWordImages = async () => {
     try {
       if (!images.length) return toast.error("Sawir ma jiro");
 
       const rows = [];
+
+      // ✅ fixed headings based on agreement (agent priority)
+     
+
+      const headings = getImageHeadingsFromAgreement(agreement, getTitles);
+
+const leftHeading = makeHeading(headings.left.title, headings.left.name);
+const rightHeading = makeHeading(headings.right.title, headings.right.name);
 
       for (let i = 0; i < images.length; i += 2) {
         const L = images[i];
@@ -85,24 +210,14 @@ const ImagesSection = ({ agreement, fetchData }) => {
           width: { size: 50, type: WidthType.PERCENTAGE },
           borders: hiddenBorders,
           children: [
-            new Paragraph({
-              alignment: AlignmentType.CENTER,
-              children: [
-                new TextRun({
-                  text: (L?.description || `SAWIR ${i + 1}`).toUpperCase(),
-                  bold: true,
-                  size: 22,
-                  font: "Times New Roman",
-                }),
-              ],
-            }),
+            ...leftHeading,
             left
               ? new Paragraph({
                   alignment: AlignmentType.CENTER,
                   children: [
                     new ImageRun({
                       data: left.data,
-                      type: left.type, // ✅ auto type
+                      type: left.type,
                       transformation: { width: 240, height: 240 },
                     }),
                   ],
@@ -116,23 +231,13 @@ const ImagesSection = ({ agreement, fetchData }) => {
           borders: hiddenBorders,
           children: R
             ? [
-                new Paragraph({
-                  alignment: AlignmentType.CENTER,
-                  children: [
-                    new TextRun({
-                      text: (R?.description || `SAWIR ${i + 2}`).toUpperCase(),
-                      bold: true,
-                      size: 22,
-                      font: "Times New Roman",
-                    }),
-                  ],
-                }),
+                ...rightHeading,
                 new Paragraph({
                   alignment: AlignmentType.CENTER,
                   children: [
                     new ImageRun({
                       data: right.data,
-                      type: right.type, // ✅ auto type
+                      type: right.type,
                       transformation: { width: 240, height: 240 },
                     }),
                   ],
@@ -171,9 +276,7 @@ const ImagesSection = ({ agreement, fetchData }) => {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h3 className="font-bold text-xl">Sawirada</h3>
-          <p className="text-sm text-gray-500">
-            {images.length} sawir(yo) ayaa jira
-          </p>
+          <p className="text-sm text-gray-500">{images.length} sawir(yo) ayaa jira</p>
         </div>
 
         <div className="flex gap-3">
@@ -207,10 +310,12 @@ const ImagesSection = ({ agreement, fetchData }) => {
         onClose={() => setOpen(false)}
         agreementId={agreement?._id}
         onSaved={fetchData}
+        defaultDescription={defaultDescription}
       />
     </div>
   );
 };
+
 const ImageCard = ({ img, index, agreementId, onRefresh }) => {
   const [loading, setLoading] = useState(false);
 
@@ -236,11 +341,10 @@ const ImageCard = ({ img, index, agreementId, onRefresh }) => {
         <img
           src={img?.url}
           alt={`img-${index}`}
-          className="w-full h-72 object-contain  rounded-lg"
+          className="w-full h-72 object-contain rounded-lg"
         />
       </a>
 
-      {/* Delete button hover */}
       <button
         onClick={handleDelete}
         disabled={loading}
@@ -252,10 +356,14 @@ const ImageCard = ({ img, index, agreementId, onRefresh }) => {
   );
 };
 
-const AddImageModal = ({ open, onClose, agreementId, onSaved }) => {
+const AddImageModal = ({ open, onClose, agreementId, onSaved, defaultDescription }) => {
   const [file, setFile] = useState(null);
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (open) setDescription(defaultDescription || "");
+  }, [open, defaultDescription]);
 
   const clear = () => {
     setFile(null);
@@ -295,8 +403,12 @@ const AddImageModal = ({ open, onClose, agreementId, onSaved }) => {
   };
 
   return (
-    
-    <Modal open={open} onClose={onClose} title="Xogta Shaqada" closeOnBackdrop={!loading}>
+    <Modal
+      open={open}
+      onClose={onClose}
+      title="Xogta Shaqada"
+      closeOnBackdrop={!loading}
+    >
       <div className="grid gap-4">
         <div className="grid grid-cols-3 items-center gap-3">
           <label className="text-sm text-gray-700">Sawirka</label>

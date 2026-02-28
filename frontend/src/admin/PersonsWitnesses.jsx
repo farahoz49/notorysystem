@@ -160,19 +160,35 @@ const PersonsWitnesses = ({ agreement, fetchData }) => {
     setTasdiiqs((p) => p.filter((d) => d._id !== id));
     toast.success("Tasdiiq deleted");
   };
-  // helper: wakaalad service types
-  const isWakaalad =
-    ["Wakaalad Guud", "Wakaalad_Gaar_ah"].includes(agreement?.serviceType);
+ const serviceConfig = {
+  "Wakaalad Guud": {
+    sellerBtnText: "Wakaalad Bixiye",
+    buyerBtnText: "La Wakiishe",
+  },
+  "Wakaalad_Gaar_ah": {
+    sellerBtnText: "Wakaalad Bixiye",
+    buyerBtnText: "La Wakiishe",
+  },
+  "Caddeyn": {
+    sellerBtnText: "Caddeeye",
+    buyerBtnText: "Loo Caddeeye",
+  },
+  "Damaanad": {
+    sellerBtnText: "Damiinte",
+    buyerBtnText: "La Damiinte",
+  },
+  "Heshiis Dhex Maray Laba Daraf": {
+    sellerBtnText: "Dhinac",
+    buyerBtnText: "Dhinac",
+  }
+};
 
-  // button texts
-  const sellerBtnText = isWakaalad ? "Wakaalad Bixiye" : "iska iibiye";
-  const buyerBtnText = isWakaalad ? "La Wakiishe" : "iibsade";
-
-  // optional: titles too (haddii aad rabto title-ka inuu is beddelo)
-  const sellerTitle = isWakaalad ? "Wakaalad Bixiye" : "iska iibiye";
-  const buyerTitle = isWakaalad ? "La Wakiishe" : "iibsade";
-
-
+  const {
+  sellerBtnText = "Iska iibiye",
+  buyerBtnText = "Iibsade",
+  sellerTitle = "Dhinaca 1aad",
+  buyerTitle = "Dhinaca 2aad"
+} = serviceConfig[agreement?.serviceType] || {};
   return (
     <div className="space-y-8">
       <PersonsSection

@@ -1,25 +1,39 @@
 import Person from "../model/Person.js";
+import { uploadBufferToCloudinary } from "../utils/uploadBufferToCloudinary.js";
 // CREATE person
 export const createPerson = async (req, res) => {
   try {
     const { phone } = req.body;
 
-    // 1️⃣ Check haddii phone hore u jiro
+    // 1) phone check
     const phoneExist = await Person.findOne({ phone });
-
     if (phoneExist) {
-      return res.status(400).json({
-        message: "Number kan hore ugu jira System ka"
-      });
+      return res.status(400).json({ message: "Number kan hore ugu jira System ka" });
     }
 
-    // 2️⃣ Haddii uusan jirin → Create person
-    const person = await Person.create(req.body);
+    // 2) prepare data
+    const payload = { ...req.body };
 
-    res.status(201).json(person);
+    // 3) if file uploaded -> cloudinary
+    if (req.file) {
+      const up = await uploadBufferToCloudinary(
+        req.file.buffer,
+        "persons/documents" // folder
+      );
 
+      payload.documentFile = {
+        url: up.secure_url,
+        mimeType: req.file.mimetype,
+        originalName: req.file.originalname,
+        size: req.file.size,
+      };
+    }
+
+    // 4) create
+    const person = await Person.create(payload);
+    return res.status(201).json(person);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return res.status(500).json({ message: error.message });
   }
 };
 
@@ -55,18 +69,41 @@ export const deletePerson = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-// update person controller would go here
 export const updatePerson = async (req, res) => {
   try {
-    const person = await Person.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
-    );
-    res.json(person);
-  }
-  catch (error) {
-    res.status(500).json({ message: error.message });
+    const personId = req.params.id;
+
+    // phone unique check (haddii phone la beddelayo)
+    if (req.body.phone) {
+      const exists = await Person.findOne({
+        phone: req.body.phone,
+        _id: { $ne: personId },
+      });
+      if (exists) {
+        return res.status(400).json({ message: "Number kan hore ugu jira System ka" });
+      }
+    }
+
+    const payload = { ...req.body };
+
+    // ✅ haddii file cusub la keenay
+    if (req.file) {
+      const up = await uploadBufferToCloudinary(req.file.buffer, "persons/documents");
+      payload.documentFile = {
+        url: up.secure_url,
+        mimeType: req.file.mimetype,
+        originalName: req.file.originalname,
+        size: req.file.size,
+      };
+    }
+
+    const person = await Person.findByIdAndUpdate(personId, payload, { new: true });
+
+    if (!person) return res.status(404).json({ message: "Person not found" });
+
+    return res.json(person);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
   }
 };
 
