@@ -14,15 +14,12 @@ import {
  * ✅ WAKAALAD GAAR AH (Dhul Banaan / Guri Dhisan) - gooni ah
  * - Multi grantors + multi agents
  * - Names bold only
- * - Property details: nooca, ku yaallo, cabir, lotto, soohdin, ku milkiyay (Aato/Sabarloog/Maxkamad)
- * - Hal paragraph dheer (sida code-kaaga)
- * - ✅ KU DARAY: Signature table + Witnesses + Sugitaanka Nootaayada (sida saami/mooto)
+ * - Property details...
+ * - Hal paragraph dheer
+ * - ✅ Signature + Witnesses + Sugitaanka Nootaayada
  * - ✅ Titles: single/plural + male/female
- *   - Grantor single: male=WAKAALAD BIXIYAHA, female=WAKAALAD BIXISADA
- *   - Agent single: male=LA WAKIISHA, female=LA WAKIISHADA
- *   - Plural: Grantors="SAXIIXA WAKAALAD BIXIYAASHA", Agents="SAXIIXA WAKIILLADA"
  */
-export const buildWakaaladGaarAhDoc = ({ agreement, service, formatDate, GW }) => {
+export const buildWakaaladGaarAhDoc = ({ agreement, service, formatDate }) => {
   // ================= HELPERS =================
   const safe = (v) => (v === undefined || v === null ? "" : String(v).trim());
 
@@ -31,9 +28,41 @@ export const buildWakaaladGaarAhDoc = ({ agreement, service, formatDate, GW }) =
   const maleFemale = (gender, male, female) =>
     String(gender || "").toLowerCase() === "female" ? female : male;
 
+  // ✅ LOCAL gender words (GW global ma isticmaaleyno)
+  const G = (gender) => {
+    const g = String(gender || "").toLowerCase();
+    const isF = g === "female";
+    return {
+      grantorMother: "hooyadayna la yiraahdo", // bixiye (had iyo jeer sidan ayaad rabtay)
+      agentMother: isF ? "hooyadeedna la yiraahdo" : "hooyadiisna la yiraahdo",
+      born: isF ? "ku dhalatay" : "ku dhashay",
+    };
+  };
+
+  // ✅ female single grantor text adjust (uu->ay, karo->karto)
+  const toFemaleSingleGrantorText = (txt = "", grantorGender, isPluralGrantor) => {
+    const isFSingle = !isPluralGrantor && String(agentGender || "").toLowerCase() === "female";
+    if (!isFSingle) return String(txt);
+
+    return String(txt)
+      .replaceAll("in uu", "in ay")
+      .replaceAll(" uu ", " ay ")
+      .replaceAll(" uuna ", " ayna ")
+      .replaceAll("uuna", "ayna")
+      .replace(/\bkaro\b/g, "karto");
+  };
+
+  // ================= PEOPLE =================
+  const grantors = agreement?.dhinac1?.sellers || [];
+  const agents = agreement?.dhinac2?.buyers || [];
+
+  const isPluralGrantor = grantors.length > 1;
+  const grantorGender = grantors?.[0]?.gender || "male";
+  const agentGender = agents?.[0]?.gender || "male";
+
   const formatGrantor = (p) => {
     if (!p) return "";
-    const W = GW ? GW(p?.gender || "male") : null;
+    const W = G(p?.gender);
 
     const fullName = safe(p.fullName);
     const nationality = safe(p.nationality) || "Somali";
@@ -45,16 +74,13 @@ export const buildWakaaladGaarAhDoc = ({ agreement, service, formatDate, GW }) =
     const docNo = safe(p.documentNumber);
     const phone = safe(p.phone);
 
-    // haddii GW la keeno -> hooyo/dhalasho gender ku xiran; haddii kale -> fallback
-    const hooyo = W?.hooyo ? W.hooyo : "hooyadayna la yiraahdo";
-    const dhalasho = W?.dhalasho ? W.dhalasho : "ku dhashay";
-
-    return `${fullName}, ${nationality} ah, ${hooyo} ${mother}, ${dhalasho} ${birthPlace}, sanadkii ${birthYear}, degan ${address}, lehna ${docType} lambarkiisu yahay ${docNo} ee ku lifaaqan warqadaan, Tell: ${phone}`;
+    // ✅ grantor: hooyadayna... (sidaad rabtay)
+    return `${fullName}, ${nationality} ah, ${W.grantorMother} ${mother}, ${W.born} ${birthPlace}, sanadkii ${birthYear}, degan ${address}, lehna ${docType} lambarkiisu yahay ${docNo} ee ku lifaaqan warqadaan, Tell: ${phone}`;
   };
 
   const formatAgent = (p) => {
     if (!p) return "";
-    const W = GW ? GW(p?.gender || "male") : null;
+    const W = G(p?.gender);
 
     const fullName = safe(p.fullName);
     const nationality = safe(p.nationality) || "Somali";
@@ -66,10 +92,8 @@ export const buildWakaaladGaarAhDoc = ({ agreement, service, formatDate, GW }) =
     const docNo = safe(p.documentNumber);
     const phone = safe(p.phone);
 
-    const hooyo = W?.hooyo ? W.hooyo : "hooyadiisna la yiraahdo";
-    const dhalasho = W?.dhalasho ? W.dhalasho : "ku dhashay";
-
-    return `${fullName}, ${nationality} ah, ${hooyo} ${mother}, ${dhalasho} ${birthPlace}, sanadkii ${birthYear}, degan ${address}, lehna ${docType} lambarkiisu yahay ${docNo} ee ku lifaaqan warqadaan, Tell: ${phone}`;
+    // ✅ agent: hooyadiisna/hooyadeedna + ku dhashay/ku dhalatay
+    return `${fullName}, ${nationality} ah, ${W.agentMother} ${mother}, ${W.born} ${birthPlace}, sanadkii ${birthYear}, degan ${address}, lehna ${docType} lambarkiisu yahay ${docNo} ee ku lifaaqan warqadaan, Tell: ${phone}`;
   };
 
   // Bold names only
@@ -215,12 +239,10 @@ export const buildWakaaladGaarAhDoc = ({ agreement, service, formatDate, GW }) =
     return `${propType}${locPart ? " " + locPart : ""}${cabirPart}${lottoPart}${soohdinText}`.trim();
   };
 
-  // ================= PEOPLE =================
-  const grantors = agreement?.dhinac1?.sellers || [];
-  const agents = agreement?.dhinac2?.buyers || [];
+  const kuMilkiyayText = formatKuMilkiyay();
+  const kuMilkiyayPart = kuMilkiyayText ? `, ku milkiyay ${kuMilkiyayText}` : "";
 
-  const isPluralGrantor = grantors.length > 1;
-
+  // ================= TEXTS =================
   const healthText = isPluralGrantor
     ? ", xiskeenuna taam yahay cid nagu qasbeysana aysan jirin wakaaladan, "
     : ", xiskeygana taam yahay cid igu qasbeysana aysan jirin wakaaladan, ";
@@ -229,18 +251,15 @@ export const buildWakaaladGaarAhDoc = ({ agreement, service, formatDate, GW }) =
     ? "waxaan qoraalkaan ku caddeynaynaa in aan wakaalad gaar ah u siinay "
     : "waxaan qoraalkaan ku caddeynayaa in aan wakaalad gaar ah u siiyay ";
 
-  const powersText = isPluralGrantor
+  // ✅ powersText (rag) -> auto female single (karo->karto, uu->ay)
+  const rawPowersText = isPluralGrantor
     ? ", in uu gedi karo, u dacwoon karo, dhisi karo, haddii loo baahdana qareen u qaban karo hantidaas oo ilaa hadda ka madax banaan rahan ama sheegasho cid kale."
     : ", in uu gedi karo, u dacwoon karo, dhisi karo, haddii loo baahdana qareen u qaban karo dhulkaas oo ilaa hadda ka madax banaan rahan ama sheegasho cid kale.";
 
-  const kuMilkiyayText = formatKuMilkiyay();
-  const kuMilkiyayPart = kuMilkiyayText ? `, ku milkiyay ${kuMilkiyayText}` : "";
+  const powersText = toFemaleSingleGrantorText(rawPowersText, grantorGender, isPluralGrantor);
 
   // ================= SIGNATURES + WITNESSES + NOTARY =================
   const signatureLine = "______________________________";
-
-  const grantorGender = grantors?.[0]?.gender || "male";
-  const agentGender = agents?.[0]?.gender || "male";
 
   const leftTitle = singleOrPlural(
     grantors.length,
@@ -419,10 +438,9 @@ export const buildWakaaladGaarAhDoc = ({ agreement, service, formatDate, GW }) =
 
   // ================= RETURN =================
   return [
-    // TITLE
     new Paragraph({
       alignment: AlignmentType.CENTER,
-      spacing: { after: 200  , before : 200},
+      spacing: { after: 200, before: 200 },
       children: [
         new TextRun({
           text: "UJEEDO: WAKAALAD GAAR AH",
@@ -434,7 +452,6 @@ export const buildWakaaladGaarAhDoc = ({ agreement, service, formatDate, GW }) =
       ],
     }),
 
-    // MAIN PARAGRAPH (ALL CONTENT KEPT)
     new Paragraph({
       alignment: AlignmentType.JUSTIFIED,
       spacing: { after: 160 },
@@ -459,7 +476,6 @@ export const buildWakaaladGaarAhDoc = ({ agreement, service, formatDate, GW }) =
       ],
     }),
 
-    // SIGNATURE TABLE
     new Table({
       width: { size: 100, type: WidthType.PERCENTAGE },
       borders: {
@@ -488,10 +504,7 @@ export const buildWakaaladGaarAhDoc = ({ agreement, service, formatDate, GW }) =
       ],
     }),
 
-    // ✅ MARQAATIYAASHA
     ...(witnessesTable ? [witnessesTitle, witnessesTable] : []),
-
-    // ✅ SUGITAANKA NOOTAAYADA
     ...notarySection,
   ];
 };

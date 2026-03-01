@@ -14,19 +14,48 @@ import {
  * ✅ WAKAALAD SAAMI (Gaar ah) - gooni ah
  * - Multi grantors + multi agents
  * - Names bold only (qoraalka dheer)
- * - ✅ KU DARAY: Signature table + Witnesses + Sugitaanka Nootaayada
- * - ✅ Titles: single/plural + male/female (sida aad sheegtay)
+ * - ✅ Signature table + Witnesses + Sugitaanka Nootaayada
+ * - ✅ Titles: single/plural + male/female
  *   - Grantor single: male=WAKAALAD BIXIYAHA, female=WAKAALAD BIXISADA
  *   - Agent single: male=LA WAKIISHA, female=LA WAKIISHADA
  *   - Plural: Grantors="SAXIIXA WAKAALAD BIXIYAASHA", Agents="SAXIIXA WAKIILLADA"
  */
-export const buildWakaaladSaamiDoc = ({ agreement, service, formatDate, GW }) => {
+export const buildWakaaladSaamiDoc = ({ agreement, service, formatDate }) => {
   const safe = (v) => (v === undefined || v === null ? "" : String(v).trim());
 
   const singleOrPlural = (count, single, plural) => (count > 1 ? plural : single);
 
   const maleFemale = (gender, male, female) =>
     String(gender || "").toLowerCase() === "female" ? female : male;
+
+  // ✅ LOCAL gender words (GW global ma isticmaaleyno)
+  const G = (gender) => {
+    const g = String(gender || "").toLowerCase();
+    const isF = g === "female";
+    return {
+      // Grantor (bixiye): inta badan "hooyadayna" ayaad rabtaa
+      grantorMother: "hooyadayna la yiraahdo",
+      // Agent: hooyadiisna/hooyadeedna
+      agentMother: isF ? "hooyadeedna la yiraahdo" : "hooyadiisna la yiraahdo",
+      born: isF ? "ku dhalatay" : "ku dhashay",
+    };
+  };
+
+  // ✅ female single grantor text adjust: uu->ay, uuna->ayna, karo->karto, siiyay->siisay, ii siiyey->ii siisay
+  const toFemaleSingleGrantorText = (txt = "", grantorGender, isPluralGrantor) => {
+    const isFSingle = !isPluralGrantor && String(agentGender || "").toLowerCase() === "female";
+    if (!isFSingle) return String(txt);
+
+    return String(txt)
+      .replaceAll("in uu", "in ay")
+      .replaceAll(" uu ", " ay ")
+      .replaceAll(" leeyahay  ", " leedahay")
+      .replaceAll(" uuna ", " ayna ")
+      .replaceAll("uuna", "ayna")
+      .replace(/\bkaro\b/g, "karto")
+      .replaceAll("siiyey", "siisay")
+      .replaceAll("siiyay", "siisay");
+  };
 
   // Bold names only (FullName) rest normal
   const buildRunsWithBoldNames = (people = [], formatter) => {
@@ -61,15 +90,18 @@ export const buildWakaaladSaamiDoc = ({ agreement, service, formatDate, GW }) =>
     return runs;
   };
 
+  // ================= PEOPLE =================
   const grantors = agreement?.dhinac1?.sellers || [];
   const agents = agreement?.dhinac2?.buyers || [];
 
   const isPluralGrantor = grantors.length > 1;
-  const isPluralAgent = agents.length > 1;
+
+  const grantorGender = grantors?.[0]?.gender || "male";
+  const agentGender = agents?.[0]?.gender || "male";
 
   const formatGrantor = (p) => {
     if (!p) return "";
-    const W = GW(p?.gender || "male");
+    const W = G(p?.gender);
 
     const fullName = safe(p.fullName);
     const nationality = safe(p.nationality) || "Somali";
@@ -81,12 +113,13 @@ export const buildWakaaladSaamiDoc = ({ agreement, service, formatDate, GW }) =>
     const docNo = safe(p.documentNumber);
     const phone = safe(p.phone);
 
-    return `${fullName}, ${nationality} ah, ${W.hooyo} la yiraahdo ${mother}, ${W.dhalasho} ${birthPlace}, sanadkii ${birthYear}, degan ${address}, lehna ${docType} lambarkiisu yahay ${docNo} ee ku lifaaqan warqadaan, Tell: ${phone}`;
+    // ✅ grantor: hooyadayna ... (born word gender ku xiran)
+    return `${fullName}, ${nationality} ah, ${W.grantorMother} ${mother}, ${W.born} ${birthPlace}, sanadkii ${birthYear}, degan ${address}, lehna ${docType} lambarkiisu yahay ${docNo} ee ku lifaaqan warqadaan, Tell: ${phone}`;
   };
 
   const formatAgent = (p) => {
     if (!p) return "";
-    const W = GW(p?.gender || "male");
+    const W = G(p?.gender);
 
     const fullName = safe(p.fullName);
     const nationality = safe(p.nationality) || "Somali";
@@ -98,9 +131,11 @@ export const buildWakaaladSaamiDoc = ({ agreement, service, formatDate, GW }) =>
     const docNo = safe(p.documentNumber);
     const phone = safe(p.phone);
 
-    return `${fullName}, ${nationality} ah, ${W.hooyo} la yiraahdo ${mother}, ${W.dhalasho} ${birthPlace}, sanadkii ${birthYear}, degan ${address}, lehna ${docType} lambarkiisu yahay ${docNo} ee ku lifaaqan warqadaan, Tell: ${phone}`;
+    // ✅ agent: hooyadiisna/hooyadeedna + born gender
+    return `${fullName}, ${nationality} ah, ${W.agentMother} ${mother}, ${W.born} ${birthPlace}, sanadkii ${birthYear}, degan ${address}, lehna ${docType} lambarkiisu yahay ${docNo} ee ku lifaaqan warqadaan, Tell: ${phone}`;
   };
 
+  // ================= MAIN TEXTS =================
   const introWho = isPluralGrantor ? "anagoo kala ah " : "anigoo ah ";
 
   const healthText = isPluralGrantor
@@ -121,24 +156,25 @@ export const buildWakaaladSaamiDoc = ({ agreement, service, formatDate, GW }) =>
   const hasHormuud = !!hormuudAcc;
   const hasSalaam = !!salaamAcc;
 
-  const hormuudText =
+  // ✅ Raw texts (rag) -> later we convert if female single grantor
+  const rawHormuudText =
     `Saamiyada aan ku leeyahay Shirkadda Hormuud Telecom Somalia inc (HorTel). ` +
     `Accounka numbarkiisu yahay ${hormuudAcc}, sida ku cad activity report-ga ka soo baxay Hormuud ` +
     `kuna taariikhaysan ${reportDate}. ` +
     `in uu gadi karo, hibayn karo, rahmi karo, waqfi karo, iskuna damiinan karo, una xayiri karo naftiisa, ` +
     `rahan dhigi karo kana saari karo, qareen u qaban karo, u dacwoon karo, isla markaasna uu leeyahay maamul ` +
-    `la mid ah midka sharcigu ii siiyey oo kale. Sidoo kalena uu maamuli karo faa'idada uu soo saaro saamigaas.`;
+    `la mid ah midka sharcigu ii siiyey oo kale. Sidoo kalena uu maamuli karo faa'idada oo soo saaro saamigaas. `;
 
-  const salaamText =
+  const rawSalaamText =
     `Sidoo kale accounkayga bankiga Salaam Somali Bank, ee numbarkiisuna yahay ${salaamAcc}, ` +
     `in uu maamuli karo, lacag ka saari karo, lacag dhigi karo, u dacwoon karo, u doodi karo, qareenna u qaban karo, ` +
-    `isla markaasna uu leeyahay maamul la mid ah midka sharcigu i siiyey oo kale.`;
+    `isla markaasna uu leeyahay maamul la mid ah midka sharcigu ii siiyey oo kale.`;
+
+  const hormuudText = toFemaleSingleGrantorText(rawHormuudText, grantorGender, isPluralGrantor);
+  const salaamText = toFemaleSingleGrantorText(rawSalaamText, grantorGender, isPluralGrantor);
 
   // ================= SIGNATURES (single/plural + male/female) =================
   const signatureLine = "______________________________";
-
-  const grantorGender = grantors?.[0]?.gender || "male";
-  const agentGender = agents?.[0]?.gender || "male";
 
   const leftTitle = singleOrPlural(
     grantors.length,
@@ -168,7 +204,14 @@ export const buildWakaaladSaamiDoc = ({ agreement, service, formatDate, GW }) =>
           new Paragraph({
             alignment: AlignmentType.CENTER,
             spacing: { after: 60 },
-            children: [new TextRun({ text: safe(p?.fullName).toUpperCase(), bold: true, size: 24, font: "Times New Roman" })],
+            children: [
+              new TextRun({
+                text: safe(p?.fullName).toUpperCase(),
+                bold: true,
+                size: 24,
+                font: "Times New Roman",
+              }),
+            ],
           })
         );
 
@@ -335,7 +378,7 @@ export const buildWakaaladSaamiDoc = ({ agreement, service, formatDate, GW }) =>
       spacing: { after: 100 },
       children: [
         new TextRun({
-          text: "UJEEDO: WAKAALAD GAAR AH",
+          text: "UJEEDO: WAKAALAD SAAMI",
           bold: true,
           underline: true,
           size: 24,
@@ -364,7 +407,9 @@ export const buildWakaaladSaamiDoc = ({ agreement, service, formatDate, GW }) =>
           ? [
               new TextRun({ text: ", ", size: 24, font: "Times New Roman" }),
               ...(hasHormuud ? [new TextRun({ text: hormuudText, size: 24, font: "Times New Roman" })] : []),
-              ...(hasHormuud && hasSalaam ? [new TextRun({ text: "", size: 24, break: 1, font: "Times New Roman" })] : []),
+              ...(hasHormuud && hasSalaam
+                ? [new TextRun({ text: "", size: 24, break: 1, font: "Times New Roman" })]
+                : []),
               ...(hasSalaam ? [new TextRun({ text: salaamText, size: 24, font: "Times New Roman" })] : []),
             ]
           : []),
@@ -403,10 +448,7 @@ export const buildWakaaladSaamiDoc = ({ agreement, service, formatDate, GW }) =>
       ],
     }),
 
-    // ✅ MARQAATIYAASHA
     ...(witnessesTable ? [witnessesTitle, witnessesTable] : []),
-
-    // ✅ SUGITAANKA NOOTAAYADA
     ...notarySection,
   ];
 };

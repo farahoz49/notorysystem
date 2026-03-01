@@ -40,6 +40,7 @@ import { buildMootoDoc } from "../Services/mooto.jsx";
 import { buildWakaaladGuudDoc } from "../Services/WakaaladGuud.jsx";
 import { buildWakaaladKaleDoc } from "../Services/wakaaladKale.jsx";
 import { buildWakaaladGaarAhDoc } from "../Services/wakaaladGaarAh.jsx";
+import { Heshiis2daraf } from "../Services/Heshiis2daraf.jsx";
 
 const AgreementInfo = ({ agreement, fetchData }) => {
   const [formData, setFormData] = useState({
@@ -387,6 +388,9 @@ const AgreementInfo = ({ agreement, fetchData }) => {
         }
         case "Caddeyn": {
           return buildCaddeynCase({ agreement });
+        }
+        case "Heshiis Dhex Maray Laba Daraf": {
+          return Heshiis2daraf({ agreement });
         }
 
         default:

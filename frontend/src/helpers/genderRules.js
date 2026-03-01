@@ -196,8 +196,9 @@ export const getTitles = (serviceType, agreementType, opts = {}) => {
   // 1) gender -> 2) plural
   const seller = pluralizeTitle(applyGender(base.seller, sellerGender), sellerCount);
   const buyer = pluralizeTitle(applyGender(base.buyer, buyerGender), buyerCount);
-  const sellerAgent = pluralizeTitle(applyGender(base.sellerAgent, sellerAgentGender), sellerAgentCount);
-  const buyerAgent = pluralizeTitle(applyGender(base.buyerAgent, buyerAgentGender), buyerAgentCount);
+  const sellerAgent = pluralizeTitle(applyGender(base.sellerAgent, sellerGender), sellerAgentCount);
+  const buyerAgent = pluralizeTitle(applyGender(base.buyerAgent, buyerGender), buyerAgentCount);
 
   return { ...base, seller, buyer, sellerAgent, buyerAgent };
 };
+

@@ -20,10 +20,11 @@ const Reception = () => {
   const navigate = useNavigate();
   const serviceTypeOptions = {
     Wareejin: [
-      { value: "Mooto", label: "Mooto" },
-      { value: "baabuur", label: "Baabuur" },
-      { value: "DhulBanaan", label: "Dhul Banaan" }, // label space leh ✅
       { value: "Saami", label: "Saami" },
+      { value: "DhulBanaan", label: "Dhul Banaan" }, // label space leh ✅
+      { value: "baabuur", label: "Baabuur" },
+      { value: "Mooto", label: "Mooto" },
+
 
     ],
     Wakaalad: [
@@ -44,12 +45,16 @@ const Reception = () => {
       { value: "Heshiis Dhex Maray Laba Daraf", label: "Heshiis Dhex Maray Laba Daraf" },
       { value: "Aas’aasid Shirkad", label: "Aas’aasid Shirkad" },
     ],
+    Kireeyn: [
+      { value: "Kireeyn", label: "Heshiis Kiro" },
+      
+    ],
   };
 
   const [form, setForm] = useState({
     agreementDate: new Date().toISOString().split("T")[0],
     service: "Wareejin",
-    serviceType: "Mooto",
+    serviceType: "Saami",
     agreementType: "Beec",
     officeFee: "",
     sellingPrice: "",
@@ -236,6 +241,7 @@ const Reception = () => {
         guarantors: "Damiin"
       }
     },
+   
 
     Wakaalad: {
       side1Title: "Dhinaca 1aad (Wakaalad Bixiye)",
@@ -293,7 +299,21 @@ const Reception = () => {
         agents: "Wakiil",
         guarantors: "Damiin"
       }
-    }
+    },
+     Kireeyn: {
+      side1Title: "Dhinaca 1aad (Iska Iibiye)",
+      side2Title: "Dhinaca 2aad (Iibsade)",
+      dhinac1Roles: {
+        sellers: "Kireeyaha",
+        agents: "Wakiil",
+        guarantors: "Damiin"
+      },
+      dhinac2Roles: {
+        buyers: "Kireestaha",
+        agents: "Wakiil",
+        guarantors: "Damiin"
+      }
+    },
   };
 
 
@@ -381,7 +401,7 @@ const Reception = () => {
         <div className="flex gap-6">
           <div className="flex-1 bg-white p-4 rounded shadow space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-1">Date</label>
+              <label className="block text-sm font-medium mb-1">Taariikh</label>
               <Input
                 type="date"
                 value={form.agreementDate}
@@ -395,7 +415,7 @@ focus:ring-2 focus:ring-black focus:border-black shadow-sm"
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Ref No</label>
+              <label className="block text-sm font-medium mb-1">Tixraac</label>
               <Input
                 type="text"
                 value={refNo}
@@ -403,16 +423,16 @@ focus:ring-2 focus:ring-black focus:border-black shadow-sm"
 
               />
             </div>
-            <div>
+            {/* <div>
               <label className="block text-sm font-medium mb-1">Ref No Missing</label>
               <Input
                 type="text"
                 value={missingRefNos.length ? missingRefNos.join(", ") : "No missing"}
                 readOnly
               />
-            </div>
+            </div> */}
             <div>
-              <label className="block text-sm font-medium mb-1">Service</label>
+              <label className="block text-sm font-medium mb-1">Dooro Adeega</label>
               <select
                 name="service"
                 value={form.service}
@@ -426,6 +446,7 @@ focus:ring-2 focus:ring-black focus:border-black shadow-sm"
                 <option value="Damaanad">Damaanad</option>
                 <option value="Caddeyn">Caddeyn</option>
                 <option value="Heshiisyo">Heshiisyo / Xeerar</option>
+                <option value="Kireeyn">Kireeyn</option>
 
               </select>
             </div>
@@ -435,7 +456,7 @@ focus:ring-2 focus:ring-black focus:border-black shadow-sm"
 
 
             <div>
-              <label className="block text-sm font-medium mb-1">Service Type</label>
+              <label className="block text-sm font-medium mb-1">Dooro nooca Adeega</label>
               <select
                 name="serviceType"
                 value={form.serviceType}
@@ -453,7 +474,7 @@ focus:ring-2 focus:ring-black focus:border-black shadow-sm"
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Objective</label>
+              <label className="block text-sm font-medium mb-1">Ujeeddo</label>
               <Input
                 type="text"
                 value={`Hashiis ${form.serviceType}`}
@@ -462,7 +483,7 @@ focus:ring-2 focus:ring-black focus:border-black shadow-sm"
             </div>
             {form.service === "Wareejin" && (
               <div>
-                <label className="block text-sm font-medium mb-1">Agreement Type</label>
+                <label className="block text-sm font-medium mb-1">Heshiiska</label>
                 <select
                   name="agreementType"
                   value={form.agreementType}
@@ -485,11 +506,12 @@ focus:ring-2 focus:ring-black focus:border-black shadow-sm"
 
             {form.service === "Wareejin" && form.agreementType === "Beec" && (
               <div>
-                <label className="block text-sm font-medium mb-1">Selling Price</label>
+                <label className="block text-sm font-medium mb-1">Qiimaha</label>
                 <Input
                   type="number"
                   name="sellingPrice"
                   value={form.sellingPrice}
+                  required
                   onChange={handleChange}
                   className="w-full px-4 py-2.5 rounded-xl border border-black/20 bg-white text-black
 transition-all duration-200 outline-none
@@ -514,12 +536,13 @@ focus:ring-2 focus:ring-black focus:border-black shadow-sm"
             )}
 
             <div>
-              <label className="block text-sm font-medium mb-1">Office Fee</label>
+              <label className="block text-sm font-medium mb-1">Khidmada</label>
               <Input
                 type="number"
                 name="officeFee"
                 value={form.officeFee}
                 onChange={handleChange}
+                required
                 className="w-full px-4 py-2.5 rounded-xl border border-black/20 bg-white text-black
 transition-all duration-200 outline-none
 focus:ring-2 focus:ring-black focus:border-black shadow-sm"
@@ -532,13 +555,13 @@ focus:ring-2 focus:ring-black focus:border-black shadow-sm"
         <div className="flex gap-6">
           {/* DHINAC 1 */}
           <div className="flex-1 bg-white p-5 rounded-2xl border border-black/10 shadow-sm">
-            <h3 className="font-semibold mb-3">Dhinaca 1aad </h3>
+            <h3 className="font-semibold mb-3">Darafka 1aad </h3>
 
             {["sellers", "agents", "guarantors"].map(role => (
               <div key={role} className="mb-4">
 
                 <label className="block text-sm font-medium mb-1">
-                  {serviceConfig[form.service].dhinac1Roles[role]}
+                  {/* {serviceConfig[form.service].dhinac1Roles[role]} */}
                 </label>
 
                 {/* Search Input */}
@@ -611,12 +634,12 @@ focus:ring-2 focus:ring-black focus:border-black shadow-sm"
 
           {/* DHINAC 2 */}
           <div className="flex-1 bg-white p-5 rounded-2xl border border-black/10 shadow-sm">
-            <h3 className="font-semibold mb-3">Dhinaca 2aad </h3>
+            <h3 className="font-semibold mb-3">Darafka 2aad </h3>
 
             {["buyers", "agents", "guarantors"].map(role => (
               <div key={role} className="mb-4">
                 <label className="block text-sm font-medium mb-1">
-                  {serviceConfig[form.service].dhinac2Roles[role]}
+                  {/* {serviceConfig[form.service].dhinac2Roles[role]} */}
                 </label>
 
                 {/* Search Input */}

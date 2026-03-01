@@ -21,10 +21,20 @@ import {
 export const buildWakaaladGuudDoc = ({ agreement, formatDate }) => {
   // ================= HELPERS =================
   const safe = (v) => (v === undefined || v === null ? "" : String(v).trim());
-
+const G = (gender) => {
+  const g = String(gender || "").toLowerCase();
+  const isF = g === "female";
+  return {
+    motherWord: isF ? "hooyadeedna" : "hooyadiisna",
+    bornWord: isF ? "ku dhalatay" : "ku dhashay",
+    // haddii aad rabto kuwo kale mustaqbalka:
+    // sanadWord: isF ? "sannadkii" : "sannadkii",
+  };
+};
   // Qofka bixiyaha (grantor)
   const formatGrantor = (p) => {
     if (!p) return "";
+    const W = G(p.gender);
     const fullName = safe(p.fullName);
     const nationality = safe(p.nationality) || "Somali";
     const mother = safe(p.motherName);
@@ -41,6 +51,8 @@ export const buildWakaaladGuudDoc = ({ agreement, formatDate }) => {
   // Qofka la wakiilanayo (agent)
   const formatAgent = (p) => {
     if (!p) return "";
+    const W = G(p.gender);
+
     const fullName = safe(p.fullName);
     const nationality = safe(p.nationality) || "Somali";
     const mother = safe(p.motherName);
@@ -51,7 +63,7 @@ export const buildWakaaladGuudDoc = ({ agreement, formatDate }) => {
     const docNo = safe(p.documentNumber);
     const phone = safe(p.phone);
 
-    return `${fullName}, ${nationality} ah, hooyadiisna la yiraahdo ${mother}, ku dhashay ${birthPlace}, sanadkii ${birthYear}, degan ${address}, lehna ${docType} lambarkiisu yahay ${docNo} ee ku lifaaqan warqadaan, Tell: ${phone}`;
+    return `${fullName}, ${nationality} ah, ${W.motherWord} la yiraahdo ${mother}, ${W.bornWord} ${birthPlace}, sanadkii ${birthYear}, degan ${address}, lehna ${docType} lambarkiisu yahay ${docNo} ee ku lifaaqan warqadaan, Tell: ${phone}`;
   };
 
   // Bold names only
@@ -112,6 +124,40 @@ export const buildWakaaladGuudDoc = ({ agreement, formatDate }) => {
   const ownershipWord = isPluralGrantor ? "hantideena" : "hantideyda";
   const gaveWord = isPluralGrantor ? "noo" : "ii";
 
+  // ✅ GENDER HELPERS
+  const singleOrPlural = (count, single, plural) => (count > 1 ? plural : single);
+
+  const maleFemale = (gender, male, female) =>
+    String(gender || "").toLowerCase() === "female" ? female : male;
+
+  // ✅ Grantor(s) gender (qofka bixiyaha)
+  const grantorGender = grantors?.[0]?.gender || "male";
+  // ✅ Agent(s) gender (qofka la wakiishanayo)
+  const agentGender = agents?.[0]?.gender || "male";
+
+  // ✅ female + single: “uu/karo/siiyay” -> “ay/karto/siisay”
+  const isFemaleSingleGrantor =!isPluralGrantor && String(agentGender || "").toLowerCase() === "female";
+
+  const toFemaleGrantorText = (txt = "") => {
+    if (!isFemaleSingleGrantor) return txt;
+
+    return String(txt)
+      .replaceAll("in uu", "in ay")
+      .replaceAll(" uu ", " ay ")
+      .replaceAll(" uuna ", " ayna ")
+      .replaceAll("uuna", "ayna")
+      .replace(/\bkaro\b/g, "karto")
+      .replaceAll("siiyay", "siisay");
+  };
+
+  // ✅ Power text (rag) -> auto female haddii loo baahdo
+  const powerText =
+    `, ${propertyText}` +
+    `in uu gadi karo, wareejin karo, hibeyn karo, waqfi karo, xafidi karo, dhisi karo, ijaari karo, ` +
+    `rahan dhigi karo kana saari karo, iskuna dammiinan karo, maslaxane ka geli karo una qaadi karo, ` +
+    `qareen u qaban karo kuna dacwoon karo, lacagna ka saari karo, uuna leeyahay maamulka ` +
+    `${ownershipWord} si la mid ah maamulka sharcigu ${gaveWord} siiyay..`;
+
   // ================= STYLES =================
   const hiddenBorders = {
     top: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
@@ -129,42 +175,29 @@ export const buildWakaaladGuudDoc = ({ agreement, formatDate }) => {
       .filter(Boolean)
       .join(" , ");
 
- // ✅ GENDER HELPERS (ku dhex qor buildWakaaladGuudDoc)
-const singleOrPlural = (count, single, plural) => (count > 1 ? plural : single);
+  // ✅ Names
+  const grantorSigName =
+    grantors.length > 1
+      ? joinUpperNames(grantors)
+      : safe(grantors?.[0]?.fullName).toUpperCase();
 
-const maleFemale = (gender, male, female) =>
-  String(gender || "").toLowerCase() === "female" ? female : male;
+  const agentSigName =
+    agents.length > 1
+      ? joinUpperNames(agents)
+      : safe(agents?.[0]?.fullName).toUpperCase();
 
-// ✅ Grantor(s) gender (qofka bixiyaha)
-const grantorGender = grantors?.[0]?.gender || "male";
-// ✅ Agent(s) gender (qofka la wakiishanayo)
-const agentGender = agents?.[0]?.gender || "male";
+  // ✅ TITLES: Single/Plural + Male/Female
+  const grantorSigTitle = singleOrPlural(
+    grantors.length,
+    `SAXIIXA ${maleFemale(grantorGender, "WAKAALAD BIXIYAHA", "WAKAALAD BIXISADA")}`,
+    "SAXIIXA WAKAALADDA BIXIYEYAASHA"
+  );
 
-// ✅ Names (sidaad hore u haysatay)
-const grantorSigName =
-  grantors.length > 1
-    ? joinUpperNames(grantors)
-    : safe(grantors?.[0]?.fullName).toUpperCase();
-
-const agentSigName =
-  agents.length > 1
-    ? joinUpperNames(agents)
-    : safe(agents?.[0]?.fullName).toUpperCase();
-
-// ✅ TITLES: Single/Plural + Male/Female
-// Grantor: male = "WAKAALAD BIXIYAHA", female = "WAKAALAD BIXISADA"
-const grantorSigTitle = singleOrPlural(
-  grantors.length,
-  `SAXIIXA ${maleFemale(grantorGender, "WAKAALAD BIXIYAHA", "WAKAALAD BIXISADA")}`,
-  "SAXIIXA WAKAALADDA BIXIYEYAASHA"
-);
-
-// Agent: male = "LA WAKIISHA", female = "LA WAKIISHADA"
-const agentSigTitle = singleOrPlural(
-  agents.length,
-  `SAXIIXA ${maleFemale(agentGender, "LA WAKIISHAHA", "LA WAKIISHADA")}`,
-  "SAXIIXA WAKIILLADA"
-);
+  const agentSigTitle = singleOrPlural(
+    agents.length,
+    `SAXIIXA ${maleFemale(agentGender, "LA WAKIISHAHA", "LA WAKIISHADA")}`,
+    "SAXIIXA WAKIILLADA"
+  );
 
   // ================= MARQAATIYAASHA =================
   const witnessesTitle = new Paragraph({
@@ -342,15 +375,13 @@ const agentSigTitle = singleOrPlural(
       ],
     }),
 
-    // BODY (ORIGINAL TEXT — not changed, not added)
+    // BODY
     new Paragraph({
       alignment: AlignmentType.JUSTIFIED,
       spacing: { after: 160 },
       children: [
         new TextRun({
-          text: `Maanta oo ay taariikhdu tahay ${formatDate(
-            agreement.agreementDate
-          )}, ${introWho}`,
+          text: `Maanta oo ay taariikhdu tahay ${formatDate(agreement.agreementDate)}, ${introWho}`,
           size: 24,
           font: "Times New Roman",
         }),
@@ -361,13 +392,9 @@ const agentSigTitle = singleOrPlural(
 
         ...buildRunsWithBoldNames(agents, formatAgent),
 
+        // ✅ HALKAAN AYAA SAX AH
         new TextRun({
-          text:
-            `, ${propertyText}` +
-            `in uu gadi karo, wareejin karo, hibeyn karo, waqfi karo, xafidi karo, dhisi karo, ijaari karo, ` +
-            `rahan dhigi karo kana saari karo, iskuna dammiinan karo, maslaxane ka geli karo una qaadi karo, ` +
-            `qareen u qaban karo kuna dacwoon karo, lacagna ka saari karo, uuna leeyahay maamulka ` +
-            `${ownershipWord} si la mid ah maamulka sharcigu ${gaveWord} siiyay..`,
+          text: toFemaleGrantorText(powerText),
           size: 24,
           font: "Times New Roman",
         }),

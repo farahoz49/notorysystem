@@ -29,17 +29,25 @@ export const buildSaamiDoc = ({
 
   // ================== helpers ==================
   const joinNames = (people = []) => {
-    const names = (people || []).map((p) => p?.fullName).filter(Boolean);
+    const names = (people || []).map((p, index) => p?.fullName).filter(Boolean);
     if (names.length === 0) return "";
     if (names.length === 1) return names[0];
     if (names.length === 2) return `${names[0]} iyo ${names[1]}`;
     return `${names.slice(0, -1).join(", ")} iyo ${names[names.length - 1]}`;
   };
 
-  const personLine = (p, roleColor, isBuyer = false) => {
+  const personLine = (p, index ,roleColor, isBuyer = false) => {
     const W = GW(p?.gender || "male");
 
     return [
+      new TextRun({
+        
+        text: `${index + 1}.`,
+        bold: true,
+        color: roleColor,
+        size: 24,
+        font: "Times New Roman",
+      }),
       new TextRun({
         text: `${safe(p?.fullName)} `,
         bold: true,
@@ -49,13 +57,18 @@ export const buildSaamiDoc = ({
       }),
       new TextRun({
         text: `${safe(p?.nationality)} `,
-        color: roleColor,
+       
         size: 24,
         font: "Times New Roman",
       }),
 
       new TextRun({ text: `ah, `, size: 24, font: "Times New Roman" }),
       new TextRun({ text: W.childOfMaleFemale, size: 24, font: "Times New Roman" }),
+      new TextRun({
+        text: `ina `, 
+        size: 24,
+        font: "Times New Roman",
+      }),
       new TextRun({
         text: `${safe(p?.motherName)} `,
         bold: true,
@@ -138,7 +151,7 @@ export const buildSaamiDoc = ({
           })
         );
       }
-      runs.push(...personLine(p, roleColor, isBuyer));
+      runs.push(...personLine(p, idx , roleColor, isBuyer));
     });
     return runs;
   };
@@ -809,7 +822,7 @@ const notarySection = [
               underline: {},
               bold: true,
             }),
-            new TextRun({ text: buyersPlural ? "Annagoo ah " : "Anigoo ah ", size: 24 }),
+            new TextRun({ text: buyersPlural ? " Annagoo ah " : " Anigoo ah ", size: 24 }),
             new TextRun({ text: buyerAgentDetails, bold: true, size: 24 }),
             new TextRun({
               text: buyersPlural
@@ -817,7 +830,7 @@ const notarySection = [
                 : `, ahna ${T.buyerAgent}, kana caafimaad qaba maskaxda iyo jirkaba, cid igu qasabtayna aysan jirin waxaan ku qancay ${P.actionVerb3}, una aqbalay `,
               size: 24,
             }),
-            new TextRun({ text: sellerNames, bold: true, color: "FF0000", size: 24 }),
+            new TextRun({ text: buyerNames, bold: true, color: "FF0000", size: 24 }),
             new TextRun({ text: ".", size: 24 }),
           ]
         : [
