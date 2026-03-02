@@ -8,15 +8,13 @@ import {
   getPersons,
   createPerson,
   getNextRefNo,
-  createAgreement,
-  getMissingRefNos
+  createAgreement
 } from "../api/reception.api";
 import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
 const Reception = () => {
   const [persons, setPersons] = useState([]);
   const [refNo, setRefNo] = useState("");
-  const [missingRefNos, setMissingRefNos] = useState([]);
   const navigate = useNavigate();
   const serviceTypeOptions = {
     Wareejin: [
@@ -76,19 +74,26 @@ const Reception = () => {
     forSide: "", // dhinac1 or dhinac2
     forRole: "" // sellers, buyers, agents, guarantors
   });
+//   useEffect(() => {
+//   const onRefNoUpdated = (e) => {
+//     const newRef = e?.detail;
+//     if (newRef) setRefNo(newRef);
+//   };
+
+//   window.addEventListener("refno-updated", onRefNoUpdated);
+//   return () => window.removeEventListener("refno-updated", onRefNoUpdated);
+// }, []);
 
   useEffect(() => {
     const init = async () => {
       try {
-        const year = new Date().getFullYear();
-        const [personsData, refData ,missData] = await Promise.all([
+        const [personsData, refData ] = await Promise.all([
           getPersons(),
           getNextRefNo(),
-          getMissingRefNos(year)
+          
         ]);
         setPersons(personsData || []);
         setRefNo(refData?.refNo || "");
-        setMissingRefNos(missData?.missing || []);
       } catch (err) {
         toast.error(err?.response?.data?.message || "Failed to load data");
       }
@@ -423,14 +428,7 @@ focus:ring-2 focus:ring-black focus:border-black shadow-sm"
 
               />
             </div>
-            {/* <div>
-              <label className="block text-sm font-medium mb-1">Ref No Missing</label>
-              <Input
-                type="text"
-                value={missingRefNos.length ? missingRefNos.join(", ") : "No missing"}
-                readOnly
-              />
-            </div> */}
+          
             <div>
               <label className="block text-sm font-medium mb-1">Dooro Adeega</label>
               <select

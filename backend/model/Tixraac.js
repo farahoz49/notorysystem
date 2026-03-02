@@ -1,15 +1,23 @@
 import mongoose from "mongoose";
 
-const refCounterSchema = new mongoose.Schema({
-  year: {
-    type: Number,
-    required: true,
-    unique: true,
-  },
-  lastNumber: {
-    type: Number,
-    default: 0,
-  },
-});
+const refNoSettingsSchema = new mongoose.Schema(
+  {
+    key: {
+      type: String,
+      required: true,
+      unique: true,
+      default: "BQL_REFNO",
+    },
 
-export default mongoose.model("RefCounter", refCounterSchema);
+    startNumber: {
+      type: Number,
+      required: true,
+      default: 1,
+      min: 1,
+    },
+  },
+  { timestamps: true }
+);
+
+// ✅ muhiim: default export
+export default mongoose.model("RefNoSettings", refNoSettingsSchema);

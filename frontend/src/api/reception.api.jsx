@@ -42,11 +42,30 @@ export const getAgreementById = async (id) => {
 };
 
 // Get agreements list (optional)
-export const getAgreements = async (params = {}) => {
-  const res = await api.get("/agreements", { params });
-  return res.data;
+// src/api/reception.api.js
+import axios from "./axios"; // ama meesha axios instance-kaaga yaal
+
+export const getAgreements = async ({
+  range = "all",
+  page = 1,
+  limit = 10,
+  searchBy = "",
+  searchText = "",
+} = {}) => {
+  const res = await axios.get("/agreements", {
+    params: { range, page, limit, searchBy, searchText },
+  });
+  return res.data; // { meta, data }
 };
-export const getMissingRefNos = async (year) => {
-  const res = await api.get("/agreements/missing-refnos", { params: { year } });
-  return res.data;
+export const searchAgreements = async ({
+  range = "all",
+  page = 1,
+  limit = 10,
+  searchBy = "refNo",
+  searchText = "",
+} = {}) => {
+  const res = await axios.get("/agreements/search", {
+    params: { range, page, limit, searchBy, searchText },
+  });
+  return res.data; // { meta, data }
 };

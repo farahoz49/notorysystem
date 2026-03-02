@@ -13,22 +13,44 @@ import {
   getDashboardCurrentMonth,
   getMissingRefNos,
   getNextRefNo,
+  getRefNoSettings,
   removeAgreementImage,
   removePersonFromAgreement,
+  searchAgreements,
   setAgentDocument,
   updateAgreement,
+  updateRefNoStart,
 } from "../controller/agreementcontroller.js";
 import { authenticate, authorizeRoles } from "../middleware/authmiddleware.js";
 import { uploadImages } from "../middleware/upload.js";
 
 const router = express.Router();
+
 // ✅ specific routes first
 router.get("/current-month", authenticate, getAgreementsCurrentMonth);
 router.get("/dashboard/current-month", authenticate, getDashboardCurrentMonth);
 router.get("/reports/agreements", authenticate, getAgreementsReport);
 router.get("/next/refno", authenticate, getNextRefNo);
 router.get("/missing-refnos", authenticate, getMissingRefNos);
-router.post("/", authenticate ,createAgreement);
+
+// ✅ GET settings (ADMIN only)
+router.get(
+  "/refno/settings",
+  authenticate,
+  authorizeRoles("ADMIN"),
+  getRefNoSettings
+);
+// ✅ ADMIN refno setting (MUST be before "/:id")
+router.put(
+  "/refno/start",
+  authenticate,
+  authorizeRoles("ADMIN"),
+  updateRefNoStart
+);
+
+// ✅ create agreement
+router.post("/", authenticate, createAgreement);
+
 // ✅ upload cloudinary
 router.post(
   "/:agreementId/images/upload",
@@ -43,8 +65,11 @@ router.post("/:agreementId/images/meta", authenticate, addImageMetaToAgreement);
 // ✅ delete image by id (DELETE toos ah)
 router.delete("/:agreementId/images/:imageId", authenticate, deleteAgreementImage);
 
-// ✅ list + dynamic last
+// ✅ list
 router.get("/", authenticate, getAgreements);
+router.get("/search", searchAgreements);
+
+// ✅ dynamic ":id" routes last
 router.get("/:id", authenticate, getAgreementById);
 router.put("/:id", authenticate, updateAgreement);
 router.delete("/:id", authenticate, authorizeRoles("ADMIN"), deleteAgreement);

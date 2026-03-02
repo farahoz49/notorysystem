@@ -1,56 +1,91 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
 
 import { formatDate } from "../helpers/formatDate";
-import { getAgreements } from "../api/reception.api";
+import { getAgreements, searchAgreements } from "../api/reception.api";
 import { deleteAgreement } from "../api/agreements.api";
 
 import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
 
-const PAGE_SIZE = 100;
-
 const selectClass =
   "px-4 py-2.5 rounded-xl border border-black/20 bg-white text-black shadow-sm outline-none transition-all duration-200 focus:ring-2 focus:ring-black focus:border-black";
 
+const LIMIT_OPTIONS = [5, 10, 15, 25, 50, 100];
+
 const ViewAgreements = () => {
-  const [agreements, setAgreements] = useState([]);
-
-  // search & filter states
-  const [searchBy, setSearchBy] = useState("refNo");
-  const [searchText, setSearchText] = useState("");
-  const [dateFilter, setDateFilter] = useState("today");
-  const [searchInput, setSearchInput] = useState("");
-
-  // pagination
-  const [currentPage, setCurrentPage] = useState(1);
-
   const { user } = useSelector((state) => state.auth);
   const isAdmin = user?.role === "ADMIN";
 
-  // ================= FETCH AGREEMENTS =================
-  const fetchAgreements = async () => {
-    try {
-      const data = await getAgreements();
-      setAgreements(data || []);
-    } catch (err) {
-      toast.error(err?.response?.data?.message || "Failed to fetch agreements");
-    }
-  };
+  const [agreements, setAgreements] = useState([]);
+  const [meta, setMeta] = useState({
+    page: 1,
+    limit: 10,
+    total: 0,
+    totalPages: 1,
+    hasNext: false,
+    hasPrev: false,
+    range: "all",
+  });
 
-  useEffect(() => {
-    fetchAgreements();
-  }, []);
+  // filters
+  const [searchBy, setSearchBy] = useState("refNo");
+  const [searchInput, setSearchInput] = useState("");
+  const [searchText, setSearchText] = useState(""); // actual applied search
+  const [range, setRange] = useState("today"); // today|week|month|all
+  const [limit, setLimit] = useState(5);
+  const [page, setPage] = useState(1);
 
-  // ================= SEARCH =================
+  const [loading, setLoading] = useState(false);
+
+const fetchData = async () => {
+  try {
+    setLoading(true);
+
+    const hasSearch = searchText.trim().length > 0;
+
+    const res = hasSearch
+      ? await searchAgreements({
+          range: "all",          // ✅ SEARCH ignores Goorta
+          page,
+          limit,
+          searchBy,
+          searchText,
+        })
+      : await getAgreements({
+          range,                 // ✅ list only uses Goorta
+          page,
+          limit,
+        });
+
+    setAgreements(res?.data || []);
+    setMeta(res?.meta || {});
+  } catch (err) {
+    toast.error(err?.response?.data?.message || "Failed to fetch agreements");
+  } finally {
+    setLoading(false);
+  }
+};
+
+  // refetch on changes
+ useEffect(() => {
+  fetchData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [page, limit, searchBy, searchText, range]);
+  // Search button / enter
   const handleSearch = () => {
     setSearchText(searchInput.trim());
-    setCurrentPage(1);
+    setPage(1);
   };
 
-  // Enter key search
+  const clearSearch = () => {
+    setSearchInput("");
+    setSearchText("");
+    setPage(1);
+  };
+
   const handleSearchKeyDown = (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -58,91 +93,13 @@ const ViewAgreements = () => {
     }
   };
 
-  // ================= DATE FILTER LOGIC =================
-  const isInDateRange = (dateStr) => {
-    if (!dateStr || dateFilter === "all") return true;
-
-    const date = new Date(dateStr);
-    const now = new Date();
-
-    if (dateFilter === "today") {
-      return date.toDateString() === now.toDateString();
-    }
-
-    if (dateFilter === "week") {
-      const weekAgo = new Date();
-      weekAgo.setDate(now.getDate() - 7);
-      return date >= weekAgo && date <= now;
-    }
-
-    if (dateFilter === "month") {
-      return (
-        date.getMonth() === now.getMonth() &&
-        date.getFullYear() === now.getFullYear()
-      );
-    }
-
-    return true;
-  };
-
-  // ================= FILTER + SEARCH + SORT =================
-  const filteredAgreements = useMemo(() => {
-    const text = searchText.toLowerCase();
-
-    return (agreements || [])
-      .filter((a) => {
-        if (!isInDateRange(a.agreementDate)) return false;
-        if (!text) return true;
-
-        switch (searchBy) {
-          case "refNo":
-            return a.refNo?.toLowerCase().includes(text);
-
-          case "ujeedo":
-            return (
-              a.agreementType?.toLowerCase().includes(text) ||
-              a.serviceType?.toLowerCase().includes(text)
-            );
-
-          case "seller":
-            return a.dhinac1?.sellers?.some((s) =>
-              s.fullName?.toLowerCase().includes(text)
-            );
-
-          case "buyer":
-            return a.dhinac2?.buyers?.some((b) =>
-              b.fullName?.toLowerCase().includes(text)
-            );
-
-          default:
-            return true;
-        }
-      })
-      // latest first (refNo desc)
-      .sort((a, b) => (b.refNo || "").localeCompare(a.refNo || ""));
-  }, [agreements, searchBy, searchText, dateFilter]);
-
-  // ================= PAGINATION =================
-  const totalPages = Math.max(1, Math.ceil(filteredAgreements.length / PAGE_SIZE));
-
-  const paginatedData = filteredAgreements.slice(
-    (currentPage - 1) * PAGE_SIZE,
-    currentPage * PAGE_SIZE
-  );
-
-  // if filter reduces pages, keep currentPage valid
-  useEffect(() => {
-    if (currentPage > totalPages) setCurrentPage(totalPages);
-  }, [totalPages, currentPage]);
-
-  // ================= DELETE =================
+  // Delete
   const handleDelete = async (id) => {
     if (!window.confirm("Ma hubtaa inaad delete gareynayso heshiiskan?")) return;
-
     try {
       await deleteAgreement(id);
       toast.success("Agreement deleted");
-      fetchAgreements();
+      fetchData();
     } catch (err) {
       toast.error(err?.response?.data?.message || "Failed to delete agreement");
     }
@@ -155,14 +112,18 @@ const ViewAgreements = () => {
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="text-2xl font-bold text-black">Agreements</h2>
-            {/* <p className="text-sm text-gray-500">
-              Ka raadi refNo, ujeeddo, seller ama buyer — kadibna filter date.
-            </p> */}
           </div>
 
-          {/* <div className="text-sm text-gray-600">
-            Total: <span className="font-semibold text-black">{filteredAgreements.length}</span>
-          </div> */}
+          <div className="text-sm text-gray-700">
+            {loading ? (
+              <span>Loading...</span>
+            ) : (
+              <>
+                <span className="font-semibold text-black">{meta?.total || 0}</span>{" "}
+                diiwaan ayaa la helay.
+              </>
+            )}
+          </div>
         </div>
       </div>
 
@@ -175,7 +136,7 @@ const ViewAgreements = () => {
               value={searchBy}
               onChange={(e) => {
                 setSearchBy(e.target.value);
-                setCurrentPage(1);
+                setPage(1);
               }}
               className={selectClass}
             >
@@ -198,29 +159,57 @@ const ViewAgreements = () => {
             />
           </div>
 
-          <div className="flex gap-3">
-            <Button onClick={handleSearch} className="px-8">
+          <div className="flex gap-2">
+            <Button onClick={handleSearch} className="px-7">
               Search
             </Button>
+            <Button onClick={clearSearch} variant="secondary" className="px-7">
+              Clear
+            </Button>
+          </div>
 
-            <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold text-gray-600">Date</label>
-              <select
-                value={dateFilter}
-                onChange={(e) => {
-                  setDateFilter(e.target.value);
-                  setCurrentPage(1);
-                }}
-                className={selectClass}
-              >
-                <option value="all">Dhammaan</option>
-                <option value="today">Maanta</option>
-                <option value="week">Isbuucan</option>
-                <option value="month">Bishan</option>
-              </select>
-            </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-semibold text-gray-600">Goorta</label>
+            <select
+              value={range}
+              onChange={(e) => {
+                setRange(e.target.value);
+                setPage(1);
+              }}
+              className={selectClass}
+            >
+              <option value="all">Dhammaan</option>
+              <option value="today">Maanta</option>
+              <option value="week">Isbuucan</option>
+              <option value="month">Bishan</option>
+            </select>
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-semibold text-gray-600">Bogiba</label>
+            <select
+              value={limit}
+              onChange={(e) => {
+                setLimit(Number(e.target.value));
+                setPage(1);
+              }}
+              className={selectClass}
+            >
+              {LIMIT_OPTIONS.map((n) => (
+                <option key={n} value={n}>
+                  {n}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
+
+        {/* show active search */}
+        {searchText && (
+          <div className="mt-3 text-sm text-gray-700">
+            Search: <span className="font-semibold text-black">{searchText}</span>
+          </div>
+        )}
       </div>
 
       {/* Table */}
@@ -239,7 +228,7 @@ const ViewAgreements = () => {
             </thead>
 
             <tbody>
-              {paginatedData.map((a) => (
+              {agreements.map((a) => (
                 <tr key={a._id} className="border-t border-black/10 hover:bg-black/5">
                   <td className="p-3">
                     <Link
@@ -280,7 +269,7 @@ const ViewAgreements = () => {
                 </tr>
               ))}
 
-              {paginatedData.length === 0 && (
+              {!loading && agreements.length === 0 && (
                 <tr>
                   <td colSpan={isAdmin ? 6 : 5} className="text-center p-6 text-gray-500">
                     lama helin wax xog ah
@@ -294,22 +283,22 @@ const ViewAgreements = () => {
         {/* Pagination */}
         <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between p-4 border-t border-black/10">
           <span className="text-sm text-gray-700">
-            Page <span className="font-semibold text-black">{currentPage}</span> of{" "}
-            <span className="font-semibold text-black">{totalPages}</span>
+            Page <span className="font-semibold text-black">{meta?.page || 1}</span> of{" "}
+            <span className="font-semibold text-black">{meta?.totalPages || 1}</span>
           </span>
 
           <div className="flex gap-2">
             <button
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={!meta?.hasPrev || loading}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
               className="px-4 py-2 rounded-xl border border-black/20 bg-white text-black hover:bg-black hover:text-white transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Previous
             </button>
 
             <button
-              disabled={currentPage === totalPages}
-              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              disabled={!meta?.hasNext || loading}
+              onClick={() => setPage((p) => p + 1)}
               className="px-4 py-2 rounded-xl border border-black/20 bg-white text-black hover:bg-black hover:text-white transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Next

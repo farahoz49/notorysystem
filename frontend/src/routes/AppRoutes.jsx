@@ -26,6 +26,7 @@ import ForgotPassword from "../pages/auth/ForgotPassword";
 import CheckEmail from "../pages/auth/CheckEmail";
 import ResetPassword from "../pages/auth/ResetPassword";
 import ChangePassword from "../pages/auth/ChangePassword";
+import RefNoSetting from "../admin/RefNoSetting";
 
 const AppRoutes = () => {
     return (
@@ -48,7 +49,7 @@ const AppRoutes = () => {
                             <ForgotPassword />
                         </AuthLayout>
                     }
-                
+
 
                 />
                 <Route
@@ -59,7 +60,7 @@ const AppRoutes = () => {
                         </AuthLayout>
                     }
                 />
-              
+
 
                 <Route
                     path="/check-email"
@@ -69,16 +70,16 @@ const AppRoutes = () => {
                         </AuthLayout>
                     }
                 />
-                 <Route
-          path="/change-password"
-          element={
-            <ProtectedRoute roles={["ADMIN", "USER"]}>
-              <MainLayout>
-                <ChangePassword />
-              </MainLayout>
-            </ProtectedRoute>
-          }
-        />
+                <Route
+                    path="/change-password"
+                    element={
+                        <ProtectedRoute roles={["ADMIN", "USER"]}>
+                            <MainLayout>
+                                <ChangePassword />
+                            </MainLayout>
+                        </ProtectedRoute>
+                    }
+                />
 
                 {/* ===== ADMIN ===== */}
                 <Route
@@ -134,6 +135,16 @@ const AppRoutes = () => {
                     }
                 />
                 <Route
+                    path="/admin/settings"
+                    element={
+                        <ProtectedRoute roles={["ADMIN", "USER"]}>
+                            <MainLayout>
+                                <RefNoSetting />
+                            </MainLayout>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
                     path="/admin/users"
                     element={
                         <ProtectedRoute roles={["ADMIN"]}>
@@ -181,7 +192,7 @@ const AppRoutes = () => {
                         </ProtectedRoute>
                     }
                 />
-                  <Route
+                <Route
                     path="/user/agreement/:id"
                     element={
                         <ProtectedRoute roles={["USER"]}>

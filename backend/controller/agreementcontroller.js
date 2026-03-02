@@ -3,49 +3,111 @@ import mongoose from "mongoose";
 import Wakaalad from "../model/Wakaalad.js";
 import Tasdiiq from "../model/Tasdiiq.js";
 import { uploadBufferToCloudinary } from "../utils/uploadToCloudinary.js";
-
+import RefNoSettings from "../model/Tixraac.js";
 /* ===============================
    HELPER: GENERATE REF NO
    Format: 001/BQL/2026
 ================================ */
-// const generateRefNo = async () => {
-//   const year = new Date().getFullYear();
-
-//   const lastAgreement = await Agreement.findOne({
-//     refNo: new RegExp(`/${year}$`),
-//   }).sort({ createdAt: -1 });
-
-//   let nextNumber = 1;
-//   if (lastAgreement) {
-//     const lastNum = parseInt(lastAgreement.refNo.split("/")[0]);
-//     nextNumber = lastNum + 1;
-//   }
-
-//   return `${String(nextNumber).padStart(3, "0")}/BQL/${year}`;
-  
-// };
-
-const generateRefNo = async () => {
+export const generateRefNo = async () => {
   const year = new Date().getFullYear();
 
-  const docs = await Agreement.find(
-    { refNo: { $regex: `/BQL/${year}$` } },
-    { refNo: 1, _id: 0 }
-  );
+  let settings = await RefNoSettings.findOne({ key: "BQL_REFNO" });
 
-  const nums = docs
-    .map((d) => parseInt(String(d.refNo).split("/")[0], 10))
-    .filter((n) => Number.isFinite(n))
-    .sort((a, b) => a - b);
+  if (!settings) {
+    settings = await RefNoSettings.create({
+      key: "BQL_REFNO",
+      startNumber: 1,
+    });
+  }
 
-  const set = new Set(nums);
-
-  // ✅ Find smallest missing positive number
-  let nextNumber = 1;
-  while (set.has(nextNumber)) nextNumber++;
+  const nextNumber = settings.startNumber;
 
   return `${String(nextNumber).padStart(3, "0")}/BQL/${year}`;
 };
+// ✅ GET /api/agreements/refno/settings
+export const getRefNoSettings = async (req, res) => {
+  try {
+    let settings = await RefNoSettings.findOne({ key: "BQL_REFNO" }).lean();
+
+    if (!settings) {
+      const created = await RefNoSettings.create({
+        key: "BQL_REFNO",
+        startNumber: 1,
+      });
+      settings = created.toObject();
+    }
+
+    // ✅ preview next refNo
+    const refNo = await generateRefNo();
+
+    return res.json({
+      key: settings.key,
+      startNumber: settings.startNumber,
+      refNo, // next preview
+    });
+  } catch (error) {
+    console.error("getRefNoSettings error:", error);
+    return res.status(500).json({ message: error.message });
+  }
+};
+// ✅ PUT /api/agreements/refno/start (ADMIN)
+// ✅ PUT /api/agreements/refno/start  (ADMIN)
+export const updateRefNoStart = async (req, res) => {
+  try {
+    const { startNumber } = req.body;
+
+    if (!Number.isInteger(startNumber) || startNumber < 1) {
+      return res.status(400).json({ message: "startNumber must be integer >= 1" });
+    }
+
+    // ✅ Ensure settings exists (create if missing)
+    let settings = await RefNoSettings.findOne({ key: "BQL_REFNO" });
+
+    if (!settings) {
+      settings = await RefNoSettings.create({
+        key: "BQL_REFNO",
+        startNumber,
+      });
+    } else {
+      settings.startNumber = startNumber;
+      await settings.save();
+    }
+
+    // ✅ Preview next refNo based on admin override (no last+1 check)
+    const year = new Date().getFullYear();
+    const refNo = `${String(settings.startNumber).padStart(3, "0")}/BQL/${year}`;
+
+    return res.json({
+      message: "StartNumber updated (Admin Override)",
+      startNumber: settings.startNumber,
+      refNo,
+    });
+  } catch (error) {
+    console.error("updateRefNoStart error:", error);
+    return res.status(500).json({ message: error.message });
+  }
+};
+// const generateRefNo = async () => {
+//   const year = new Date().getFullYear();
+
+//   const docs = await Agreement.find(
+//     { refNo: { $regex: `/BQL/${year}$` } },
+//     { refNo: 1, _id: 0 }
+//   );
+
+//   const nums = docs
+//     .map((d) => parseInt(String(d.refNo).split("/")[0], 10))
+//     .filter((n) => Number.isFinite(n))
+//     .sort((a, b) => a - b);
+
+//   const set = new Set(nums);
+
+//   // ✅ Find smallest missing positive number
+//   let nextNumber = 1;
+//   while (set.has(nextNumber)) nextNumber++;
+
+//   return `${String(nextNumber).padStart(3, "0")}/BQL/${year}`;
+// };
 /* ===============================
    GET AGREEMENT BY ID - SIMPLIFY POPULATE
 ================================ */
@@ -107,33 +169,81 @@ export const getAgreementById = async (req, res) => {
 /* ===============================
    GET ALL AGREEMENTS - SIMPLIFY POPULATE
 ================================ */
+// controllers/agreement.controller.js
 export const getAgreements = async (req, res) => {
   try {
-    const agreements = await Agreement.find()
+    // ====== Query params ======
+    // ?range=today|week|month|all
+    // ?page=1
+    // ?limit=10 (allowed: 5,10,15,25,50,100)
+    const range = String(req.query.range || "all").toLowerCase();
+    const page = Math.max(parseInt(req.query.page || "1", 10), 1);
+
+    const allowedLimits = new Set([5, 10, 15, 25, 50, 100]);
+    const limitRaw = parseInt(req.query.limit || "10", 10);
+    const limit = allowedLimits.has(limitRaw) ? limitRaw : 10;
+
+    // ====== Date filter ======
+    const now = new Date();
+    let filter = {};
+
+    const startOfDay = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0);
+
+    if (range === "today") {
+      filter.createdAt = { $gte: startOfDay(now) };
+    } else if (range === "week") {
+      const start = startOfDay(now);
+      start.setDate(start.getDate() - 7);
+      filter.createdAt = { $gte: start };
+    } else if (range === "month") {
+      const start = startOfDay(now);
+      start.setMonth(start.getMonth() - 1);
+      filter.createdAt = { $gte: start };
+    } else {
+      // all => no date filter
+      filter = {};
+    }
+
+    // ====== Pagination ======
+    const skip = (page - 1) * limit;
+
+    // total count (for UI pages)
+    const total = await Agreement.countDocuments(filter);
+    const totalPages = Math.max(Math.ceil(total / limit), 1);
+
+    // If page is beyond totalPages, you can clamp it (optional)
+    const safePage = Math.min(page, totalPages);
+    const safeSkip = (safePage - 1) * limit;
+
+    // ====== Query + populates ======
+    const agreements = await Agreement.find(filter)
+      .sort({ createdAt: -1 }) // newest first
+      .skip(safeSkip)
+      .limit(limit)
       .populate("dhinac1.sellers")
       .populate("dhinac1.agents")
       .populate("dhinac2.buyers")
       .populate("dhinac2.agents")
       .populate("dhinac2.guarantors")
-
-
-      .populate("serviceRef")   // <-- Halkan ku dar
-
+      .populate("serviceRef")
       .populate("createdBy", "username");
 
-    // Populate per-agent documents for each agreement
+    // ====== Populate per-agent documents (same logic as yours) ======
     for (let agreement of agreements) {
       const populateAgentDocs = async (side) => {
         const map = agreement[side]?.agentDocuments;
         if (!map) return;
+
         const entries = map instanceof Map ? Object.fromEntries(map) : map;
+
+        // sequential (safe). If you want faster, we can Promise.all later.
         for (const [agentId, docs] of Object.entries(entries)) {
           if (docs?.wakaalad) {
             try {
               const waka = await Wakaalad.findById(docs.wakaalad);
               entries[agentId].wakaalad = waka || docs.wakaalad;
             } catch (e) {
-              console.error('Failed to populate wakaalad for agent', agentId, e);
+              console.error("Failed to populate wakaalad for agent", agentId, e);
             }
           }
           if (docs?.tasdiiq) {
@@ -141,20 +251,162 @@ export const getAgreements = async (req, res) => {
               const tas = await Tasdiiq.findById(docs.tasdiiq);
               entries[agentId].tasdiiq = tas || docs.tasdiiq;
             } catch (e) {
-              console.error('Failed to populate tasdiiq for agent', agentId, e);
+              console.error("Failed to populate tasdiiq for agent", agentId, e);
             }
           }
         }
+
         agreement[side].agentDocuments = entries;
       };
 
-      await populateAgentDocs('dhinac1');
-      await populateAgentDocs('dhinac2');
+      await populateAgentDocs("dhinac1");
+      await populateAgentDocs("dhinac2");
     }
 
-    res.json(agreements);
+    // ====== Response with meta ======
+    res.json({
+      meta: {
+        range,
+        page: safePage,
+        limit,
+        total,
+        totalPages,
+        hasNext: safePage < totalPages,
+        hasPrev: safePage > 1,
+      },
+      data: agreements,
+    });
   } catch (error) {
     console.error("Error getting agreements:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+export const searchAgreements = async (req, res) => {
+  try {
+    const range = String(req.query.range || "all").toLowerCase();
+    const page = Math.max(parseInt(req.query.page || "1", 10), 1);
+
+    const allowedLimits = new Set([5, 10, 15, 25, 50, 100]);
+    const limitRaw = parseInt(req.query.limit || "10", 10);
+    const limit = allowedLimits.has(limitRaw) ? limitRaw : 10;
+
+    const searchBy = String(req.query.searchBy || "refNo");
+    const searchText = String(req.query.searchText || "").trim();
+
+    if (!searchText) {
+      return res.status(400).json({ message: "searchText is required" });
+    }
+
+    // ===== base filter (range) =====
+    const now = new Date();
+    const startOfDay = (d) =>
+      new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0);
+
+    let filter = {};
+    if (range === "today") {
+      filter.createdAt = { $gte: startOfDay(now) };
+    } else if (range === "week") {
+      const start = startOfDay(now);
+      start.setDate(start.getDate() - 7);
+      filter.createdAt = { $gte: start };
+    } else if (range === "month") {
+      const start = startOfDay(now);
+      start.setMonth(start.getMonth() - 1);
+      filter.createdAt = { $gte: start };
+    }
+
+    // ===== search regex =====
+    const escaped = searchText.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const re = new RegExp(escaped, "i");
+
+    // ===== fast searches (DB-level) =====
+    if (searchBy === "refNo") {
+      filter.refNo = re;
+    } else if (searchBy === "ujeedo") {
+      filter.$or = [{ agreementType: re }, { serviceType: re }];
+    }
+
+    // haddii seller/buyer -> waxaan sameynay “simple” approach (populate then filter)
+    // si uu independent u shaqeeyo adigoon aggregate gelin hadda.
+    const needsPeopleSearch = searchBy === "seller" || searchBy === "buyer";
+
+    if (!needsPeopleSearch) {
+      // DB-level search + pagination
+      const total = await Agreement.countDocuments(filter);
+      const totalPages = Math.max(Math.ceil(total / limit), 1);
+      const safePage = Math.min(page, totalPages);
+      const skip = (safePage - 1) * limit;
+
+      const agreements = await Agreement.find(filter)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .populate("dhinac1.sellers")
+        .populate("dhinac1.agents")
+        .populate("dhinac2.buyers")
+        .populate("dhinac2.agents")
+        .populate("dhinac2.guarantors")
+        .populate("serviceRef")
+        .populate("createdBy", "username");
+
+      return res.json({
+        meta: {
+          range,
+          page: safePage,
+          limit,
+          total,
+          totalPages,
+          hasNext: safePage < totalPages,
+          hasPrev: safePage > 1,
+          searchBy,
+          searchText,
+        },
+        data: agreements,
+      });
+    }
+
+    // ===== people search (simple but heavier) =====
+    // 1) soo qaado agreements (range filter) latest
+    const base = await Agreement.find(filter)
+      .sort({ createdAt: -1 })
+      .populate("dhinac1.sellers")
+      .populate("dhinac2.buyers")
+      .populate("serviceRef")
+      .populate("createdBy", "username");
+
+    // 2) filter by seller/buyer name
+    const filtered = base.filter((a) => {
+      if (searchBy === "seller") {
+        return (a.dhinac1?.sellers || []).some((p) => re.test(p?.fullName || ""));
+      }
+      if (searchBy === "buyer") {
+        return (a.dhinac2?.buyers || []).some((p) => re.test(p?.fullName || ""));
+      }
+      return true;
+    });
+
+    // 3) paginate after filtering
+    const total = filtered.length;
+    const totalPages = Math.max(Math.ceil(total / limit), 1);
+    const safePage = Math.min(page, totalPages);
+    const start = (safePage - 1) * limit;
+    const data = filtered.slice(start, start + limit);
+
+    return res.json({
+      meta: {
+        range,
+        page: safePage,
+        limit,
+        total,
+        totalPages,
+        hasNext: safePage < totalPages,
+        hasPrev: safePage > 1,
+        searchBy,
+        searchText,
+      },
+      data,
+    });
+  } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
@@ -223,15 +475,30 @@ export const updateAgreement = async (req, res) => {
 ================================ */
 export const createAgreement = async (req, res) => {
   try {
-    const refNo = await generateRefNo();
+    const year = new Date().getFullYear();
 
+    // ✅ Ensure settings exists
+    let settings = await RefNoSettings.findOne({ key: "BQL_REFNO" });
+    if (!settings) {
+      settings = await RefNoSettings.create({ key: "BQL_REFNO", startNumber: 1 });
+    }
+
+    // ✅ Admin override: number-ka settings-ka ayuu ka imanayaa
+    const number = settings.startNumber;
+    const refNo = `${String(number).padStart(3, "0")}/BQL/${year}`;
+
+    // ✅ 1) Create agreement first
     const agreement = await Agreement.create({
       ...req.body,
       refNo,
       createdBy: req.user._id,
     });
 
-    // Populate after creation
+    // ✅ 2) Haddii create guuleysto -> markaas +1 samee
+    settings.startNumber = number + 1;
+    await settings.save();
+
+    // ✅ Populate after creation (sidii aad u qortay)
     const populatedAgreement = await Agreement.findById(agreement._id)
       .populate("dhinac1.sellers")
       .populate("dhinac1.agents")
@@ -241,19 +508,19 @@ export const createAgreement = async (req, res) => {
       .populate("serviceRef")
       .populate("createdBy", "username");
 
-    // populate any agentDocuments on the created agreement
     if (populatedAgreement) {
       const populateAgentDocs = async (side) => {
         const map = populatedAgreement[side]?.agentDocuments;
         if (!map) return;
         const entries = map instanceof Map ? Object.fromEntries(map) : map;
+
         for (const [agentId, docs] of Object.entries(entries)) {
           if (docs?.wakaalad) {
             try {
               const waka = await Wakaalad.findById(docs.wakaalad);
               entries[agentId].wakaalad = waka || docs.wakaalad;
             } catch (e) {
-              console.error('Failed to populate wakaalad for agent', agentId, e);
+              console.error("Failed to populate wakaalad for agent", agentId, e);
             }
           }
           if (docs?.tasdiiq) {
@@ -261,24 +528,28 @@ export const createAgreement = async (req, res) => {
               const tas = await Tasdiiq.findById(docs.tasdiiq);
               entries[agentId].tasdiiq = tas || docs.tasdiiq;
             } catch (e) {
-              console.error('Failed to populate tasdiiq for agent', agentId, e);
+              console.error("Failed to populate tasdiiq for agent", agentId, e);
             }
           }
         }
+
         populatedAgreement[side].agentDocuments = entries;
       };
 
-      await populateAgentDocs('dhinac1');
-      await populateAgentDocs('dhinac2');
+      await populateAgentDocs("dhinac1");
+      await populateAgentDocs("dhinac2");
     }
 
-    res.status(201).json(populatedAgreement);
+    return res.status(201).json(populatedAgreement);
   } catch (error) {
     console.error("Error creating agreement:", error);
+
+    // ✅ Duplicate -> ha kordhin startNumber (already not incremented)
     if (error.code === 11000) {
-      return res.status(409).json({ message: "Duplicate refNo" });
+      return res.status(409).json({ message: "refNo Hore ayuu u jiraa" });
     }
-    res.status(500).json({ message: error.message });
+
+    return res.status(500).json({ message: error.message });
   }
 };
 export const addImagesToAgreementCloudinary = async (req, res) => {

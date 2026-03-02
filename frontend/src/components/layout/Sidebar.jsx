@@ -134,6 +134,7 @@ const Sidebar = () => {
             <NavItem to="/admin/Reception" label="Reception" />
             <NavItem to="/admin/ViewAgreements" label="View Agreements" />
             <NavItem to="/admin/users" label="Users" />
+            <NavItem to="/admin/settings" label="Settings" />
             <NavItem to="/admin/reports" label="Reports" />
           </>
         )}
