@@ -499,14 +499,14 @@ const PersonModal = ({
               />
 
               {/* show selected file name */}
-              {documentFile && (
+              {/* {documentFile && (
                 <p className="text-xs text-gray-600 mt-1">
                   File: {documentFile.name}
                 </p>
-              )}
+              )} */}
 
               {/* show existing file link (update) */}
-              {!documentFile && existingUrl && (
+              {/* {!documentFile && existingUrl && (
                 <a
                   href={existingUrl}
                   target="_blank"
@@ -515,7 +515,7 @@ const PersonModal = ({
                 >
                   View current document
                 </a>
-              )}
+              )} */}
             </div>
           </>
         )}

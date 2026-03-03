@@ -276,7 +276,7 @@ const rightHeading = makeHeading(headings.right.title, headings.right.name);
       <div className="flex items-center justify-between mb-6">
         <div>
           <h3 className="font-bold text-xl">Sawirada</h3>
-          <p className="text-sm text-gray-500">{images.length} sawir(yo) ayaa jira</p>
+          <p className="text-sm text-gray-500">{images.length} sawir</p>
         </div>
 
         <div className="flex gap-3">

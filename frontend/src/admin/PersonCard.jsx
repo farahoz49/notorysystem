@@ -82,50 +82,86 @@ const PersonCard = ({
             </tr>
           </tbody>
         </table>
-        {hasDoc && (
-          <div className="mt-3 p-3 bg-white rounded border">
-            <div className="flex items-center justify-between gap-3">
-              <div className="text-sm">
-                <div className="font-medium">Document:</div>
-                <div className="text-gray-600 text-xs">
-                  {doc.originalName || (isPdf ? "PDF File" : "Image File")}
-                </div>
-              </div>
+      {hasDoc && (
+  <div className="mt-3 p-3 bg-white rounded border">
+    <div className="flex items-center justify-between gap-3">
+      <div className="text-sm">
+        <div className="font-medium">Document:</div>
+        <div className="text-gray-600 text-xs">
+          {doc.originalName || (isPdf ? "PDF File" : "Image File")}
+        </div>
+      </div>
 
-              <a
-                href={doc.url}
-                target="_blank"
-                rel="noreferrer"
-                className="text-blue-700 underline text-sm"
-              >
-                Open
-              </a>
-            </div>
+      <div className="flex items-center gap-2">
+        {/* Open */}
+        <a
+          href={doc.url}
+          target="_blank"
+          rel="noreferrer"
+          className="text-blue-700 underline text-sm"
+        >
+          Open
+        </a>
 
-            {/* ✅ Image preview */}
-            {isImage && (
-              <img
-                src={doc.url}
-                alt="document"
-                className="mt-3 w-full max-h-64 object-contain rounded border"
-              />
-            )}
+        {/* Download (works best if same-origin / correct headers) */}
+        <a
+          href={doc.url}
+          download={doc.originalName || (isPdf ? "document.pdf" : "image")}
+          className="bg-green-600 text-white px-3 py-1.5 rounded text-sm hover:bg-green-700 transition"
+          onClick={async (e) => {
+            // ✅ fallback: haddii download attribute uusan shaqayn (cross-origin)
+            // isku day in aad file-ka soo fetch-gareyso oo blob ahaan u dejiso
+            try {
+              e.preventDefault();
 
-            {/* ✅ PDF preview (optional) */}
-            {isPdf && (
-              <div className="mt-3">
-                <iframe
-                  title="pdf-preview"
-                  src={doc.url}
-                  className="w-full h-64 rounded border"
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  Haddii preview-ka uusan furmin, “Open” guji.
-                </p>
-              </div>
-            )}
-          </div>
-        )}
+              const res = await fetch(doc.url);
+              const blob = await res.blob();
+
+              const a = document.createElement("a");
+              const url = window.URL.createObjectURL(blob);
+
+              a.href = url;
+              a.download =
+                doc.originalName || (isPdf ? "document.pdf" : "image");
+              document.body.appendChild(a);
+              a.click();
+              a.remove();
+              window.URL.revokeObjectURL(url);
+            } catch (err) {
+              // haddii fetch-ka fail gareeyo -> u daa browser-ka in uu link-ga furo
+              window.open(doc.url, "_blank", "noreferrer");
+            }
+          }}
+        >
+          Download
+        </a>
+      </div>
+    </div>
+
+    {/* ✅ Image preview */}
+    {isImage && (
+      <img
+        src={doc.url}
+        alt="document"
+        className="mt-3 w-full max-h-64 object-contain rounded border"
+      />
+    )}
+
+    {/* ✅ PDF preview */}
+    {isPdf && (
+      <div className="mt-3">
+        <iframe
+          title="pdf-preview"
+          src={doc.url}
+          className="w-full h-64 rounded border"
+        />
+        <p className="text-xs text-gray-500 mt-1">
+          Haddii preview-ka uusan furmin, “Open” guji.
+        </p>
+      </div>
+    )}
+  </div>
+)}
       </div>
 
       {showDocumentOptions && (

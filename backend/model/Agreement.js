@@ -16,7 +16,7 @@ const agreementSchema = new mongoose.Schema(
 
     service: {
       type: String,
-      enum: ["Wareejin", "Wakaalad", "Caddeyn", "Damaanad", "Heshiisyo"],
+      enum: ["Wareejin", "Wakaalad", "Caddeyn", "Damaanad", "Heshiisyo","Kireeyn"],
       required: true,
     },
 
@@ -37,7 +37,8 @@ const agreementSchema = new mongoose.Schema(
         "Daaminul maal",
         "Shaqaaleysiin",
         "Heshiis Dhex Maray Laba Daraf",
-        "Aas’aasid Shirkad"
+        "Aas’aasid Shirkad",
+        "Kireeyn"
       ],
       required: true,
     },
@@ -178,6 +179,12 @@ agreementSchema.pre("validate", function (next) {
     const allowed = ["Heshiis Dhex Maray Laba Daraf", "Aas’aasid Shirkad"];
     if (!allowed.includes(this.serviceType)) {
       return next(new Error("Invalid serviceType for Heshiisyo"));
+    }
+  }
+  if (this.service === "Kireeyn") {
+    const allowed = ["Kireeyn"];
+    if (!allowed.includes(this.serviceType)) {
+      return next(new Error("Invalid serviceType for Kireeyn"));
     }
   }
 

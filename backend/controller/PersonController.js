@@ -1,35 +1,34 @@
 import Person from "../model/Person.js";
 import { uploadBufferToCloudinary } from "../utils/uploadBufferToCloudinary.js";
 // CREATE person
-export const createPerson = async (req, res) => {
+
+  export const createPerson = async (req, res) => {
   try {
     const { phone } = req.body;
 
-    // 1) phone check
     const phoneExist = await Person.findOne({ phone });
     if (phoneExist) {
       return res.status(400).json({ message: "Number kan hore ugu jira System ka" });
     }
 
-    // 2) prepare data
     const payload = { ...req.body };
 
-    // 3) if file uploaded -> cloudinary
     if (req.file) {
       const up = await uploadBufferToCloudinary(
         req.file.buffer,
-        "persons/documents" // folder
+        "persons/documents",
+        req.file.mimetype // ✅ muhiim
       );
 
       payload.documentFile = {
-        url: up.secure_url,
+        url: up.secure_url, // ✅ hadda PDF -> /raw/upload/...pdf
+        publicId: up.public_id,
         mimeType: req.file.mimetype,
         originalName: req.file.originalname,
         size: req.file.size,
       };
     }
 
-    // 4) create
     const person = await Person.create(payload);
     return res.status(201).json(person);
   } catch (error) {
@@ -73,7 +72,6 @@ export const updatePerson = async (req, res) => {
   try {
     const personId = req.params.id;
 
-    // phone unique check (haddii phone la beddelayo)
     if (req.body.phone) {
       const exists = await Person.findOne({
         phone: req.body.phone,
@@ -86,11 +84,16 @@ export const updatePerson = async (req, res) => {
 
     const payload = { ...req.body };
 
-    // ✅ haddii file cusub la keenay
     if (req.file) {
-      const up = await uploadBufferToCloudinary(req.file.buffer, "persons/documents");
+      const up = await uploadBufferToCloudinary(
+        req.file.buffer,
+        "persons/documents",
+        req.file.mimetype // ✅ muhiim
+      );
+
       payload.documentFile = {
-        url: up.secure_url,
+        url: up.secure_url,     // ✅ PDF -> /raw/upload/
+        publicId: up.public_id,
         mimeType: req.file.mimetype,
         originalName: req.file.originalname,
         size: req.file.size,
@@ -98,7 +101,6 @@ export const updatePerson = async (req, res) => {
     }
 
     const person = await Person.findByIdAndUpdate(personId, payload, { new: true });
-
     if (!person) return res.status(404).json({ message: "Person not found" });
 
     return res.json(person);

@@ -306,8 +306,8 @@ const Reception = () => {
       }
     },
      Kireeyn: {
-      side1Title: "Dhinaca 1aad (Iska Iibiye)",
-      side2Title: "Dhinaca 2aad (Iibsade)",
+      side1Title: "Dhinaca 1aad ( Kireeyaha)",
+      side2Title: "Dhinaca 2aad (Kireestaha)",
       dhinac1Roles: {
         sellers: "Kireeyaha",
         agents: "Wakiil",
