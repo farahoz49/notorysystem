@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
 
-import { formatDate } from "../helpers/formatDate";
+import {  formatDatewithname } from "../helpers/formatDate";
 import { getAgreements, searchAgreements } from "../api/reception.api";
 import { deleteAgreement } from "../api/agreements.api";
 
@@ -253,7 +253,7 @@ const fetchData = async () => {
                     {a.dhinac2?.buyers?.map((b) => b.fullName).join(", ") || "N/A"}
                   </td>
 
-                  <td className="p-3 text-gray-700">{formatDate(a.agreementDate)}</td>
+                  <td className="p-3 text-gray-700">{formatDatewithname(a.agreementDate)}</td>
 
                   {isAdmin && (
                     <td className="p-3">

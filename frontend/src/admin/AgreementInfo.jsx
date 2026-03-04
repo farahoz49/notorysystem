@@ -41,6 +41,7 @@ import { buildWakaaladGuudDoc } from "../Services/WakaaladGuud.jsx";
 import { buildWakaaladKaleDoc } from "../Services/wakaaladKale.jsx";
 import { buildWakaaladGaarAhDoc } from "../Services/wakaaladGaarAh.jsx";
 import { Heshiis2daraf } from "../Services/Heshiis2daraf.jsx";
+import { buildDaaminulMaalDoc } from "../Services/daaminulMaal.jsx";
 
 const AgreementInfo = ({ agreement, fetchData }) => {
   const [formData, setFormData] = useState({
@@ -72,13 +73,13 @@ const AgreementInfo = ({ agreement, fetchData }) => {
     }
   };
 
- 
+
 
 
 
   // ================= DOWNLOAD WORD =================
   const downloadWord = async () => {
-    
+
 
     const sellers = agreement.dhinac1?.sellers || [];
     const buyers = agreement.dhinac2?.buyers || [];
@@ -123,11 +124,11 @@ const AgreementInfo = ({ agreement, fetchData }) => {
 
     const headerImageBuffer = base64ToUint8Array(headerBase64);
     const footerImageBuffer = base64ToUint8Array(footerBase64);
-  
 
 
 
-    
+
+
 
 
 
@@ -392,6 +393,8 @@ const AgreementInfo = ({ agreement, fetchData }) => {
         case "Heshiis Dhex Maray Laba Daraf": {
           return Heshiis2daraf({ agreement });
         }
+        case "Daaminulmaal":
+          return buildDaaminulMaalDoc({ agreement, service, formatDate, formatCurrency, numberToSomaliWords, sellers, buyers });
 
         default:
           return [];
@@ -400,7 +403,7 @@ const AgreementInfo = ({ agreement, fetchData }) => {
 
 
 
-   
+
 
     const doc = new Document({
       sections: [
@@ -506,7 +509,7 @@ const AgreementInfo = ({ agreement, fetchData }) => {
               ],
             }),
 
-          
+
             ...serviceIntroParagraphs(
               agreement.serviceType,
               sellers,
@@ -520,7 +523,7 @@ const AgreementInfo = ({ agreement, fetchData }) => {
 
             ),
 
-         
+
 
           ]
 

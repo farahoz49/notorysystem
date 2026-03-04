@@ -192,10 +192,24 @@ export const getAgreements = async (req, res) => {
     if (range === "today") {
       filter.createdAt = { $gte: startOfDay(now) };
     } else if (range === "week") {
-      const start = startOfDay(now);
-      start.setDate(start.getDate() - 7);
-      filter.createdAt = { $gte: start };
-    } else if (range === "month") {
+  const today = startOfDay(now);
+  const day = today.getDay();
+
+  // hel Sabtida usbuucan
+  const diffToSaturday = day >= 6 ? day - 6 : day + 1;
+
+  const start = new Date(today);
+  start.setDate(today.getDate() - diffToSaturday);
+
+  // Jimcada usbuuca
+  const end = new Date(start);
+  end.setDate(start.getDate() + 6);
+
+  filter.createdAt = {
+    $gte: start,
+    $lte: end,
+  }
+}else if (range === "month") {
       const start = startOfDay(now);
       start.setMonth(start.getMonth() - 1);
       filter.createdAt = { $gte: start };

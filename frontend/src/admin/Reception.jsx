@@ -32,7 +32,7 @@ const Reception = () => {
       { value: "Wakaalad kale", label: "Wakaalad kale" }, // ✅ NEW wakaalad kale
     ],
     Damaanad: [
-      { value: "Daaminul maal", label: "Daaminul maal" },
+      { value: "Daaminulmaal", label: "Daaminul maal" },
       { value: "Shaqaaleysiin", label: "Shaqaaleysiin" },
     ],
     Caddeyn: [

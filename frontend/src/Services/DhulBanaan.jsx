@@ -1,4 +1,6 @@
-// src/abservices/dhulBanaan.jsx
+
+// src/services/dhulBanaan.js
+
 import {
   Paragraph,
   TextRun,

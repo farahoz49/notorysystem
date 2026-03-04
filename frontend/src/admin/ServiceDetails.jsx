@@ -227,13 +227,71 @@ const ServiceDetails = ({ agreement, serviceData, setServiceData, fetchData }) =
           { key: "accountSalaam", label: "Account Salaam", type: "number" },
           { key: "Date", label: "Taariikh", type: "date" },
         ];
+      case "Daaminulmaal": {
+        const toNum = (v) => Number(String(v ?? "").replace(/,/g, "")) || 0;
+
+        return [
+          { key: "bankName", label: "Muraabaxo Bixiye", type: "text" },
+          { key: "bankType", label: "Nooca", type: "select", options: ["Banki", "Shirkad"] },
+
+          { key: "sheyga", label: "Sheyga", type: "text" },
+          { key: "heshiisDate", label: "Tr. Heshiiska", type: "date" },
+
+          { key: "qiimaha", label: "Qiimaha", type: "number" },
+
+          { key: "dulSaarkaPercent", label: "Dul saarka (%)", type: "number" },
+
+          // ✅ Auto calc: dulSaarkaLacag = qiimaha * percent / 100
+          {
+            key: "dulSaarkaLacag",
+            label: "Oo u dhiganto (US Dollar)",
+            type: "number",
+            readOnly: true,
+            getValue: (s) => {
+              const q = toNum(s?.qiimaha);
+              const p = toNum(s?.dulSaarkaPercent);
+              return q && p ? (q * p) / 100 : (toNum(s?.dulSaarkaLacag) || "");
+            },
+          },
+
+          // ✅ Auto calc: wadartaGuud = qiimaha + dulSaarkaLacag
+          {
+            key: "wadartaGuud",
+            label: "Wadarta Guud",
+            type: "number",
+            readOnly: true,
+            getValue: (s) => {
+              const q = toNum(s?.qiimaha);
+              const p = toNum(s?.dulSaarkaPercent);
+              const d = q && p ? (q * p) / 100 : toNum(s?.dulSaarkaLacag);
+              return q ? q + (d || 0) : (toNum(s?.wadartaGuud) || "");
+            },
+          },
+
+          // Qoraal (textarea ma lihid Input component-kaaga, markaa text ayaan ka dhignay)
+          { key: "wadartaText", label: "Wadarta (Qoral)", type: "text" },
+
+          { key: "kaFaaideyste", label: "Ka faa'iideyste", type: "text" },
+
+          { key: "hormaris", label: "Hormaris", type: "number" },
+          { key: "hormarisText", label: "Hormaris (Qoral)", type: "text" },
+
+          { key: "haftadaBishi", label: "Haftada/Bishi (US Dollar)", type: "number" },
+          { key: "lacagSooCelinta", label: "Lacag soo celinta (Taariikh)", type: "date" },
+
+          { key: "lacagBixintaBilood", label: "Lacag Bixinta", type: "number" },
+          { key: "lacagBixintaUnit", label: "Unit", type: "select", options: ["bilood", "maalin", "toddobaad"] },
+
+          { key: "faaidoText", label: "Faai'deynte (Qoral)", type: "text" },
+        ];
+      }
 
       default:
         return [];
     }
   };
 
-  const hiddenTypes = ["Wakaalad Guud", "Wakaalad kale" , "Caddeyn" , "Heshiis Dhex Maray Laba Daraf" , "Daaminul maal" ];
+  const hiddenTypes = ["Wakaalad Guud", "Wakaalad kale", "Caddeyn", "Heshiis Dhex Maray Laba Daraf", "Daaminul maal"];
 
   if (hiddenTypes.includes(agreement?.serviceType)) {
     return null;
@@ -336,6 +394,105 @@ const ServiceDetails = ({ agreement, serviceData, setServiceData, fetchData }) =
             </div>
           </div>
         );
+              case "Daaminulmaal": {
+        const toNum = (v) => Number(String(v ?? "").replace(/,/g, "")) || 0;
+        const qiimaha = toNum(service.qiimaha);
+        const percent = toNum(service.dulSaarkaPercent);
+
+        const dulLacag =
+          service.dulSaarkaLacag != null
+            ? toNum(service.dulSaarkaLacag)
+            : qiimaha && percent
+            ? (qiimaha * percent) / 100
+            : 0;
+
+        const wadarta =
+          service.wadartaGuud != null ? toNum(service.wadartaGuud) : qiimaha + dulLacag;
+
+        return (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+            <div>
+              <span className="font-semibold text-black">Muraabaxo Bixiye:</span>{" "}
+              {service.bankName || "N/A"}
+            </div>
+
+            <div>
+              <span className="font-semibold text-black">Nooca:</span>{" "}
+              {service.bankType || "N/A"}
+            </div>
+
+            <div>
+              <span className="font-semibold text-black">Sheyga:</span>{" "}
+              {service.sheyga || "N/A"}
+            </div>
+
+            <div>
+              <span className="font-semibold text-black">Tr. Heshiiska:</span>{" "}
+              {service.heshiisDate?.split("T")[0] || "N/A"}
+            </div>
+
+            <div>
+              <span className="font-semibold text-black">Qiimaha:</span>{" "}
+              {formatCurrency(qiimaha) || "N/A"}
+            </div>
+
+            <div>
+              <span className="font-semibold text-black">Dul saarka (%):</span>{" "}
+              {percent || "N/A"}
+            </div>
+
+            <div>
+              <span className="font-semibold text-black">Oo u dhiganto:</span>{" "}
+              {formatCurrency(dulLacag) || "N/A"}
+            </div>
+
+            <div>
+              <span className="font-semibold text-black">Wadarta Guud:</span>{" "}
+              {formatCurrency(wadarta) || "N/A"}
+            </div>
+
+            <div>
+              <span className="font-semibold text-black">Wadarta (Qoral):</span>{" "}
+              {service.wadartaText || "N/A"}
+            </div>
+
+            <div>
+              <span className="font-semibold text-black">Ka faa'iideyste:</span>{" "}
+              {service.kaFaaideyste || "N/A"}
+            </div>
+
+            <div>
+              <span className="font-semibold text-black">Hormaris:</span>{" "}
+              {formatCurrency(toNum(service.hormaris)) || "N/A"}
+            </div>
+
+            <div>
+              <span className="font-semibold text-black">Hormaris (Qoral):</span>{" "}
+              {service.hormarisText || "N/A"}
+            </div>
+
+            <div>
+              <span className="font-semibold text-black">Haftada/Bishi:</span>{" "}
+              {formatCurrency(toNum(service.haftadaBishi)) || "N/A"}
+            </div>
+
+            <div>
+              <span className="font-semibold text-black">Lacag soo celinta:</span>{" "}
+              {service.lacagSooCelinta?.split("T")[0] || "N/A"}
+            </div>
+
+            <div>
+              <span className="font-semibold text-black">Lacag Bixinta:</span>{" "}
+              {(service.lacagBixintaBilood ?? "N/A") + " " + (service.lacagBixintaUnit || "")}
+            </div>
+
+            <div className="sm:col-span-2 lg:col-span-3">
+              <span className="font-semibold text-black">Faai'deynte (Qoral):</span>{" "}
+              {service.faaidoText || "N/A"}
+            </div>
+          </div>
+        );
+      }
 
       default:
         return <p className="text-gray-500">No service details available</p>;

@@ -9,6 +9,8 @@ const endpointMap = {
   Wakaalad_Gaar_ah: "/Wakaalad_Gaar_ah",
   Saami: "/saamis",
   Wakaalad_Saami: "/wakaalad-saami", // ✅ NEW
+  Daaminulmaal: "/daaminulmaal", // ✅ NEW
+
 
   
 };

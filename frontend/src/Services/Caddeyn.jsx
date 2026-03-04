@@ -1,4 +1,4 @@
-// src/docs/cases/Caddeyn.case.js
+// src/services/Caddeyn.js
 import {
   Paragraph,
   TextRun,

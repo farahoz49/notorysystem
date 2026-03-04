@@ -14,7 +14,7 @@ import Wakaalad_Gaar_ahRoutes from './routes/Wakaalad_Gaar_ahRoute.js'
 import baabuurRoutes from './routes/BaabuurRoute.js'
 import wakaaladSaamiRoutes from "./routes/wakaaladSaamiroutes.js";
 import nationalityRoutes from "./routes/nationalityRoutes.js";
-
+import Daaminulmaal from "./routes/DaaminulmaalRoute.js";
 import cors from "cors"
 const app = express();
 const PORT = 8000
@@ -38,7 +38,7 @@ app.use("/api/tasdiiqs", tasdiiqRoutes);
 app.use("/api/dhul-banaan", dhulBanaanRoutes);
 app.use("/api/Wakaalad_Gaar_ah", Wakaalad_Gaar_ahRoutes);
 app.use("/api/baabuur", baabuurRoutes);
-
+app.use("/api/daaminulmaal", Daaminulmaal);
 app.use("/api/wakaalad-saami", wakaaladSaamiRoutes);
 
 app.use("/api/nationalities", nationalityRoutes);

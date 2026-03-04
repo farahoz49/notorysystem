@@ -55,70 +55,108 @@ const Navbar = () => {
   const { user } = useSelector((state) => state.auth);
 
   const [open, setOpen] = useState(false);
-  const dropdownRef = useRef();
+  const dropdownRef = useRef(null);
 
-  const handleLogout = () => {
-    dispatch(logoutUser());
-  };
+  const handleLogout = () => dispatch(logoutUser());
 
   useEffect(() => {
     const handler = (e) => {
-      if (!dropdownRef.current?.contains(e.target)) {
-        setOpen(false);
-      }
+      if (!dropdownRef.current?.contains(e.target)) setOpen(false);
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
+  // ✅ image url (ka dooro field-ka aad backend-ka ku haysato)
+  const avatarUrl = user?.avatarUrl || user?.photo || "";
+  const fullName = user?.fullName || user?.name || user?.username || "User";
+  const role = user?.role || "User";
+
   return (
-    <header className="bg-black text-white px-6 py-3 flex justify-between items-center shadow-lg border-b border-yellow-600/30">
+    <header className="bg-black text-white px-6 py-3 flex justify-between items-center shadow-lg border-b border-white/10">
+      {/* BRAND */}
+      <h1 className="text-lg font-semibold tracking-wide">Notory System</h1>
 
-      {/* ===== BRAND ===== */}
-      <h1 className="text-lg font-semibold tracking-wide text-white">
-        ExpressNotory
-      </h1>
-
-      {/* ===== PROFILE DROPDOWN ===== */}
+      {/* PROFILE */}
       <div className="relative" ref={dropdownRef}>
         <button
-          onClick={() => setOpen(!open)}
-          className="flex items-center gap-3 bg-zinc-900 hover:bg-zinc-800 px-3 py-2 rounded-xl transition border border-white"
+          onClick={() => setOpen((v) => !v)}
+          className="flex items-center gap-3 bg-zinc-900 hover:bg-zinc-800 px-3 py-2 rounded-xl transition border border-white/10"
         >
-          {/* Avatar Circle */}
-          <div className="h-8 w-8 rounded-full bg-black flex items-center justify-center text-white font-bold text-sm">
-            {user?.username?.charAt(0).toUpperCase()}
-          </div>
+          {/* Small Avatar */}
+          {avatarUrl ? (
+            <img
+              src={avatarUrl}
+              alt="avatar"
+              className="h-8 w-8 rounded-full object-cover border border-white/20"
+            />
+          ) : (
+            <div className="h-8 w-8 rounded-full bg-white/10 flex items-center justify-center font-bold text-sm">
+              {String(user?.username || "U").charAt(0).toUpperCase()}
+            </div>
+          )}
 
-          <span className="text-sm text-white">
-            {user?.username}
-          </span>
-
-          <span className="text-white text-xs">▼</span>
+          <span className="text-sm">{user?.username || "username"}</span>
+          <span className="text-white/70 text-xs">▾</span>
         </button>
 
         {open && (
-          <div className="absolute right-0 mt-3 w-52 bg-zinc-900 text-white rounded-2xl shadow-2xl border border-white overflow-hidden z-50 animate-fadeIn">
+          <div className="absolute right-0 mt-3 w-[340px] bg-white text-black rounded-md shadow-2xl border border-black/10 overflow-hidden z-50">
+            {/* Top profile card (sida sawirka) */}
+            <div className="bg-gray-100 px-4 py-3 border-b border-black/10">
+              <div className="text-sm font-medium text-gray-700">Akoon kayga</div>
+            </div>
 
+            <div className="p-4 flex items-center gap-4">
+              {/* Big Avatar */}
+              <div className="h-16 w-16 rounded-full bg-gray-200 overflow-hidden flex items-center justify-center border border-black/10">
+                {avatarUrl ? (
+                  <img
+                    src={avatarUrl}
+                    alt="avatar"
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <span className="text-xl font-bold text-gray-700">
+                    {String(fullName).charAt(0).toUpperCase()}
+                  </span>
+                )}
+              </div>
+
+              <div className="min-w-0">
+                <div className="font-semibold text-gray-900 truncate">
+                  {fullName}
+                </div>
+                <div className="text-sm text-gray-600 truncate">
+                  {role}
+                </div>
+                <div className="text-xs text-gray-500 truncate">
+                  @{user?.username}
+                </div>
+              </div>
+            </div>
+
+            <div className="border-t border-black/10" />
+
+            {/* Actions */}
             <button
               onClick={() => {
                 navigate("/change-password");
                 setOpen(false);
               }}
-              className="w-full text-left px-4 py-3 text-sm hover:bg-yellow-600/10 transition flex items-center gap-2"
+              className="w-full text-left px-4 py-3 text-sm hover:bg-gray-100 transition flex items-center gap-2"
             >
-              🔒 <span>Change Password</span>
+              🔒 <span>Badal password ka</span>
             </button>
 
-            <div className="border-t border-yellow-600/20" />
+            <div className="border-t border-black/10" />
 
             <button
               onClick={handleLogout}
-              className="w-full text-left px-4 py-3 text-sm hover:bg-red-600/10 text-red-400 transition flex items-center gap-2"
+              className="w-full text-left px-4 py-3 text-sm hover:bg-red-50 text-red-600 transition flex items-center gap-2"
             >
-              🚪 <span>Logout</span>
+              🚪 <span>Ka bax</span>
             </button>
-
           </div>
         )}
       </div>
