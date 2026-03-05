@@ -10,9 +10,8 @@ const endpointMap = {
   Saami: "/saamis",
   Wakaalad_Saami: "/wakaalad-saami", // ✅ NEW
   Daaminulmaal: "/daaminulmaal", // ✅ NEW
-
-
-  
+  Shaqaaleysiin: "/Shaqaaleysiin", // ✅ NEW
+  XayiraadSaami: "/XayiraadSaami", // ✅ NEW
 };
 
 const normalize = (res) => res?.data?.data || res?.data || null;

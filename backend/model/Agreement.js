@@ -32,6 +32,7 @@ const agreementSchema = new mongoose.Schema(
         "Wakaalad_Saami",
         "Wakaalad kale",
         "Caddeyn",
+        "XayiraadSaami",
         "Damaanad",
         "Heshiisyo",
         "Daaminulmaal",
@@ -164,7 +165,7 @@ agreementSchema.pre("validate", function (next) {
     }
   }
   if (this.service === "Caddeyn") {
-    const allowed = ["Caddeyn"];
+    const allowed = ["Caddeyn" , "XayiraadSaami" ,"XayiraadTaaj"];
     if (!allowed.includes(this.serviceType)) {
       return next(new Error("Invalid serviceType for Caddeyn"));
     }

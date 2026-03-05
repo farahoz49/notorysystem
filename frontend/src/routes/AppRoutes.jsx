@@ -27,6 +27,8 @@ import CheckEmail from "../pages/auth/CheckEmail";
 import ResetPassword from "../pages/auth/ResetPassword";
 import ChangePassword from "../pages/auth/ChangePassword";
 import RefNoSetting from "../admin/RefNoSetting";
+import Settings from "../admin/Settings";
+import NotoryList from "../admin/NotoryList";
 
 const AppRoutes = () => {
     return (
@@ -140,6 +142,26 @@ const AppRoutes = () => {
                         <ProtectedRoute roles={["ADMIN", "USER"]}>
                             <MainLayout>
                                 <RefNoSetting />
+                            </MainLayout>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/admin/documents"
+                    element={
+                        <ProtectedRoute roles={["ADMIN", "USER"]}>
+                            <MainLayout>
+                                <Settings />
+                            </MainLayout>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/admin/notoryList"
+                    element={
+                        <ProtectedRoute roles={["ADMIN", "USER"]}>
+                            <MainLayout>
+                                <NotoryList />
                             </MainLayout>
                         </ProtectedRoute>
                     }

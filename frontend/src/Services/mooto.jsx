@@ -24,6 +24,7 @@ export const buildMootoDoc = ({
   getTitles,
   getPhrases, // optional (not required but kept)
   GW,
+  notaryName
 }) => {
   const safe = (v) => (v === undefined || v === null ? "" : String(v).trim());
 
@@ -38,7 +39,7 @@ export const buildMootoDoc = ({
 
   // ✅ PERSON LINE (SIDA SAAMI.JS)
   const personLine = (p, roleColor, isBuyer = false) => {
-   const W = GW(p?.gender || "male");
+    const W = GW(p?.gender || "male");
     return [
       new TextRun({
         text: `${safe(p?.fullName)} `,
@@ -291,75 +292,75 @@ export const buildMootoDoc = ({
   if (agreementType === "Beec") {
     leftTitle = hasSellerSigAgent
       ? singleOrPlural(
-          sellerAgentsArr.length,
-          `SAXIIXA WAKIILKA ${maleFemale(leftGender, "ISKA IIBIYAHA", "ISKA IIBISADA")} MOOTADA`,
-          `SAXIIXA WAKIILLADA ISKA IIBIYAASHA MOOTADA`
-        )
+        sellerAgentsArr.length,
+        `SAXIIXA WAKIILKA ${maleFemale(leftGender, "ISKA IIBIYAHA", "ISKA IIBISADA")} MOOTADA`,
+        `SAXIIXA WAKIILLADA ISKA IIBIYAASHA MOOTADA`
+      )
       : singleOrPlural(
-          sellersArr.length,
-          `SAXIIXA ${maleFemale(leftGender, "ISKA IIBIYAHA", "ISKA IIBISADA")} MOOTADA`,
-          `SAXIIXA ISKA IIBIYAASHA MOOTADA`
-        );
+        sellersArr.length,
+        `SAXIIXA ${maleFemale(leftGender, "ISKA IIBIYAHA", "ISKA IIBISADA")} MOOTADA`,
+        `SAXIIXA ISKA IIBIYAASHA MOOTADA`
+      );
 
     rightTitle = hasBuyerSigAgent
       ? singleOrPlural(
-          buyerAgentsArr.length,
-          `SAXIIXA BEEC U AQBALAHA ${maleFemale(rightGender, "IIBSADAHA", "IIBSATADA")} MOOTADA`,
-          `SAXIIXA BEEC U AQBALAHA IIBSADAYAASHA MOOTADA`
-        )
+        buyerAgentsArr.length,
+        `SAXIIXA BEEC U AQBALAHA ${maleFemale(rightGender, "IIBSADAHA", "IIBSATADA")} MOOTADA`,
+        `SAXIIXA BEEC U AQBALAHA IIBSADAYAASHA MOOTADA`
+      )
       : singleOrPlural(
-          buyersArr.length,
-          `SAXIIXA ${maleFemale(rightGender, "IIBSADAHA", "IIBSATADA")} MOOTADA`,
-          `SAXIIXA IIBSADAYAASHA MOOTADA`
-        );
+        buyersArr.length,
+        `SAXIIXA ${maleFemale(rightGender, "IIBSADAHA", "IIBSATADA")} MOOTADA`,
+        `SAXIIXA IIBSADAYAASHA MOOTADA`
+      );
   } else if (agreementType === "Hibo") {
     leftTitle = hasSellerSigAgent
       ? singleOrPlural(
-          sellerAgentsArr.length,
-          `SAXIIXA WAKIILKA ${maleFemale(leftGender, "HIBEYAHA", "HIBEYSADA")} MOOTADA`,
-          `SAXIIXA WAKIILLADA HIBEYAASHA MOOTADA`
-        )
+        sellerAgentsArr.length,
+        `SAXIIXA WAKIILKA ${maleFemale(leftGender, "HIBEYAHA", "HIBEYSADA")} MOOTADA`,
+        `SAXIIXA WAKIILLADA HIBEYAASHA MOOTADA`
+      )
       : singleOrPlural(
-          sellersArr.length,
-          `SAXIIXA ${maleFemale(leftGender, "HIBEYAHA", "HIBEYSADA")} MOOTADA`,
-          `SAXIIXA HIBEYAASHA MOOTADA`
-        );
+        sellersArr.length,
+        `SAXIIXA ${maleFemale(leftGender, "HIBEYAHA", "HIBEYSADA")} MOOTADA`,
+        `SAXIIXA HIBEYAASHA MOOTADA`
+      );
 
     rightTitle = hasBuyerSigAgent
       ? singleOrPlural(
-          buyerAgentsArr.length,
-          `SAXIIXA HIBEYN U AQBALAHA ${maleFemale(rightGender, "QAATAHA", "QAATADA")} MOOTADA`,
-          `SAXIIXA HIBEYN U AQBALAHA QAATAYAASHA MOOTADA`
-        )
+        buyerAgentsArr.length,
+        `SAXIIXA HIBEYN U AQBALAHA ${maleFemale(rightGender, "QAATAHA", "QAATADA")} MOOTADA`,
+        `SAXIIXA HIBEYN U AQBALAHA QAATAYAASHA MOOTADA`
+      )
       : singleOrPlural(
-          buyersArr.length,
-          `SAXIIXA ${maleFemale(rightGender, "QAATAHA", "QAATADA")} MOOTADA`,
-          `SAXIIXA QAATAYAASHA MOOTADA`
-        );
+        buyersArr.length,
+        `SAXIIXA ${maleFemale(rightGender, "QAATAHA", "QAATADA")} MOOTADA`,
+        `SAXIIXA QAATAYAASHA MOOTADA`
+      );
   } else if (agreementType === "Waqaf") {
     leftTitle = hasSellerSigAgent
       ? singleOrPlural(
-          sellerAgentsArr.length,
-          `SAXIIXA WAKIILKA ${maleFemale(leftGender, "WAAQIFAHA", "WAAQIFADA")} MOOTADA`,
-          `SAXIIXA WAKIILLADA WAAQIFAYAASHA MOOTADA`
-        )
+        sellerAgentsArr.length,
+        `SAXIIXA WAKIILKA ${maleFemale(leftGender, "WAAQIFAHA", "WAAQIFADA")} MOOTADA`,
+        `SAXIIXA WAKIILLADA WAAQIFAYAASHA MOOTADA`
+      )
       : singleOrPlural(
-          sellersArr.length,
-          `SAXIIXA ${maleFemale(leftGender, "WAAQIFAHA", "WAAQIFADA")} MOOTADA`,
-          `SAXIIXA WAAQIFAYAASHA MOOTADA`
-        );
+        sellersArr.length,
+        `SAXIIXA ${maleFemale(leftGender, "WAAQIFAHA", "WAAQIFADA")} MOOTADA`,
+        `SAXIIXA WAAQIFAYAASHA MOOTADA`
+      );
 
     rightTitle = hasBuyerSigAgent
       ? singleOrPlural(
-          buyerAgentsArr.length,
-          `SAXIIXA WAQAF U AQBALAHA ${maleFemale(rightGender, "QOFKA LOO WAQFAY", "QOFTA LOO WAQFAY")} MOOTADA`,
-          `SAXIIXA WAQAF U AQBALAHA DADKA LOO WAQFAY MOOTADA`
-        )
+        buyerAgentsArr.length,
+        `SAXIIXA WAQAF U AQBALAHA ${maleFemale(rightGender, "QOFKA LOO WAQFAY", "QOFTA LOO WAQFAY")} MOOTADA`,
+        `SAXIIXA WAQAF U AQBALAHA DADKA LOO WAQFAY MOOTADA`
+      )
       : singleOrPlural(
-          buyersArr.length,
-          `SAXIIXA ${maleFemale(rightGender, "QOFKA LOO WAQFAY", "QOFTA LOO WAQFAY")} MOOTADA`,
-          `SAXIIXA DADKA LOO WAQFAY MOOTADA`
-        );
+        buyersArr.length,
+        `SAXIIXA ${maleFemale(rightGender, "QOFKA LOO WAQFAY", "QOFTA LOO WAQFAY")} MOOTADA`,
+        `SAXIIXA DADKA LOO WAQFAY MOOTADA`
+      );
   }
 
   const signatureLine = "______________________________";
@@ -384,54 +385,54 @@ export const buildMootoDoc = ({
   const witnessesTable =
     witnessNames.length > 0
       ? new Table({
-          width: { size: 100, type: WidthType.PERCENTAGE },
-          borders: {
-            top: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
-            bottom: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
-            left: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
-            right: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
-            insideHorizontal: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
-            insideVertical: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
-          },
-          rows: Array.from({ length: Math.ceil(witnessNames.length / 2) }).map((_, i) => {
-            const leftW = witnessNames[i * 2];
-            const rightW = witnessNames[i * 2 + 1];
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        borders: {
+          top: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+          bottom: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+          left: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+          right: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+          insideHorizontal: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+          insideVertical: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+        },
+        rows: Array.from({ length: Math.ceil(witnessNames.length / 2) }).map((_, i) => {
+          const leftW = witnessNames[i * 2];
+          const rightW = witnessNames[i * 2 + 1];
 
-            const cell = (name) =>
-              new TableCell({
-                borders: hiddenBorders,
-                width: { size: 50, type: WidthType.PERCENTAGE },
-                children: [
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    spacing: { after: 120 },
-                    children: [
-                      new TextRun({
-                        text: (name || "").toUpperCase(),
-                        bold: true,
-                        size: 22,
-                        font: "Times New Roman",
-                      }),
-                    ],
-                  }),
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [
-                      new TextRun({
-                        text: "__________________________",
-                        size: 22,
-                        font: "Times New Roman",
-                      }),
-                    ],
-                  }),
-                ],
-              });
-
-            return new TableRow({
-              children: [cell(leftW), cell(rightW)],
+          const cell = (name) =>
+            new TableCell({
+              borders: hiddenBorders,
+              width: { size: 50, type: WidthType.PERCENTAGE },
+              children: [
+                new Paragraph({
+                  alignment: AlignmentType.CENTER,
+                  spacing: { after: 120 },
+                  children: [
+                    new TextRun({
+                      text: (name || "").toUpperCase(),
+                      bold: true,
+                      size: 22,
+                      font: "Times New Roman",
+                    }),
+                  ],
+                }),
+                new Paragraph({
+                  alignment: AlignmentType.CENTER,
+                  children: [
+                    new TextRun({
+                      text: "__________________________",
+                      size: 22,
+                      font: "Times New Roman",
+                    }),
+                  ],
+                }),
+              ],
             });
-          }),
-        })
+
+          return new TableRow({
+            children: [cell(leftW), cell(rightW)],
+          });
+        }),
+      })
       : null;
 
   // ================= SUGITAANKA NOOTAAYADA (SIDA SAAMI.JS) =================
@@ -463,14 +464,14 @@ export const buildMootoDoc = ({
         }),
         new TextRun({ text: "Anigoo ah ", size: 24, font: "Times New Roman" }),
         new TextRun({
-          text: "Dr. Maxamed Cabdiraxmaan Sheekh Maxamed, ",
+          text: notaryName,
           size: 24,
           bold: true,
           font: "Times New Roman",
         }),
         new TextRun({
           text:
-            "Nootaayaha Xafiiska Nootaayaha Boqole, waxaan sugayaa in saxiixyada kor ku xusan ay yihiin kuwo run ah oo ku dhacay si xor ah, laguna saxiixay horteyda, waana sugitaan ansax ah oo waafaqsan Shareecada Islaamka iyo qaanuunka dalka.",
+            " Nootaayaha Xafiiska Nootaayaha Boqole, waxaan sugayaa in saxiixyada kor ku xusan ay yihiin kuwo run ah oo ku dhacay si xor ah, laguna saxiixay horteyda, waana sugitaan ansax ah oo waafaqsan Shareecada Islaamka iyo qaanuunka dalka.",
           size: 24,
           font: "Times New Roman",
         }),
@@ -495,7 +496,7 @@ export const buildMootoDoc = ({
       spacing: { after: 60 },
       children: [
         new TextRun({
-          text: "Dr. Maxamed Cabdiraxmaan Sheekh Maxamed",
+          text: notaryName,
           bold: true,
           size: 24,
           font: "Times New Roman",
@@ -528,10 +529,10 @@ export const buildMootoDoc = ({
             agreement?.agreementType === "Beec"
               ? "UJEEDDO: KALA GADASHO MOOTO"
               : agreement?.agreementType === "Hibo"
-              ? "UJEEDDO: HIBEYN MOOTO"
-              : agreement?.agreementType === "Waqaf"
-              ? "UJEEDDO: WAQFID MOOTO"
-              : "",
+                ? "UJEEDDO: HIBEYN MOOTO"
+                : agreement?.agreementType === "Waqaf"
+                  ? "UJEEDDO: WAQFID MOOTO"
+                  : "",
           bold: true,
           underline: true,
           size: 24,
@@ -548,7 +549,7 @@ export const buildMootoDoc = ({
         new TextRun({
           text: `Maanta oo ay taariikhdu tahay ${formatDate(
             agreement?.agreementDate
-          )}, aniga oo ah Dr. Maxamed Cabdiraxmaan Sheekh Maxamed, Nootaayaha Xafiiska Nootaayaha Boqole,xafiiskeygana ku yaal Degmada Howl-wadaag, kasoo horjeedka xawaaladda Taaj, una dhow Xarunta Hormuud, ee Magaalada Muqdisho, Jamhuuriyadda Federaalka Soomaaliya,waxaa ii hor yimid iyagoo heshiis ah,`,
+          )}, aniga oo ah ${notaryName}, Nootaayaha Xafiiska Nootaayaha Boqole,xafiiskeygana ku yaal Degmada Howl-wadaag, kasoo horjeedka xawaaladda Taaj, una dhow Xarunta Hormuud, ee Magaalada Muqdisho, Jamhuuriyadda Federaalka Soomaaliya,waxaa ii hor yimid iyagoo heshiis ah,`,
           font: "Times New Roman",
           size: 24,
         }),
@@ -605,81 +606,81 @@ export const buildMootoDoc = ({
       spacing: { after: 100, before: 100 },
       children: hasSellerAgent
         ? [
-            new TextRun({
-              text: String(T?.sellerAgent || "WAKIIL").toUpperCase(),
-              size: 24,
-              bold: true,
-              underline: {},
-            }),
-            new TextRun({ text: sellersPlural ? "Annagoo ah " : "Anigoo ah ", size: 24 }),
-            new TextRun({ text: sellerAgentDetails, bold: true, size: 24 }),
-            new TextRun({ text: `, ${wakaaladText}, kana wakiil ah ${T?.seller || ""} `, size: 24 }),
-            new TextRun({ text: sellerNames, bold: true, color: "FF0000", size: 24 }),
-            new TextRun({
-              text: sellersPlural
-                ? `, kana caafimaad qabna dhanka maskaxda iyo jirkaba, xiskayguna taam yahay, cid nagu qasabtayna aysan jirin, waxaan ka cadeyneynaa nootaayaha iyo marqaatiyaasha hortooda in aan ka iibinay kuna wareejinay `
-                : `, kana caafimaad qaba dhanka maskaxda iyo jirkaba, xiskayguna taam yahay, cid igu qasabtayna aysan jirin, waxaan ka cadeynayaa nootaayaha iyo marqaatiyaasha hortooda in aan ka iibiyey kuna wareejiyey `,
-              size: 24,
-            }),
-            new TextRun({ text: buyerNames, bold: true, color: "FF0000", size: 24 }),
-            new TextRun({ text: `, mooto nooceedu yahay `, size: 24 }),
-            new TextRun({ text: `${safe(service?.type)} `, size: 24 }),
-            new TextRun({ text: `Chassis No. ${safe(service?.chassisNo)} `, size: 24 }),
-            new TextRun({ text: `modelkeedu yahay ${safe(service?.modelYear)} `, size: 24 }),
-            new TextRun({ text: `midabkeedu yahay ${safe(service?.color)} `, size: 24 }),
-            new TextRun({ text: `Cylinder ${safe(service?.cylinder)} `, size: 24 }),
-            new TextRun({ text: `Taargo No. ${safe(service?.plateNo)} `, size: 24 }),
-            new TextRun({ text: `kana soo baxday ${safe(service?.issuedByPlate)} `, size: 24 }),
-            new TextRun({ text: `Tr. ${formatDate(service?.plateIssueDate)} `, size: 24 }),
-            new TextRun({ text: ` wuxuu ${T?.seller || ""} mootadaas ku milkiyay `, size: 24 }),
-            new TextRun({
-              text: `${safe(service?.ownershipType)} lahaanshaha mootada lambarkiisu yahay `,
-              size: 24,
-            }),
-            new TextRun({ text: `${safe(service?.ownershipBookNo)} `, size: 24 }),
-            new TextRun({ text: `kana soo baxday ${safe(service?.issuedByPlate)} `, size: 24 }),
-            new TextRun({ text: `Tr. ${formatDate(service?.ownershipIssueDate)} `, size: 24 }),
-            new TextRun({
-              text: ` waxaan ku gaday anigoo ka wakiil ah ${T?.seller || ""} mootada lacag dhan $${formatCurrency(
-                agreement?.sellingPrice
-              )} (${numberToSomaliWords(agreement?.sellingPrice)} Doolarka Mareykanka ah).`,
-              size: 24,
-            }),
-          ]
+          new TextRun({
+            text: String(T?.sellerAgent || "WAKIIL").toUpperCase(),
+            size: 24,
+            bold: true,
+            underline: {},
+          }),
+          new TextRun({ text: sellersPlural ? "Annagoo ah " : "Anigoo ah ", size: 24 }),
+          new TextRun({ text: sellerAgentDetails, bold: true, size: 24 }),
+          new TextRun({ text: `, ${wakaaladText}, kana wakiil ah ${T?.seller || ""} `, size: 24 }),
+          new TextRun({ text: sellerNames, bold: true, color: "FF0000", size: 24 }),
+          new TextRun({
+            text: sellersPlural
+              ? `, kana caafimaad qabna dhanka maskaxda iyo jirkaba, xiskayguna taam yahay, cid nagu qasabtayna aysan jirin, waxaan ka cadeyneynaa nootaayaha iyo marqaatiyaasha hortooda in aan ka iibinay kuna wareejinay `
+              : `, kana caafimaad qaba dhanka maskaxda iyo jirkaba, xiskayguna taam yahay, cid igu qasabtayna aysan jirin, waxaan ka cadeynayaa nootaayaha iyo marqaatiyaasha hortooda in aan ka iibiyey kuna wareejiyey `,
+            size: 24,
+          }),
+          new TextRun({ text: buyerNames, bold: true, color: "FF0000", size: 24 }),
+          new TextRun({ text: `, mooto nooceedu yahay `, size: 24 }),
+          new TextRun({ text: `${safe(service?.type)} `, size: 24 }),
+          new TextRun({ text: `Chassis No. ${safe(service?.chassisNo)} `, size: 24 }),
+          new TextRun({ text: `modelkeedu yahay ${safe(service?.modelYear)} `, size: 24 }),
+          new TextRun({ text: `midabkeedu yahay ${safe(service?.color)} `, size: 24 }),
+          new TextRun({ text: `Cylinder ${safe(service?.cylinder)} `, size: 24 }),
+          new TextRun({ text: `Taargo No. ${safe(service?.plateNo)} `, size: 24 }),
+          new TextRun({ text: `kana soo baxday ${safe(service?.issuedByPlate)} `, size: 24 }),
+          new TextRun({ text: `Tr. ${formatDate(service?.plateIssueDate)} `, size: 24 }),
+          new TextRun({ text: ` wuxuu ${T?.seller || ""} mootadaas ku milkiyay `, size: 24 }),
+          new TextRun({
+            text: `${safe(service?.ownershipType)} lahaanshaha mootada lambarkiisu yahay `,
+            size: 24,
+          }),
+          new TextRun({ text: `${safe(service?.ownershipBookNo)} `, size: 24 }),
+          new TextRun({ text: `kana soo baxday ${safe(service?.issuedByPlate)} `, size: 24 }),
+          new TextRun({ text: `Tr. ${formatDate(service?.ownershipIssueDate)} `, size: 24 }),
+          new TextRun({
+            text: ` waxaan ku gaday anigoo ka wakiil ah ${T?.seller || ""} mootada lacag dhan $${formatCurrency(
+              agreement?.sellingPrice
+            )} (${numberToSomaliWords(agreement?.sellingPrice)} Doolarka Mareykanka ah).`,
+            size: 24,
+          }),
+        ]
         : [
-            new TextRun({ text: sellersPlural ? "Annagoo ah " : "Anigoo ah ", size: 24 }),
-            new TextRun({ text: sellerNames, bold: true, color: "FF0000", size: 24 }),
-            new TextRun({
-              text: sellersPlural
-                ? `, kana caafimaad qabna dhanka maskaxda iyo jirkaba, xiskayguna taam yahay, cid nagu qasabtayna aysan jirin, waxaan ka iibinay kuna wareejinay `
-                : `, kana caafimaad qaba dhanka maskaxda iyo jirkaba, xiskayguna taam yahay, cid igu qasabtayna aysan jirin, waxaan ka iibiyey kuna wareejiyey `,
-              size: 24,
-            }),
-            new TextRun({ text: buyerNames, bold: true, color: "FF0000", size: 24 }),
-            new TextRun({ text: `, mooto nooceedu yahay `, size: 24 }),
-            new TextRun({ text: `${safe(service?.type)} `, size: 24 }),
-            new TextRun({ text: `Chassis No. ${safe(service?.chassisNo)} `, size: 24 }),
-            new TextRun({ text: `modelkeedu yahay ${safe(service?.modelYear)} `, size: 24 }),
-            new TextRun({ text: `midabkeedu yahay ${safe(service?.color)} `, size: 24 }),
-            new TextRun({ text: `Cylinder ${safe(service?.cylinder)} `, size: 24 }),
-            new TextRun({ text: `Taargo No. ${safe(service?.plateNo)} `, size: 24 }),
-            new TextRun({ text: `kana soo baxday ${safe(service?.issuedByPlate)} `, size: 24 }),
-            new TextRun({ text: `Tr. ${formatDate(service?.plateIssueDate)} `, size: 24 }),
-            new TextRun({ text: ` wuxuu ${T?.seller || ""} mootadaas ku milkiyay `, size: 24 }),
-            new TextRun({
-              text: `${safe(service?.ownershipType)}a lahaanshaha mootada lambarkiisu yahay `,
-              size: 24,
-            }),
-            new TextRun({ text: `${safe(service?.ownershipBookNo)} `, size: 24 }),
-            new TextRun({ text: `kana soo baxday ${safe(service?.issuedByPlate)} `, size: 24 }),
-            new TextRun({ text: `Tr. ${formatDate(service?.ownershipIssueDate)} `, size: 24 }),
-            new TextRun({
-              text: ` waxaan ku gaday lacag dhan $${formatCurrency(agreement?.sellingPrice)} (${numberToSomaliWords(
-                agreement?.sellingPrice
-              )} Doolarka Mareykanka ah).`,
-              size: 24,
-            }),
-          ],
+          new TextRun({ text: sellersPlural ? "Annagoo ah " : "Anigoo ah ", size: 24 }),
+          new TextRun({ text: sellerNames, bold: true, color: "FF0000", size: 24 }),
+          new TextRun({
+            text: sellersPlural
+              ? `, kana caafimaad qabna dhanka maskaxda iyo jirkaba, xiskayguna taam yahay, cid nagu qasabtayna aysan jirin, waxaan ka iibinay kuna wareejinay `
+              : `, kana caafimaad qaba dhanka maskaxda iyo jirkaba, xiskayguna taam yahay, cid igu qasabtayna aysan jirin, waxaan ka iibiyey kuna wareejiyey `,
+            size: 24,
+          }),
+          new TextRun({ text: buyerNames, bold: true, color: "FF0000", size: 24 }),
+          new TextRun({ text: `, mooto nooceedu yahay `, size: 24 }),
+          new TextRun({ text: `${safe(service?.type)} `, size: 24 }),
+          new TextRun({ text: `Chassis No. ${safe(service?.chassisNo)} `, size: 24 }),
+          new TextRun({ text: `modelkeedu yahay ${safe(service?.modelYear)} `, size: 24 }),
+          new TextRun({ text: `midabkeedu yahay ${safe(service?.color)} `, size: 24 }),
+          new TextRun({ text: `Cylinder ${safe(service?.cylinder)} `, size: 24 }),
+          new TextRun({ text: `Taargo No. ${safe(service?.plateNo)} `, size: 24 }),
+          new TextRun({ text: `kana soo baxday ${safe(service?.issuedByPlate)} `, size: 24 }),
+          new TextRun({ text: `Tr. ${formatDate(service?.plateIssueDate)} `, size: 24 }),
+          new TextRun({ text: ` wuxuu ${T?.seller || ""} mootadaas ku milkiyay `, size: 24 }),
+          new TextRun({
+            text: `${safe(service?.ownershipType)}a lahaanshaha mootada lambarkiisu yahay `,
+            size: 24,
+          }),
+          new TextRun({ text: `${safe(service?.ownershipBookNo)} `, size: 24 }),
+          new TextRun({ text: `kana soo baxday ${safe(service?.issuedByPlate)} `, size: 24 }),
+          new TextRun({ text: `Tr. ${formatDate(service?.ownershipIssueDate)} `, size: 24 }),
+          new TextRun({
+            text: ` waxaan ku gaday lacag dhan $${formatCurrency(agreement?.sellingPrice)} (${numberToSomaliWords(
+              agreement?.sellingPrice
+            )} Doolarka Mareykanka ah).`,
+            size: 24,
+          }),
+        ],
     }),
 
     // Buyer section
@@ -688,41 +689,41 @@ export const buildMootoDoc = ({
       spacing: { after: 100 },
       children: hasBuyerAgent
         ? [
-            new TextRun({
-              text: String(T?.buyerAgent || "WAKIIL").toUpperCase(),
-              size: 24,
-              underline: {},
-              bold: true,
-            }),
-            new TextRun({ text: buyersPlural ? "Annagoo ah " : "Anigoo ah ", size: 24 }),
-            new TextRun({ text: buyerAgentDetails, bold: true, size: 24 }),
-            new TextRun({
-              text: buyersPlural
-                ? `, ahna ${T?.buyerAgent || ""}, kana caafimaad qabna dhanka maskaxda iyo jirkaba, xiskayguna taam yahay, cid nagu qasabtayna aysan jirin, waxa aan aqbalnay iibkaan anagoo ku qanacsan raalina ka ah. Sidaasi darteed laga bilaabo taariikhda kor ku xusan, maamulkii iyo manfacii mootadaas waxay si sharci ah ugu wareegeen `
-                : `, ahna ${T?.buyerAgent || ""}, kana caafimaad qaba dhanka maskaxda iyo jirkaba, xiskayguna taam yahay, cid igu qasabtayna aysan jirin, waxa aan aqbalay iibkaan anigoo ku qanacsan raalina ka ah. Sidaasi darteed laga bilaabo taariikhda kor ku xusan, maamulkii iyo manfacii mootadaas waxay si sharci ah ugu wareegeen `,
-              size: 24,
-            }),
-            new TextRun({ text: buyerNames, bold: true, color: "FF0000", size: 24 }),
-            new TextRun({
-              text: `, waana beec sax ah oo waafaqsan shareecada Islaamka iyo qaanuunka dalka Soomaaliya.`,
-              size: 24,
-            }),
-          ]
+          new TextRun({
+            text: String(T?.buyerAgent || "WAKIIL").toUpperCase(),
+            size: 24,
+            underline: {},
+            bold: true,
+          }),
+          new TextRun({ text: buyersPlural ? "Annagoo ah " : "Anigoo ah ", size: 24 }),
+          new TextRun({ text: buyerAgentDetails, bold: true, size: 24 }),
+          new TextRun({
+            text: buyersPlural
+              ? `, ahna ${T?.buyerAgent || ""}, kana caafimaad qabna dhanka maskaxda iyo jirkaba, xiskayguna taam yahay, cid nagu qasabtayna aysan jirin, waxa aan aqbalnay iibkaan anagoo ku qanacsan raalina ka ah. Sidaasi darteed laga bilaabo taariikhda kor ku xusan, maamulkii iyo manfacii mootadaas waxay si sharci ah ugu wareegeen `
+              : `, ahna ${T?.buyerAgent || ""}, kana caafimaad qaba dhanka maskaxda iyo jirkaba, xiskayguna taam yahay, cid igu qasabtayna aysan jirin, waxa aan aqbalay iibkaan anigoo ku qanacsan raalina ka ah. Sidaasi darteed laga bilaabo taariikhda kor ku xusan, maamulkii iyo manfacii mootadaas waxay si sharci ah ugu wareegeen `,
+            size: 24,
+          }),
+          new TextRun({ text: buyerNames, bold: true, color: "FF0000", size: 24 }),
+          new TextRun({
+            text: `, waana beec sax ah oo waafaqsan shareecada Islaamka iyo qaanuunka dalka Soomaaliya.`,
+            size: 24,
+          }),
+        ]
         : [
-            new TextRun({ text: buyersPlural ? "Annagoo ah " : "Anigoo ah ", size: 24 }),
-            new TextRun({ text: buyerNames, bold: true, color: "FF0000", size: 24 }),
-            new TextRun({
-              text: buyersPlural
-                ? `, ahna ${T?.buyer || ""}, kana caafimaad qabna dhanka maskaxda iyo jirkaba, xiskayguna taam yahay, cid nagu qasabtayna aysan jirin, waxa aan aqbalnay iibkaan anagoo ku qanacsan raalina ka ah. Sidaasi darteed laga bilaabo taariikhda kor ku xusan, maamulkii iyo manfacii mootadaas waxay si sharci ah ugu wareegeen `
-                : `, ahna ${T?.buyer || ""}, kana caafimaad qaba dhanka maskaxda iyo jirkaba, xiskayguna taam yahay, cid i qasabtayna aysan jirin, waxa aan aqbalay iibkaan anigoo ku qanacsan raalina ka ah. Sidaasi darteed laga bilaabo taariikhda kor ku xusan, maamulkii iyo manfacii mootadaas waxay si sharci ah ugu wareegeen `,
-              size: 24,
-            }),
-            new TextRun({ text: buyerNames, bold: true, color: "FF0000", size: 24 }),
-            new TextRun({
-              text: `, waana beec sax ah oo waafaqsan shareecada Islaamka iyo qaanuunka dalka Soomaaliya.`,
-              size: 24,
-            }),
-          ],
+          new TextRun({ text: buyersPlural ? "Annagoo ah " : "Anigoo ah ", size: 24 }),
+          new TextRun({ text: buyerNames, bold: true, color: "FF0000", size: 24 }),
+          new TextRun({
+            text: buyersPlural
+              ? `, ahna ${T?.buyer || ""}, kana caafimaad qabna dhanka maskaxda iyo jirkaba, xiskayguna taam yahay, cid nagu qasabtayna aysan jirin, waxa aan aqbalnay iibkaan anagoo ku qanacsan raalina ka ah. Sidaasi darteed laga bilaabo taariikhda kor ku xusan, maamulkii iyo manfacii mootadaas waxay si sharci ah ugu wareegeen `
+              : `, ahna ${T?.buyer || ""}, kana caafimaad qaba dhanka maskaxda iyo jirkaba, xiskayguna taam yahay, cid i qasabtayna aysan jirin, waxa aan aqbalay iibkaan anigoo ku qanacsan raalina ka ah. Sidaasi darteed laga bilaabo taariikhda kor ku xusan, maamulkii iyo manfacii mootadaas waxay si sharci ah ugu wareegeen `,
+            size: 24,
+          }),
+          new TextRun({ text: buyerNames, bold: true, color: "FF0000", size: 24 }),
+          new TextRun({
+            text: `, waana beec sax ah oo waafaqsan shareecada Islaamka iyo qaanuunka dalka Soomaaliya.`,
+            size: 24,
+          }),
+        ],
     }),
 
     // SIGNATURE TABLE (SIDA SAAMI.JS)

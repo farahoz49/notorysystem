@@ -1,4 +1,4 @@
-// src/docTemplates/saami.js
+// src/services/saami.js
 import {
   Paragraph,
   TextRun,
@@ -24,6 +24,8 @@ export const buildSaamiDoc = ({
   getTitles,
   getPhrases,
   GW,
+  notaryName,
+
 }) => {
   const safe = (v) => (v === undefined || v === null ? "" : String(v).trim());
 
@@ -36,12 +38,12 @@ export const buildSaamiDoc = ({
     return `${names.slice(0, -1).join(", ")} iyo ${names[names.length - 1]}`;
   };
 
-  const personLine = (p, index ,roleColor, isBuyer = false) => {
+  const personLine = (p, index, roleColor, isBuyer = false) => {
     const W = GW(p?.gender || "male");
 
     return [
       new TextRun({
-        
+
         text: `${index + 1}.`,
         bold: true,
         color: roleColor,
@@ -57,7 +59,7 @@ export const buildSaamiDoc = ({
       }),
       new TextRun({
         text: `${safe(p?.nationality)} `,
-       
+
         size: 24,
         font: "Times New Roman",
       }),
@@ -65,7 +67,7 @@ export const buildSaamiDoc = ({
       new TextRun({ text: `ah, `, size: 24, font: "Times New Roman" }),
       new TextRun({ text: W.childOfMaleFemale, size: 24, font: "Times New Roman" }),
       new TextRun({
-        text: `ina `, 
+        text: `ina `,
         size: 24,
         font: "Times New Roman",
       }),
@@ -151,7 +153,7 @@ export const buildSaamiDoc = ({
           })
         );
       }
-      runs.push(...personLine(p, idx , roleColor, isBuyer));
+      runs.push(...personLine(p, idx, roleColor, isBuyer));
     });
     return runs;
   };
@@ -251,7 +253,7 @@ export const buildSaamiDoc = ({
     left: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
     right: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
   };
- 
+
   const sharesCount = Number(service?.amount || 0) / 10;
 
   const saamiHeaderSection = () => [
@@ -373,167 +375,167 @@ export const buildSaamiDoc = ({
             }),
           ],
         }),
-        
+
       ],
     }),
-    
-    
+
+
   ];
- // ================= SIGNATURES (SAAMI ONLY + GENDER) =================
-const singleOrPlural = (count, single, plural) => (count > 1 ? plural : single);
+  // ================= SIGNATURES (SAAMI ONLY + GENDER) =================
+  const singleOrPlural = (count, single, plural) => (count > 1 ? plural : single);
 
-const maleFemale = (gender, male, female) =>
-  String(gender || "").toLowerCase() === "female" ? female : male;
+  const maleFemale = (gender, male, female) =>
+    String(gender || "").toLowerCase() === "female" ? female : male;
 
-const joinSigNames = (arr = []) =>
-  (arr || [])
-    .filter(Boolean)
-    .map((p) => safe(p?.fullName))
-    .filter(Boolean)
-    .join(" , ");
+  const joinSigNames = (arr = []) =>
+    (arr || [])
+      .filter(Boolean)
+      .map((p) => safe(p?.fullName))
+      .filter(Boolean)
+      .join(" , ");
 
-const agreementType = String(agreement?.agreementType || "").trim(); // Beec | Hibo | Waqaf
+  const agreementType = String(agreement?.agreementType || "").trim(); // Beec | Hibo | Waqaf
 
-const sellersArr = sellers || [];
-const buyersArr = buyers || [];
+  const sellersArr = sellers || [];
+  const buyersArr = buyers || [];
 
-const sellerAgentsArr = sellerAgents || [];
-const buyerAgentsArr = buyerAgents || [];
+  const sellerAgentsArr = sellerAgents || [];
+  const buyerAgentsArr = buyerAgents || [];
 
-const hasSellerSigAgent = sellerAgentsArr.length > 0;
-const hasBuyerSigAgent = buyerAgentsArr.length > 0;
+  const hasSellerSigAgent = sellerAgentsArr.length > 0;
+  const hasBuyerSigAgent = buyerAgentsArr.length > 0;
 
-// ✅ haddii wakiil jiro, wakiilka ayaa saxiixaya
-const leftPeople = hasSellerSigAgent ? sellerAgentsArr : sellersArr;
-const rightPeople = hasBuyerSigAgent ? buyerAgentsArr : buyersArr;
+  // ✅ haddii wakiil jiro, wakiilka ayaa saxiixaya
+  const leftPeople = hasSellerSigAgent ? sellerAgentsArr : sellersArr;
+  const rightPeople = hasBuyerSigAgent ? buyerAgentsArr : buyersArr;
 
-const leftGender = leftPeople?.[0]?.gender || "male";
-const rightGender = rightPeople?.[0]?.gender || "male";
+  const leftGender = leftPeople?.[0]?.gender || "male";
+  const rightGender = rightPeople?.[0]?.gender || "male";
 
-const leftName =
-  leftPeople.length > 1 ? joinSigNames(leftPeople) : safe(leftPeople?.[0]?.fullName.toUpperCase());
+  const leftName =
+    leftPeople.length > 1 ? joinSigNames(leftPeople) : safe(leftPeople?.[0]?.fullName.toUpperCase());
 
-const rightName =
-  rightPeople.length > 1 ? joinSigNames(rightPeople) : safe(rightPeople?.[0]?.fullName.toUpperCase());
+  const rightName =
+    rightPeople.length > 1 ? joinSigNames(rightPeople) : safe(rightPeople?.[0]?.fullName.toUpperCase());
 
-// -------- TITLES (Beec / Hibo / Waqaf) --------
-let leftTitle = "";
-let rightTitle = "";
+  // -------- TITLES (Beec / Hibo / Waqaf) --------
+  let leftTitle = "";
+  let rightTitle = "";
 
-/* =========================
-   B E E C
-========================= */
-if (agreementType === "Beec") {
-  // SELLER (main vs agent)
-  leftTitle = hasSellerSigAgent
-    ? singleOrPlural(
+  /* =========================
+     B E E C
+  ========================= */
+  if (agreementType === "Beec") {
+    // SELLER (main vs agent)
+    leftTitle = hasSellerSigAgent
+      ? singleOrPlural(
         sellerAgentsArr.length,
         `SAXIIXA WAKIILKA ${maleFemale(leftGender, "ISKA IIBIYAHA", "ISKA IIBISADA")} SAAMIGA`,
         `SAXIIXA WAKIILLADA ISKA IIBIYAASHA SAAMIGA`
       )
-    : singleOrPlural(
+      : singleOrPlural(
         sellersArr.length,
         `SAXIIXA ${maleFemale(leftGender, "ISKA IIBIYAHA", "ISKA IIBISADA")} SAAMIGA `,
         `SAXIIXA ISKA IIBIYAASHA SAAMIGA`
       );
 
-  // BUYER (main vs agent)
-  rightTitle = hasBuyerSigAgent
-    ? singleOrPlural(
+    // BUYER (main vs agent)
+    rightTitle = hasBuyerSigAgent
+      ? singleOrPlural(
         buyerAgentsArr.length,
         `SAXIIXA BEEC U AQBALAHA ${maleFemale(rightGender, "IIBSADAHA", "IIBSATADA")} SAAMIGA`,
         `SAXIIXA BEEC U AQBALAHA IIBSADAYAASHA SAAMIGA`
       )
-    : singleOrPlural(
+      : singleOrPlural(
         buyersArr.length,
         `SAXIIXA ${maleFemale(rightGender, "IIBSADAHA", "IIBSATADA")} SAAMIGA`,
         `SAXIIXA IIBSADAYAASHA SAAMIGA`
       );
-}
+  }
 
-/* =========================
-   H I B O
-========================= */
-else if (agreementType === "Hibo") {
-  // SELLER = HIBEYE
-  leftTitle = hasSellerSigAgent
-    ? singleOrPlural(
+  /* =========================
+     H I B O
+  ========================= */
+  else if (agreementType === "Hibo") {
+    // SELLER = HIBEYE
+    leftTitle = hasSellerSigAgent
+      ? singleOrPlural(
         sellerAgentsArr.length,
         `SAXIIXA WAKIILKA ${maleFemale(leftGender, "HIBEYAHA", "HIBEYSADA")} SAAMIGA`,
         `SAXIIXA WAKIILLADA HIBEYAASHA SAAMIGA`
       )
-    : singleOrPlural(
+      : singleOrPlural(
         sellersArr.length,
         `SAXIIXA ${maleFemale(leftGender, "HIBEYAHA", "HIBEYSADA")} SAAMIGA`,
         `SAXIIXA HIBEYAASHA SAAMIGA`
       );
 
-  // BUYER = QAATAHA
-  rightTitle = hasBuyerSigAgent
-    ? singleOrPlural(
+    // BUYER = QAATAHA
+    rightTitle = hasBuyerSigAgent
+      ? singleOrPlural(
         buyerAgentsArr.length,
         `SAXIIXA HIBEYN U AQBALAHA ${maleFemale(rightGender, "QAATAHA", "QAATADA")} SAAMIGA`,
         `SAXIIXA HIBEYN U AQBALAHA QAATAYAASHA SAAMIGA`
       )
-    : singleOrPlural(
+      : singleOrPlural(
         buyersArr.length,
         `SAXIIXA ${maleFemale(rightGender, "QAATAHA", "QAATADA")} SAAMIGA`,
         `SAXIIXA QAATAYAASHA SAAMIGA`
       );
-}
+  }
 
-/* =========================
-   W A Q A F
-========================= */
-else if (agreementType === "Waqaf") {
-  // SELLER = WAAQIF
-  leftTitle = hasSellerSigAgent
-    ? singleOrPlural(
+  /* =========================
+     W A Q A F
+  ========================= */
+  else if (agreementType === "Waqaf") {
+    // SELLER = WAAQIF
+    leftTitle = hasSellerSigAgent
+      ? singleOrPlural(
         sellerAgentsArr.length,
         `SAXIIXA WAKIILKA ${maleFemale(leftGender, "WAAQIFAHA", "WAAQIFADA")} SAAMIGA`,
         `SAXIIXA WAKIILLADA WAAQIFAYAASHA SAAMIGA`
       )
-    : singleOrPlural(
+      : singleOrPlural(
         sellersArr.length,
         `SAXIIXA ${maleFemale(leftGender, "WAAQIFAHA", "WAAQIFADA")} SAAMIGA`,
         `SAXIIXA WAAQIFAYAASHA SAAMIGA`
       );
 
-  // BUYER = QOFKA LOO WAQFAY
-  rightTitle = hasBuyerSigAgent
-    ? singleOrPlural(
+    // BUYER = QOFKA LOO WAQFAY
+    rightTitle = hasBuyerSigAgent
+      ? singleOrPlural(
         buyerAgentsArr.length,
         `SAXIIXA WAQAF U AQBALAHA ${maleFemale(rightGender, "QOFKA LOO WAQFAY", "QOFTA LOO WAQFAY")} SAAMIGA`,
         `SAXIIXA WAQAF U AQBALAHA DADKA LOO WAQFAY SAAMIGA`
       )
-    : singleOrPlural(
+      : singleOrPlural(
         buyersArr.length,
         `SAXIIXA ${maleFemale(rightGender, "QOFKA LOO WAQFAY", "QOFTA LOO WAQFAY")} SAAMIGA`,
         `SAXIIXA DADKA LOO WAQFAY SAAMIGA`
       );
-}
+  }
 
-const signatureLine = "______________________________";
+  const signatureLine = "______________________________";
 
 
-// ================= MARQAATIYAASHA =================
-const witnessesTitle = new Paragraph({
-  alignment: AlignmentType.CENTER,
-  spacing: { before: 200, after: 120 },
-  children: [
-    new TextRun({
-      text: "SAXIIXA MARQAATIYAASHA",
-      bold: true,
-      underline: true,
-      size: 24,
-      font: "Times New Roman",
-    }),
-  ],
-});
+  // ================= MARQAATIYAASHA =================
+  const witnessesTitle = new Paragraph({
+    alignment: AlignmentType.CENTER,
+    spacing: { before: 200, after: 120 },
+    children: [
+      new TextRun({
+        text: "SAXIIXA MARQAATIYAASHA",
+        bold: true,
+        underline: true,
+        size: 24,
+        font: "Times New Roman",
+      }),
+    ],
+  });
 
-const witnessesTable =
-  agreement?.witnesses && agreement.witnesses.length > 0
-    ? new Table({
+  const witnessesTable =
+    agreement?.witnesses && agreement.witnesses.length > 0
+      ? new Table({
         width: { size: 100, type: WidthType.PERCENTAGE },
         borders: {
           top: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
@@ -578,115 +580,115 @@ const witnessesTable =
           }),
         ],
       })
-    : null;
+      : null;
 
-// ================= SUGITAANKA NOOTAAYADA =================
-const notarySection = [
-  new Paragraph({
-    alignment: AlignmentType.CENTER,
-    spacing: { before: 240, after: 120 },
-    children: [
-      new TextRun({
-        text: "SUGITAANKA NOOTAAYADA",
-        bold: true,
-        underline: true,
-        size: 24,
-        font: "Times New Roman",
-      }),
-    ],
-  }),
+  // ================= SUGITAANKA NOOTAAYADA =================
+  const notarySection = [
+    new Paragraph({
+      alignment: AlignmentType.CENTER,
+      spacing: { before: 240, after: 120 },
+      children: [
+        new TextRun({
+          text: "SUGITAANKA NOOTAAYADA",
+          bold: true,
+          underline: true,
+          size: 24,
+          font: "Times New Roman",
+        }),
+      ],
+    }),
 
-  new Paragraph({
-    alignment: AlignmentType.JUSTIFIED,
-    spacing: { after: 120 },
-    children: [
-      new TextRun({
-        text: `REF: ${safe(agreement?.refNo)}, Tr. ${formatDate(agreement?.agreementDate)} `,
-        size: 22,
-        bold: true,
-        underline: true,
-        font: "Times New Roman",
-      }),
+    new Paragraph({
+      alignment: AlignmentType.JUSTIFIED,
+      spacing: { after: 120 },
+      children: [
+        new TextRun({
+          text: `REF: ${safe(agreement?.refNo)}, Tr. ${formatDate(agreement?.agreementDate)} `,
+          size: 22,
+          bold: true,
+          underline: true,
+          font: "Times New Roman",
+        }),
         new TextRun({ text: "Anigoo ah ", size: 24, font: "Times New Roman" }),
-      new TextRun({
-        text: "Dr. Maxamed Cabdiraxmaan Sheekh Maxamed, ",
-        size: 24,
-        bold: true,
-        font: "Times New Roman",
-      }),
-      new TextRun({
-        text:
-          "Nootaayaha Xafiiska Nootaayaha Boqole, waxaan sugayaa in saxiixyada kor ku xusan ay yihiin kuwo run ah oo ku dhacay si xor ah, laguna saxiixay horteyda, waana sugitaan ansax ah oo waafaqsan Shareecada Islaamka iyo qaanuunka dalka.",
-        size: 24,
-        font: "Times New Roman",
-      }),
-    ],
-  }),
+        new TextRun({
+          text: notaryName,
+          size: 24,
+          bold: true,
+          font: "Times New Roman",
+        }),
+        new TextRun({
+          text:
+            " Nootaayaha Xafiiska Nootaayaha Boqole, waxaan sugayaa in saxiixyada kor ku xusan ay yihiin kuwo run ah oo ku dhacay si xor ah, laguna saxiixay horteyda, waana sugitaan ansax ah oo waafaqsan Shareecada Islaamka iyo qaanuunka dalka.",
+          size: 24,
+          font: "Times New Roman",
+        }),
+      ],
+    }),
 
 
 
-  new Paragraph({
-    alignment: AlignmentType.CENTER,
-    spacing: { after: 80 },
-    children: [
-      new TextRun({
-        text: "NOOTAAYAHA",
-        bold: true,
-        size: 24,
-        font: "Times New Roman",
-      }),
-    ],
-  }),
+    new Paragraph({
+      alignment: AlignmentType.CENTER,
+      spacing: { after: 80 },
+      children: [
+        new TextRun({
+          text: "NOOTAAYAHA",
+          bold: true,
+          size: 24,
+          font: "Times New Roman",
+        }),
+      ],
+    }),
 
-  new Paragraph({
-    alignment: AlignmentType.CENTER,
-    spacing: { after: 60 },
-    children: [
-      new TextRun({
-        text: "Dr. Maxamed Cabdiraxmaan Sheekh Maxamed",
-        bold: true,
-        size: 24,
-        font: "Times New Roman",
-      }),
-    ],
-  }),
+    new Paragraph({
+      alignment: AlignmentType.CENTER,
+      spacing: { after: 60 },
+      children: [
+        new TextRun({
+          text: notaryName,
+          bold: true,
+          size: 24,
+          font: "Times New Roman",
+        }),
+      ],
+    }),
 
-  new Paragraph({
-    alignment: AlignmentType.CENTER,
-    spacing: { after: 40 },
-    children: [
-      new TextRun({
-        text: "__________________________",
-        size: 22,
-        font: "Times New Roman",
-      }),
-    ],
-  }),
-];
+    new Paragraph({
+      alignment: AlignmentType.CENTER,
+      spacing: { after: 40 },
+      children: [
+        new TextRun({
+          text: "__________________________",
+          size: 22,
+          font: "Times New Roman",
+        }),
+      ],
+    }),
+  ];
 
   // ================== RETURN ==================
   return [
     // TITLE
- new Paragraph({
-  alignment: AlignmentType.CENTER,
-  spacing: { after: 100 },
-  children: [
-    new TextRun({
-      text:
-        agreement.agreementType === "Beec"
-          ? "UJEEDDO: KALA GADASHO SAAMI"
-          : agreement.agreementType === "Hibo"
-          ? "UJEEDDO: HIBEYN SAAMI"
-          : agreement.agreementType === "Waqaf"
-          ? "UJEEDDO: WAQFID SAAMI"
-          : "",
-      bold: true,
-      underline: true,
-      size: 24,
-      font: "Times New Roman",
+    new Paragraph({
+      alignment: AlignmentType.CENTER,
+      spacing: { after: 100 },
+      children: [
+        new TextRun({
+          text:
+            agreement.agreementType === "Beec"
+              ? "UJEEDDO: KALA GADASHO SAAMI"
+              : agreement.agreementType === "Hibo"
+                ? "UJEEDDO: HIBEYN SAAMI"
+                : agreement.agreementType === "Waqaf"
+                  ? "UJEEDDO: WAQFID SAAMI"
+                  : "",
+          bold: true,
+          underline: true,
+          size: 24,
+          font: "Times New Roman",
+        }),
+      ],
     }),
-  ],
-}),
     // Start paragraph
     new Paragraph({
       alignment: AlignmentType.JUSTIFIED,
@@ -695,7 +697,7 @@ const notarySection = [
         new TextRun({
           text: `Maanta oo ay taariikhdu tahay ${formatDate(
             agreement.agreementDate
-          )}, aniga oo ah Dr. Maxamed Cabdiraxmaan Sheekh Maxamed, Nootaayaha Xafiiska Nootaayaha Boqole,xafiiskeygana ku yaal Degmada Howl-wadaag, kasoo horjeedka xawaaladda Taaj, una dhow Xarunta Hormuud, ee Magaalada Muqdisho, Jamhuuriyadda Federaalka Soomaaliya,waxaa ii hor yimid iyagoo heshiis ah,`,
+          )}, aniga oo ah ${notaryName}, Nootaayaha Xafiiska Nootaayaha Boqole,xafiiskeygana ku yaal Degmada Howl-wadaag, kasoo horjeedka xawaaladda Taaj, una dhow Xarunta Hormuud, ee Magaalada Muqdisho, Jamhuuriyadda Federaalka Soomaaliya,waxaa ii hor yimid iyagoo heshiis ah,`,
           font: "Times New Roman",
           size: 24,
         }),
@@ -754,60 +756,60 @@ const notarySection = [
       spacing: { after: 100, before: 100 },
       children: hasSellerAgent
         ? [
-            new TextRun({
-              text: String(T?.sellerAgent || "WAKIIL").toUpperCase(),
-              size: 24,
-              bold: true,
-              underline: {},
-            }),
-            new TextRun({ text: sellersPlural ? "Annagoo ah " : "Anigoo ah ", size: 24 }),
-            new TextRun({ text: sellerAgentDetails, bold: true, size: 24 }),
-            new TextRun({ text: `, ${wakaaladText}, kana wakiil ah ${T.seller} `, size: 24 }),
-            new TextRun({ text: sellerNames, bold: true, color: "FF0000", size: 24 }),
-            new TextRun({
-              text: sellersPlural
-                ? `, kana caafimaad qabna dhanka maskaxda iyo jirkaba, cid nagu qasabtayna aysan jirin, waxaan ka qireynaa markhaatiyaasha iyo nootaayaha hortooda, in aan ${P.actionVerb} ${P.actionVerb2} `
-                : `, kana caafimaad qaba dhanka maskaxda iyo jirkaba, cid igu qasabtayna aysan jirin, waxaan ka qirayaa markhaatiyaasha iyo nootaayaha hortooda, in aan ${P.actionVerb} ${P.actionVerb2} `,
-              size: 24,
-            }),
-            new TextRun({ text: buyerNames, bold: true, color: "FF0000", size: 24 }),
-            new TextRun({
-              text: `, saami ka mid ah saamiyada ${sellersPlural ? "aan ku leenahay" : "aan ku leeyahay"} shirkadda ${safe(
-                service?.companyName
-              )}, oo ah sida kor ku xusan, kuna cad Activity Report-ga, Tr ${formatDate(service?.SaamiDate)}.`,
-              size: 24,
-            }),
-            new TextRun({
-              text: ` Sidaa darteed laga bilaabo 01/01/2026 faa'iidada iyo manfaca saamigaan si sharci ah ugu wareegtay `,
-              size: 24,
-            }),
-            new TextRun({ text: buyerNames, bold: true, color: "FF0000", size: 24 }),
-            new TextRun({ text: ".", size: 24 }),
-          ]
+          new TextRun({
+            text: String(T?.sellerAgent || "WAKIIL").toUpperCase(),
+            size: 24,
+            bold: true,
+            underline: {},
+          }),
+          new TextRun({ text: sellersPlural ? "Annagoo ah " : "Anigoo ah ", size: 24 }),
+          new TextRun({ text: sellerAgentDetails, bold: true, size: 24 }),
+          new TextRun({ text: `, ${wakaaladText}, kana wakiil ah ${T.seller} `, size: 24 }),
+          new TextRun({ text: sellerNames, bold: true, color: "FF0000", size: 24 }),
+          new TextRun({
+            text: sellersPlural
+              ? `, kana caafimaad qabna dhanka maskaxda iyo jirkaba, cid nagu qasabtayna aysan jirin, waxaan ka qireynaa markhaatiyaasha iyo nootaayaha hortooda, in aan ${P.actionVerb} ${P.actionVerb2} `
+              : `, kana caafimaad qaba dhanka maskaxda iyo jirkaba, cid igu qasabtayna aysan jirin, waxaan ka qirayaa markhaatiyaasha iyo nootaayaha hortooda, in aan ${P.actionVerb} ${P.actionVerb2} `,
+            size: 24,
+          }),
+          new TextRun({ text: buyerNames, bold: true, color: "FF0000", size: 24 }),
+          new TextRun({
+            text: `, saami ka mid ah saamiyada ${sellersPlural ? "aan ku leenahay" : "aan ku leeyahay"} shirkadda ${safe(
+              service?.companyName
+            )}, oo ah sida kor ku xusan, kuna cad Activity Report-ga, Tr ${formatDate(service?.SaamiDate)}.`,
+            size: 24,
+          }),
+          new TextRun({
+            text: ` Sidaa darteed laga bilaabo 01/01/2026 faa'iidada iyo manfaca saamigaan si sharci ah ugu wareegtay `,
+            size: 24,
+          }),
+          new TextRun({ text: buyerNames, bold: true, color: "FF0000", size: 24 }),
+          new TextRun({ text: ".", size: 24 }),
+        ]
         : [
-            new TextRun({ text: sellersPlural ? "Annagoo ah " : "Anigoo ah ", size: 24 }),
-            new TextRun({ text: sellerNames, bold: true, color: "FF0000", size: 24 }),
-            new TextRun({
-              text: sellersPlural
-                ? `, kana caafimaad qabna dhanka maskaxda iyo jirkaba, cid nagu qasabtayna aysan jirin, waxaan ka qireynaa markhaatiyaasha iyo nootaayaha hortooda in aan ${P.actionVerb} ${P.actionVerb2} `
-                : `, kana caafimaad qaba dhanka maskaxda iyo jirkaba, cid igu qasabtayna aysan jirin, waxaan ka qirayaa markhaatiyaasha iyo nootaayaha hortooda in aan ${P.actionVerb} ${P.actionVerb2} `,
-              size: 24,
-            }),
-            new TextRun({ text: buyerNames, bold: true, color: "FF0000", size: 24 }),
-            new TextRun({
-              text: `, saami ka mid ah saamiyada ${sellersPlural ? "aan ku leenahay" : "aan ku leeyahay"} Shirkada `,
-              size: 24,
-            }),
-            new TextRun({ text: `${safe(service?.companyName)}`, size: 24, bold: true }),
-            new TextRun({ text: ` kuna cad Activity Report-ga Tr `, size: 24 }),
-            new TextRun({ text: `${formatDate(service?.SaamiDate)}`, size: 24, bold: true }),
-            new TextRun({
-              text: ` Sidaa darteed laga bilaabo 01/01/2026 faa'iidada iyo manfaca saamigaan si sharci ah ugu wareegtay `,
-              size: 24,
-            }),
-            new TextRun({ text: buyerNames, bold: true, color: "FF0000", size: 24 }),
-            new TextRun({ text: ".", size: 24 }),
-          ],
+          new TextRun({ text: sellersPlural ? "Annagoo ah " : "Anigoo ah ", size: 24 }),
+          new TextRun({ text: sellerNames, bold: true, color: "FF0000", size: 24 }),
+          new TextRun({
+            text: sellersPlural
+              ? `, kana caafimaad qabna dhanka maskaxda iyo jirkaba, cid nagu qasabtayna aysan jirin, waxaan ka qireynaa markhaatiyaasha iyo nootaayaha hortooda in aan ${P.actionVerb} ${P.actionVerb2} `
+              : `, kana caafimaad qaba dhanka maskaxda iyo jirkaba, cid igu qasabtayna aysan jirin, waxaan ka qirayaa markhaatiyaasha iyo nootaayaha hortooda in aan ${P.actionVerb} ${P.actionVerb2} `,
+            size: 24,
+          }),
+          new TextRun({ text: buyerNames, bold: true, color: "FF0000", size: 24 }),
+          new TextRun({
+            text: `, saami ka mid ah saamiyada ${sellersPlural ? "aan ku leenahay" : "aan ku leeyahay"} Shirkada `,
+            size: 24,
+          }),
+          new TextRun({ text: `${safe(service?.companyName)}`, size: 24, bold: true }),
+          new TextRun({ text: ` kuna cad Activity Report-ga Tr `, size: 24 }),
+          new TextRun({ text: `${formatDate(service?.SaamiDate)}`, size: 24, bold: true }),
+          new TextRun({
+            text: ` Sidaa darteed laga bilaabo 01/01/2026 faa'iidada iyo manfaca saamigaan si sharci ah ugu wareegtay `,
+            size: 24,
+          }),
+          new TextRun({ text: buyerNames, bold: true, color: "FF0000", size: 24 }),
+          new TextRun({ text: ".", size: 24 }),
+        ],
     }),
 
     // Buyer section
@@ -816,36 +818,36 @@ const notarySection = [
       spacing: { after: 100 },
       children: hasBuyerAgent
         ? [
-            new TextRun({
-              text: String(T?.buyerAgent || "WAKIIL").toUpperCase(),
-              size: 24,
-              underline: {},
-              bold: true,
-            }),
-            new TextRun({ text: buyersPlural ? " Annagoo ah " : " Anigoo ah ", size: 24 }),
-            new TextRun({ text: buyerAgentDetails, bold: true, size: 24 }),
-            new TextRun({
-              text: buyersPlural
-                ? `, ahna ${T.buyerAgent}, kana caafimaad qabna maskaxda iyo jirkaba, cid nagu qasabtayna aysan jirin waxaan ku qancay ${P.actionVerb3}, una aqbalnay `
-                : `, ahna ${T.buyerAgent}, kana caafimaad qaba maskaxda iyo jirkaba, cid igu qasabtayna aysan jirin waxaan ku qancay ${P.actionVerb3}, una aqbalay `,
-              size: 24,
-            }),
-            new TextRun({ text: buyerNames, bold: true, color: "FF0000", size: 24 }),
-            new TextRun({ text: ".", size: 24 }),
-          ]
+          new TextRun({
+            text: String(T?.buyerAgent || "WAKIIL").toUpperCase(),
+            size: 24,
+            underline: {},
+            bold: true,
+          }),
+          new TextRun({ text: buyersPlural ? " Annagoo ah " : " Anigoo ah ", size: 24 }),
+          new TextRun({ text: buyerAgentDetails, bold: true, size: 24 }),
+          new TextRun({
+            text: buyersPlural
+              ? `, ahna ${T.buyerAgent}, kana caafimaad qabna maskaxda iyo jirkaba, cid nagu qasabtayna aysan jirin waxaan ku qancay ${P.actionVerb3}, una aqbalnay `
+              : `, ahna ${T.buyerAgent}, kana caafimaad qaba maskaxda iyo jirkaba, cid igu qasabtayna aysan jirin waxaan ku qancay ${P.actionVerb3}, una aqbalay `,
+            size: 24,
+          }),
+          new TextRun({ text: buyerNames, bold: true, color: "FF0000", size: 24 }),
+          new TextRun({ text: ".", size: 24 }),
+        ]
         : [
-            new TextRun({ text: buyersPlural ? "Annagoo ah " : "Anigoo ah ", size: 24 }),
-            new TextRun({ text: buyerNames, bold: true, color: "FF0000", size: 24 }),
-            new TextRun({
-              text: buyersPlural
-                ? `, ahna ${T.buyer}, kana caafimaad qabna maskaxda iyo jirkaba, cid nagu qasabtayna aysan jirin, waxaan cadeynaynaa in aan ku qancay ${P.actionVerb3} aqbalnay. Wixii aan ku xusneyn halkaan waxaa loo raacayaa sida uu qabo sharciga islaamka iyo qaanuunka dalka.`
-                : `, ahna ${T.buyer}, kana caafimaad qaba maskaxda iyo jirkaba, cid i qasabtayna aysan jirin, waxaan cadeynayaa in aan ku qancay ${P.actionVerb3} aqbalayna. Wixii aan ku xusneyn halkaan waxaa loo raacayaa sida uu qabo sharciga islaamka iyo qaanuunka dalka.`,
-              size: 24,
-            }),
-          ],
+          new TextRun({ text: buyersPlural ? "Annagoo ah " : "Anigoo ah ", size: 24 }),
+          new TextRun({ text: buyerNames, bold: true, color: "FF0000", size: 24 }),
+          new TextRun({
+            text: buyersPlural
+              ? `, ahna ${T.buyer}, kana caafimaad qabna maskaxda iyo jirkaba, cid nagu qasabtayna aysan jirin, waxaan cadeynaynaa in aan ku qancay ${P.actionVerb3} aqbalnay. Wixii aan ku xusneyn halkaan waxaa loo raacayaa sida uu qabo sharciga islaamka iyo qaanuunka dalka.`
+              : `, ahna ${T.buyer}, kana caafimaad qaba maskaxda iyo jirkaba, cid i qasabtayna aysan jirin, waxaan cadeynayaa in aan ku qancay ${P.actionVerb3} aqbalayna. Wixii aan ku xusneyn halkaan waxaa loo raacayaa sida uu qabo sharciga islaamka iyo qaanuunka dalka.`,
+            size: 24,
+          }),
+        ],
     }),
-    
-      // SIGNATURE TABLE
+
+    // SIGNATURE TABLE
     new Table({
       width: { size: 100, type: WidthType.PERCENTAGE },
       borders: {
@@ -916,15 +918,15 @@ const notarySection = [
             }),
           ],
         }),
-        
+
       ],
     }),
-        // ✅ MARQAATIYAASHA
+    // ✅ MARQAATIYAASHA
     ...(witnessesTable ? [witnessesTitle, witnessesTable] : []),
 
     // ✅ SUGITAANKA NOOTAAYADA
     ...notarySection,
-    
+
   ];
-  
+
 };

@@ -42,6 +42,9 @@ import { buildWakaaladKaleDoc } from "../Services/wakaaladKale.jsx";
 import { buildWakaaladGaarAhDoc } from "../Services/wakaaladGaarAh.jsx";
 import { Heshiis2daraf } from "../Services/Heshiis2daraf.jsx";
 import { buildDaaminulMaalDoc } from "../Services/daaminulMaal.jsx";
+import { useSelector } from "react-redux";
+import { buildShaqaaleysiinDoc } from "../Services/Shaqaaleysiin.jsx";
+import { buildXayiraadSaamiDoc } from "../Services/xayiraadSaami.jsx";
 
 const AgreementInfo = ({ agreement, fetchData }) => {
   const [formData, setFormData] = useState({
@@ -60,6 +63,12 @@ const AgreementInfo = ({ agreement, fetchData }) => {
     }
     return bytes;
   };
+  const { user } = useSelector((state) => state.auth);
+  const { data: settings } = useSelector((state) => state.settings);
+  const website = settings?.office?.website || "www.Nootaayoboqole.com";
+  const email = settings?.office?.email;
+  const Phone = settings?.office?.phone1;
+  const notaryName = settings?.office?.DrName;
 
   // ================= UPDATE AGREEMENT =================
   const handleUpdate = async () => {
@@ -97,7 +106,7 @@ const AgreementInfo = ({ agreement, fetchData }) => {
     const buyerAgents = agreement.dhinac2?.agents || [];
     const docs = agreement?.dhinac1?.agentDocuments || {};
 
-    console.log(agreement.dhinac1.agentDocuments)
+
 
 
     const hasSellerAgent = sellerAgents.length > 0;
@@ -140,6 +149,7 @@ const AgreementInfo = ({ agreement, fetchData }) => {
       sellerAgents,
       buyerAgents,
       agreement,
+      notaryName
 
     ) => {
       const sellerDocsMap = agreement?.dhinac1?.agentDocuments || {};
@@ -293,6 +303,7 @@ const AgreementInfo = ({ agreement, fetchData }) => {
             wakaaladText,
             sellerNames,
             buyerNames,
+            notaryName
           });
 
 
@@ -344,7 +355,11 @@ const AgreementInfo = ({ agreement, fetchData }) => {
             getTitles,
             getPhrases,
             GW,
+            notaryName
           });
+        case "XayiraadSaami":
+          return buildXayiraadSaamiDoc({ agreement, service, formatDate, numberToSomaliWords, formatCurrency, notaryName })
+
         case "DhulBanaan":
           return buildDhulBanaanDoc({
             agreement,
@@ -395,6 +410,9 @@ const AgreementInfo = ({ agreement, fetchData }) => {
         }
         case "Daaminulmaal":
           return buildDaaminulMaalDoc({ agreement, service, formatDate, formatCurrency, numberToSomaliWords, sellers, buyers });
+        case "Shaqaaleysiin":
+          return buildShaqaaleysiinDoc({ agreement, service, formatDate, formatCurrency, numberToSomaliWords, sellers, buyers, notaryName });
+
 
         default:
           return [];
@@ -445,7 +463,8 @@ const AgreementInfo = ({ agreement, fetchData }) => {
                   alignment: AlignmentType.CENTER,
                   children: [
                     new TextRun({
-                      text: "www.Nootaayoboqole.com  Mobile: 0617730000  Email: NootaayoBoqole@gmail.com",
+                      text: `${website}  Email: ${email} Mobile: ${Phone}`,
+
                       font: "Times New Roman",
                       size: 20,
                     }),
@@ -517,12 +536,12 @@ const AgreementInfo = ({ agreement, fetchData }) => {
               service,
               sellerAgents,   // ✅ ku dar
               buyerAgents,
-
-              // ✅ ku dar
               agreement,
+              notaryName,
+
 
             ),
-
+            console.log(notaryName)
 
 
           ]

@@ -8,7 +8,8 @@ const linkBase =
 
 const Sidebar = () => {
   const { user } = useSelector((state) => state.auth);
-
+const { data: settings } = useSelector((state) => state.settings);
+const officeName = settings?.office?.name ;
   return (
     <aside className="w-64 min-h-screen bg-black text-white border-r border-white/10 flex flex-col">
 
@@ -24,7 +25,7 @@ const Sidebar = () => {
           </div>
 
           <div className="leading-tight">
-            <p className="text-sm font-semibold">Boqole Notory</p>
+            <p className="text-sm font-semibold">{officeName}</p>
             <p className="text-[11px] text-white/60">
               {/* Magaca isticmalaha {user?.username } */}
             </p>
@@ -46,7 +47,8 @@ const Sidebar = () => {
             <NavItem to="/admin/ViewAgreements" label=" Aatada" />
             <NavItem to="/admin/users" label="Users" />
             <NavItem to="/admin/reports" label="Reports" />
-            <NavItem to="/admin/d" label="Documents" />
+            {/* <NavItem to="/admin/documents" label="Documents" /> */}
+            {/* <NavItem to="/admin/notoryList" label="Notory List" /> */}
             
             <NavItem to="/admin/settings" label="Settings" />
 

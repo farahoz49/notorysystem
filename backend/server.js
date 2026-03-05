@@ -15,6 +15,10 @@ import baabuurRoutes from './routes/BaabuurRoute.js'
 import wakaaladSaamiRoutes from "./routes/wakaaladSaamiroutes.js";
 import nationalityRoutes from "./routes/nationalityRoutes.js";
 import Daaminulmaal from "./routes/DaaminulmaalRoute.js";
+import settingroutes from "./routes/settingroutes.js";
+import shaqaleysiinRoutes from "./routes/shaqaleysiinroutes.js";
+import xayiraadSaamiRoutes from "./routes/xayiraadSaamiRoutes.js";
+
 import cors from "cors"
 const app = express();
 const PORT = 8000
@@ -40,9 +44,11 @@ app.use("/api/Wakaalad_Gaar_ah", Wakaalad_Gaar_ahRoutes);
 app.use("/api/baabuur", baabuurRoutes);
 app.use("/api/daaminulmaal", Daaminulmaal);
 app.use("/api/wakaalad-saami", wakaaladSaamiRoutes);
+app.use("/api/Shaqaaleysiin", shaqaleysiinRoutes);
 
+app.use("/api/XayiraadSaami", xayiraadSaamiRoutes);
+app.use("/api/settings", settingroutes )
 app.use("/api/nationalities", nationalityRoutes);
-// forget password
 app.use('/api/forgetpassword', TokenRoute);
 
 

@@ -285,6 +285,49 @@ const ServiceDetails = ({ agreement, serviceData, setServiceData, fetchData }) =
           { key: "faaidoText", label: "Faai'deynte (Qoral)", type: "text" },
         ];
       }
+      case "Shaqaaleysiin":
+        return [
+          {
+            key: "looShaqeeye",
+            label: "Loo Shaqeeye",
+            type: "select",
+            options: ["Banki", "Shirkad", "Dowlad", "Qof", "Kale"],
+          },
+          { key: "magac", label: "Magaca", type: "text" },
+          { key: "shaqada", label: "Shaqada", type: "text" },
+        ];
+      case "XayiraadSaami": {
+        const toNum = (v) => Number(String(v ?? "").replace(/,/g, "")) || 0;
+
+        return [
+          {
+            key: "bank",
+            label: "Bank",
+            type: "select",
+            options: [
+              " Salaam Somali Bank",
+              "Agro Bank(Bankiga Beeraha)",
+              "Salaam African Bank",
+            ],
+          },
+          { key: "accountNumber", label: "Account Number", type: "number" },
+
+          { key: "amount", label: "Lacagta", type: "number" },
+          {
+            key: "amountText",
+            label: "Qoral ahaan",
+            type: "text",
+            readOnly: true,
+            getValue: (s) => numberToSomaliWords(toNum(s?.amount)),
+          },
+
+          { key: "date", label: "Taariikh", type: "date" },
+
+          { key: "sababta", label: "Sababta", type: "text" },
+          { key: "saami", label: "Saami", type: "text" },
+          { key: "mudada", label: "Muddada", type: "text" },
+        ];
+      }
 
       default:
         return [];
@@ -394,7 +437,7 @@ const ServiceDetails = ({ agreement, serviceData, setServiceData, fetchData }) =
             </div>
           </div>
         );
-              case "Daaminulmaal": {
+      case "Daaminulmaal": {
         const toNum = (v) => Number(String(v ?? "").replace(/,/g, "")) || 0;
         const qiimaha = toNum(service.qiimaha);
         const percent = toNum(service.dulSaarkaPercent);
@@ -403,8 +446,8 @@ const ServiceDetails = ({ agreement, serviceData, setServiceData, fetchData }) =
           service.dulSaarkaLacag != null
             ? toNum(service.dulSaarkaLacag)
             : qiimaha && percent
-            ? (qiimaha * percent) / 100
-            : 0;
+              ? (qiimaha * percent) / 100
+              : 0;
 
         const wadarta =
           service.wadartaGuud != null ? toNum(service.wadartaGuud) : qiimaha + dulLacag;
@@ -493,7 +536,73 @@ const ServiceDetails = ({ agreement, serviceData, setServiceData, fetchData }) =
           </div>
         );
       }
+      case "Shaqaaleysiin":
+        return (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+            <div>
+              <span className="font-semibold text-black">Loo Shaqeeye:</span>{" "}
+              {service.looShaqeeye || "N/A"}
+            </div>
 
+            <div>
+              <span className="font-semibold text-black">Magaca:</span>{" "}
+              {service.magac || "N/A"}
+            </div>
+
+            <div>
+              <span className="font-semibold text-black">Shaqada:</span>{" "}
+              {service.shaqada || "N/A"}
+            </div>
+          </div>
+        );
+      case "XayiraadSaami": {
+        const toNum = (v) => Number(String(v ?? "").replace(/,/g, "")) || 0;
+        const amount = toNum(service.amount);
+
+        return (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+            <div>
+              <span className="font-semibold text-black">Bank:</span>{" "}
+              {service.bank || "N/A"}
+            </div>
+
+            <div>
+              <span className="font-semibold text-black">Account Number:</span>{" "}
+              {service.accountNumber || "N/A"}
+            </div>
+
+            <div>
+              <span className="font-semibold text-black">Taariikh:</span>{" "}
+              {service.date?.split("T")[0] || "N/A"}
+            </div>
+
+            <div>
+              <span className="font-semibold text-black">Lacagta:</span>{" "}
+              {formatCurrency(amount) || "N/A"}
+            </div>
+
+            <div className="sm:col-span-2 lg:col-span-3">
+              <span className="font-semibold text-black">Qoral ahaan:</span>{" "}
+              {amount ? numberToSomaliWords(amount) : "N/A"}
+            </div>
+
+            <div className="sm:col-span-2 lg:col-span-3">
+              <span className="font-semibold text-black">Sababta:</span>{" "}
+              {service.sababta || "N/A"}
+            </div>
+
+            <div>
+              <span className="font-semibold text-black">Saami:</span>{" "}
+              {service.saami || "N/A"}
+            </div>
+
+            <div>
+              <span className="font-semibold text-black">Muddada:</span>{" "}
+              {service.mudada || "N/A"}
+            </div>
+          </div>
+        );
+      }
       default:
         return <p className="text-gray-500">No service details available</p>;
     }

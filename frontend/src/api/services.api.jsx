@@ -9,6 +9,8 @@ const serviceEndpointMap = {
   Saami: "/saamis",
   Wakaalad_Saami: "/wakaalad-saami",
   Daaminulmaal: "/daaminulmaal", // ✅ NEW
+  Shaqaaleysiin: "/Shaqaaleysiin", // ✅ NEW
+  XayiraadSaami: "/XayiraadSaami", // ✅ NEW
 };
 
 const getEndpoint = (serviceType) => serviceEndpointMap[serviceType] || "";

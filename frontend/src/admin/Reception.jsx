@@ -37,7 +37,7 @@ const Reception = () => {
     ],
     Caddeyn: [
       { value: "Caddeyn", label: "Caddeyn" },
-      { value: "Xayiraad Saami", label: "Xayiraad Saami" },
+      { value: "XayiraadSaami", label: "Xayiraad Saami" },
     ],
     Heshiisyo: [
       { value: "Heshiis Dhex Maray Laba Daraf", label: "Heshiis Dhex Maray Laba Daraf" },

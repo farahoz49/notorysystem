@@ -173,7 +173,15 @@ const PersonsWitnesses = ({ agreement, fetchData }) => {
     sellerBtnText: "Caddeeye",
     buyerBtnText: "Loo Caddeeye",
   },
+  "XayiraadSaami": {
+    sellerBtnText: "Caddeeye",
+    buyerBtnText: "Loo Caddeeye",
+  },
   "Damaanad": {
+    sellerBtnText: "Damiinte",
+    buyerBtnText: "La Damiinte",
+  },
+  "Shaqaaleysiin": {
     sellerBtnText: "Damiinte",
     buyerBtnText: "La Damiinte",
   },
