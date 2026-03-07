@@ -211,14 +211,14 @@ export const buildXayiraadSaamiDoc = ({
 
             kids.push(
                 new TextRun({ text: `Wakiilna u ah `, size: 24, font: "Times New Roman" }),
-                new TextRun({
-                    text: `${safe(seller?.fullName)} `,
-                    bold: true,
-                    color: red,
-                    size: 24,
-                    font: "Times New Roman",
-                }),
-                new TextRun({ text: `, `, size: 24, font: "Times New Roman" }),
+                // new TextRun({
+                //     text: `${safe(seller?.fullName)} `,
+                //     bold: true,
+                //     color: red,
+                //     size: 24,
+                //     font: "Times New Roman",
+                // }),
+
                 ...personRuns(seller, red, "hooyadiisna la yiraahdo"),
                 new TextRun({
                     text: `, oo ka mid ah saamileyda Shirkadda Hormuud Telecom Somalia Inc (Hortel), `,
@@ -288,21 +288,7 @@ export const buildXayiraadSaamiDoc = ({
                 })
             );
 
-            // ✅ haddii buyer jiro -> ku dar “loo caddeeyaha”
-            if (hasBuyer) {
-                kids.push(
-                    new TextRun({ text: `, maalgalintaas oo aan u sameeyay `, size: 24, font: "Times New Roman" }),
-                    new TextRun({
-                        text: `${safe(buyer?.fullName)} `,
-                        bold: true,
-                        color: red,
-                        size: 24,
-                        font: "Times New Roman",
-                    }),
-                    new TextRun({ text: `, `, size: 24, font: "Times New Roman" }),
-                    ...personRuns(buyer, red, "hooyadiisna la yiraahdo")
-                );
-            }
+
 
             kids.push(
                 new TextRun({ text: `, maalgalintaas oo ku kaceysa adduun dhan: `, size: 24, font: "Times New Roman" }),
@@ -333,9 +319,276 @@ export const buildXayiraadSaamiDoc = ({
                         color: red,
                         size: 24,
                         font: "Times New Roman",
-                    })
+                    }),
+                    new TextRun({
+
+                        text: `Sababta aan u xayiray (rahmay) saamigayga aan ku leeyahay Shirkada Hormuud waa maalgelin nooceedu yahay `,
+                        size: 24,
+                        font: "Times New Roman",
+                    }),
+                    new TextRun({
+                        text: `${sababta || "----"}`,
+                        bold: true,
+                        color: red,
+                        size: 24,
+                        font: "Times New Roman",
+                    }),
+                    new TextRun({
+                        text: ` taas oo ay lacag bixinteedu socon doonto muddo dhan `,
+                        size: 24,
+                        font: "Times New Roman",
+                    }),
+                    new TextRun({
+                        text: `${mudada || "----"}`,
+                        bold: true,
+                        color: red,
+                        size: 24,
+                        font: "Times New Roman",
+                    }),
+                    new TextRun({
+                        text: ` Bilood`,
+                        bold: true,
+                        color: red,
+                        size: 24,
+                        font: "Times New Roman",
+                    }),
+                    new TextRun({
+                        text: ` ah oo ka billaabaneysa marka aan heshiiska saxiixo ama sida ku cad heshiiska murabaxada ee u dhexeeya Bankiga iyo `,
+                        size: 24,
+                        font: "Times New Roman",
+                    }),
+
                 );
+                // ✅ haddii buyer jiro -> ku dar “loo caddeeyaha”
+                if (hasBuyer) {
+                    kids.push(
+                        ...personRuns(buyer, red, "hooyadiisna la yiraahdo")
+                    );
+                }
             }
+
+            return kids;
+        }
+        // ✅ CASE C: sellerAgent ma jiro, buyer wuu jiraa
+        if (!hasSellerAgent && hasBuyer) {
+            kids.push(
+                new TextRun({
+                    text: `Maanta oo ay taariikhdu tahay ${formatDate(
+                        agreement?.agreementDate
+                    )}, anigoo ah `,
+                    size: 24,
+                    font: "Times New Roman",
+                }),
+                ...personRuns(seller, red, "hooyadayna la yiraahdo"),
+                new TextRun({
+                    text: `, oo ka mid ah saamileyda Shirkadda Hormuud Telecom Somalia Inc (Hortel), waxaan Xafiiska Nootaayaha iyo Markhaatiyaasha hortooda ka caddeynayaa, aniga oo maskaxda iyo maankaba ka fayow, cid i khasabtayna aanay jirin, in aan u xayiray (rahmay) qeyb ka mid ah saamigayga aan ku leeyahay Shirkadda Hormuud, dammaanadda maalgalinta uu u sameeyay `,
+                    size: 24,
+                    font: "Times New Roman",
+                }),
+                new TextRun({
+                    text: `${bank || "BANK"} `,
+                    bold: true,
+                    color: red,
+                    size: 24,
+                    font: "Times New Roman",
+                }),
+                ...personRuns(buyer, red, "hooyadiisna la yiraahdo"),
+                new TextRun({
+                    text: `. `,
+                    size: 24,
+                    font: "Times New Roman",
+                }),
+
+
+
+                // new TextRun({
+                //     text: `maalgalintaas oo ku kaceysa adduun dhan: `,
+                //     size: 24,
+                //     font: "Times New Roman",
+                // }),
+                // new TextRun({
+                //     text: `USD ${formatCurrency(amount)} `,
+                //     bold: true,
+                //     color: red,
+                //     size: 24,
+                //     font: "Times New Roman",
+                // }),
+                // new TextRun({
+                //     text: `(${numberToSomaliWords(amount)} Doolarka Mareykanka ah). `,
+                //     size: 24,
+                //     font: "Times New Roman",
+                // })
+            );
+
+            if (accNo) {
+                kids.push(
+                    new TextRun({
+                        text: `Saamiga aan xayiray (rahmay) waa saamiga leh akoon lambar: `,
+                        size: 24,
+                        font: "Times New Roman",
+                    }),
+                    new TextRun({
+                        text: `${accNo} `,
+                        bold: true,
+                        color: red,
+                        size: 24,
+                        font: "Times New Roman",
+                    }),
+                    new TextRun({
+
+                        // pragraph one 
+
+                        text: `Sababta aan u xayiray (rahmay) saamigaas oo ah maalgelin muraabaxo`,
+                        size: 24,
+                        font: "Times New Roman",
+                    }),
+                    new TextRun({
+                        text: `${sababta || "----"}`,
+                        bold: true,
+                        color: red,
+                        size: 24,
+                        font: "Times New Roman",
+                    }),
+                    new TextRun({
+                        text: ` sida ku cad heshiiska muraabaxada ee u dhexeeya`,
+                        size: 24,
+                        font: "Times New Roman",
+                    }),
+                    new TextRun({
+                        text: `${bank || "----"}`,
+                        bold: true,
+                        color: red,
+                        size: 24,
+                        font: "Times New Roman",
+                    }),
+                    new TextRun({
+                        text: ` iyo`,
+                        bold: true,
+                        color: red,
+                        size: 24,
+                        font: "Times New Roman",
+                    }),
+                    new TextRun({
+                        text: `${safe(buyer?.fullName)} `,
+                        bold: true,
+                        color: red,
+                        size: 24,
+                        font: "Times New Roman",
+                    }),
+                    // pragraph two
+
+                    new TextRun({
+                        text: `Sidaa darteed waxaan ka codsanayaa Shirkadda Hormuud in ay u xayirto (rahanto) `,
+                        size: 24,
+                        font: "Times New Roman",
+                    }),
+                    new TextRun({
+                        text: `${bank || "BANK"}`,
+                        bold: true,
+                        color: red,
+                        size: 24,
+                        font: "Times New Roman",
+                    }),
+                    new TextRun({ text: ` saami dhan `, size: 24, font: "Times New Roman" }),
+                    new TextRun({
+                        text: `${shares || safe(service?.saami) || "----"}`,
+                        bold: true,
+                        color: red,
+                        size: 24,
+                        font: "Times New Roman",
+                    }),
+                    new TextRun({
+                        text: ` (${numberToSomaliWords(shares || safe(service?.saami))} saami), oo u dhiganta `,
+                        size: 24,
+                        font: "Times New Roman",
+                    }),
+                    new TextRun({
+                        text: `USD ${formatCurrency(amount)}`,
+                        bold: true,
+                        color: red,
+                        size: 24,
+                        font: "Times New Roman",
+                    }),
+                    new TextRun({
+                        text: ` (${numberToSomaliWords(amount)} Doolarka Mareykanka ah).`,
+                        size: 24,
+                        font: "Times New Roman",
+                    }),
+
+
+                    new TextRun({
+                        text: ` oo ah qiimaha buugga ee Shirkadda Hormuud. Cadadka lacagta maalgalintu waa `,
+                        size: 24,
+                        font: "Times New Roman",
+                    }),
+                    new TextRun({
+                        text: `USD ${formatCurrency(amount)} `,
+                        size: 24,
+                        font: "Times New Roman",
+                    }),
+                    new TextRun({
+                        text: `(${numberToSomaliWords(amount)} Doolarka Mareykanka ah). `,
+                        size: 24,
+                        font: "Times New Roman",
+                    }),
+                    new TextRun({
+                        text: ` Mudadda lacag bixintu waa `,
+                        size: 24,
+                        font: "Times New Roman",
+                    }),
+                    new TextRun({
+                        text: `${mudada || "----"}`,
+                        size: 24,
+                        font: "Times New Roman",
+                    }),
+
+                    new TextRun({
+                        text: ` bilood Qaabka lacag bixintu waxa uu noqonayaa sida ku cad heshiiska muraabaxada `,
+                        size: 24,
+                        font: "Times New Roman",
+                    }),
+
+                    // pragraph three
+
+                    new TextRun({
+                        text: ` Haddii uu ku bixin waayo `,
+                        size: 24,
+                        font: "Times New Roman",
+                    }),
+                    new TextRun({
+                        text: `${safe(buyer?.fullName)} `,
+                        bold: true,
+                        color: red,
+                        size: 24,
+                        font: "Times New Roman",
+                    }),
+                    new TextRun({
+                        text: ` muddo lacageedka loogu talagalay qaddarka lacageed ee uu Bankigu ka sugayey muddo lixdan maalin (60 maalin) ah, waxaan halkan ku caddeynayaa in  `,
+                        size: 24,
+                        font: "Times New Roman",
+                    }),
+                    new TextRun({
+                        text: `${bank || "----"}`,
+                        size: 24,
+                        font: "Times New Roman",
+                    }),
+                    new TextRun({
+                        text: `xaq uu u leeyahay in ay Shirkadda Hormuud u xaraashto saami u dhigma qaddarka lacageed ee xilligaas lagu leeyahay ` +
+                            `ee uu bixin waayey, ayadoo qiimaha lagu iibinayo saamigana uu yahay qiimaha uu maalintaas ka marayo suuqa (Market Value). `,
+                        size: 24,
+                        font: "Times New Roman",
+                    }),
+                    new TextRun({
+                        text: ` Haddii uu ku bixiyo lacagaha deynta ah ee uu SALAAM SOMALI BANK ku leeyahay, waqtigii lagu heshiiyey ama ka hor,Shirkadda Hormuud waa in ay xayiraadda ka qaado saamiga aan rahmay ama xayiray, ` +
+                            `ka dib markii ay Bankiga ka helaan amarka xayiraad ka qaadida saamiga `,
+                        size: 24,
+                        font: "Times New Roman",
+                    }),
+
+                );
+
+            }
+
 
             return kids;
         }
@@ -419,20 +672,8 @@ export const buildXayiraadSaamiDoc = ({
         );
 
 
-        if (hasBuyer) {
-            kids.push(
-                new TextRun({ text: `, maalgashigaas oo aan u sameeyey `, size: 24, font: "Times New Roman" }),
-                new TextRun({
-                    text: `${safe(buyer?.fullName)} `,
-                    bold: true,
-                    color: red,
-                    size: 24,
-                    font: "Times New Roman",
-                }),
-                new TextRun({ text: `, `, size: 24, font: "Times New Roman" }),
-                ...personRuns(buyer, red, "hooyadiisna la yiraahdo")
-            );
-        }
+
+
 
 
 
@@ -445,7 +686,7 @@ export const buildXayiraadSaamiDoc = ({
         spacing: { after: 120 },
         children: [
 
-           new TextRun({
+            new TextRun({
 
                 text: `Sababta aan u xayiray (rahmay) saamigayga aan ku leeyahay Shirkada Hormuud waa maalgelin nooceedu yahay `,
                 size: 24,
@@ -482,8 +723,8 @@ export const buildXayiraadSaamiDoc = ({
                 size: 24,
                 font: "Times New Roman",
             }),
-            new TextRun({ text: `.`, size: 24, font: "Times New Roman" }),
-        
+
+
 
         ],
     });
@@ -737,8 +978,7 @@ export const buildXayiraadSaamiDoc = ({
         ],
     });
 
-    // ❌ waxaad qalad ka gashay halkan: JSX ayaad ku qortay ( <TableCell/> )
-    // ✅ halkan waa docx objects (new TableCell)
+
     const witnessesTable =
         agreement?.witnesses && agreement.witnesses.length > 0
             ? new Table({
@@ -895,7 +1135,8 @@ export const buildXayiraadSaamiDoc = ({
         }),
 
         // SABAB + MUDDO
-        sababMuddoParagraph,
+
+        ...(hasSellerAgent ? [] : [sababMuddoParagraph]),
 
         // REQUEST
         requestParagraph,
