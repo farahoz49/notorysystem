@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import toast from "react-hot-toast";
+import Button from "../components/ui/Button";
 
 const DocumentModals = ({
   activeModal,
@@ -211,38 +212,39 @@ const DocumentModals = ({
         <div className="bg-white rounded-lg w-full max-w-3xl max-h-[90vh] overflow-y-auto p-6">
           <div className="flex justify-between items-center mb-6">
             <h3 className="font-bold text-xl">{editingDoc ? `Edit ${selectedDocType}` : `Create New ${selectedDocType}`}</h3>
-            <button 
+            <Button
               onClick={() => {
                 if (showCreateForm && activeModal.agent) {
                   setShowCreateForm(false);
                 } else {
                   setActiveModal(null);
                 }
-              }} 
-              className="text-2xl hover:text-gray-600"
+              }}
+              variant="outline"
               disabled={isSubmitting}
             >
               ✕
-            </button>
+            </Button>
           </div>
 
           <div className="mb-6">
             <h4 className="font-medium mb-3">Select Document Type:</h4>
             <div className="flex gap-4">
-              <button
+              <Button
                 onClick={() => setSelectedDocType("Wakaalad")}
-                className={`px-4 py-2 rounded-lg ${selectedDocType === "Wakaalad" ? "bg-blue-600 text-white" : "bg-gray-200"}`}
+                // className={`px-4 py-2 rounded-lg ${selectedDocType === "Wakaalad" ? "bg-blue-600 text-white" : "bg-gray-200"}`}
+                variant="outline"
                 disabled={isSubmitting}
               >
                 Wakaalad
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => setSelectedDocType("Tasdiiq")}
-                className={`px-4 py-2 rounded-lg ${selectedDocType === "Tasdiiq" ? "bg-blue-600 text-white" : "bg-gray-200"}`}
+                //className={`px-4 py-2 rounded-lg ${selectedDocType === "Tasdiiq" ? "bg-blue-600 text-white" : "bg-gray-200"}`}
                 disabled={isSubmitting}
               >
                 Tasdiiq
-              </button>
+              </Button>
             </div>
           </div>
 
@@ -263,8 +265,8 @@ const DocumentModals = ({
                 <select
                   value={editingDoc ? editingDoc.wakaladType : newWakaalad.wakaladType}
                   onChange={(e) => {
-                    if (editingDoc) setEditingDoc({...editingDoc, wakaladType: e.target.value});
-                    else setNewWakaalad({...newWakaalad, wakaladType: e.target.value});
+                    if (editingDoc) setEditingDoc({ ...editingDoc, wakaladType: e.target.value });
+                    else setNewWakaalad({ ...newWakaalad, wakaladType: e.target.value });
                   }}
                   className="w-full border border-gray-300 p-3 rounded"
                   disabled={isSubmitting}
@@ -282,7 +284,7 @@ const DocumentModals = ({
                     <input
                       type="text"
                       value={newTasdiiq.refNo}
-                      onChange={(e) => setNewTasdiiq({...newTasdiiq, refNo: e.target.value})}
+                      onChange={(e) => setNewTasdiiq({ ...newTasdiiq, refNo: e.target.value })}
                       className="border border-gray-300 p-2 rounded"
                       placeholder="Tixraac"
                       disabled={isSubmitting}
@@ -290,14 +292,14 @@ const DocumentModals = ({
                     <input
                       type="date"
                       value={newTasdiiq.date}
-                      onChange={(e) => setNewTasdiiq({...newTasdiiq, date: e.target.value})}
+                      onChange={(e) => setNewTasdiiq({ ...newTasdiiq, date: e.target.value })}
                       className="border border-gray-300 p-2 rounded"
                       disabled={isSubmitting}
                     />
                     <input
                       type="text"
                       value={newTasdiiq.kasooBaxday}
-                      onChange={(e) => setNewTasdiiq({...newTasdiiq, kasooBaxday: e.target.value})}
+                      onChange={(e) => setNewTasdiiq({ ...newTasdiiq, kasooBaxday: e.target.value })}
                       className="border border-gray-300 p-2 rounded"
                       placeholder="Kasoo Baxday"
                       disabled={isSubmitting}
@@ -311,7 +313,7 @@ const DocumentModals = ({
                 <input
                   type="text"
                   value={editingDoc ? editingDoc.refNo : newWakaalad.refNo}
-                  onChange={(e) => editingDoc ? setEditingDoc({...editingDoc, refNo: e.target.value}) : setNewWakaalad({...newWakaalad, refNo: e.target.value})}
+                  onChange={(e) => editingDoc ? setEditingDoc({ ...editingDoc, refNo: e.target.value }) : setNewWakaalad({ ...newWakaalad, refNo: e.target.value })}
                   className="w-full border border-gray-300 p-3 rounded"
                   placeholder="Geli lambarka tixraac"
                   disabled={isSubmitting}
@@ -322,8 +324,8 @@ const DocumentModals = ({
                 <label className="block text-sm font-medium mb-1">Taariikhda</label>
                 <input
                   type="date"
-                  value={editingDoc ? editingDoc.date?.slice(0,10) : newWakaalad.date}
-                  onChange={(e) => editingDoc ? setEditingDoc({...editingDoc, date: e.target.value}) : setNewWakaalad({...newWakaalad, date: e.target.value})}
+                  value={editingDoc ? editingDoc.date?.slice(0, 10) : newWakaalad.date}
+                  onChange={(e) => editingDoc ? setEditingDoc({ ...editingDoc, date: e.target.value }) : setNewWakaalad({ ...newWakaalad, date: e.target.value })}
                   className="w-full border border-gray-300 p-3 rounded"
                   disabled={isSubmitting}
                 />
@@ -334,7 +336,7 @@ const DocumentModals = ({
                 <input
                   type="text"
                   value={editingDoc ? editingDoc.kasooBaxday : newWakaalad.kasooBaxday}
-                  onChange={(e) => editingDoc ? setEditingDoc({...editingDoc, kasooBaxday: e.target.value}) : setNewWakaalad({...newWakaalad, kasooBaxday: e.target.value})}
+                  onChange={(e) => editingDoc ? setEditingDoc({ ...editingDoc, kasooBaxday: e.target.value }) : setNewWakaalad({ ...newWakaalad, kasooBaxday: e.target.value })}
                   className="w-full border border-gray-300 p-3 rounded"
                   placeholder="Halka kasoo baxday"
                   disabled={isSubmitting}
@@ -346,7 +348,7 @@ const DocumentModals = ({
                 <input
                   type="text"
                   value={editingDoc ? editingDoc.xafiisKuYaal : newWakaalad.xafiisKuYaal}
-                  onChange={(e) => editingDoc ? setEditingDoc({...editingDoc, xafiisKuYaal: e.target.value}) : setNewWakaalad({...newWakaalad, xafiisKuYaal: e.target.value})}
+                  onChange={(e) => editingDoc ? setEditingDoc({ ...editingDoc, xafiisKuYaal: e.target.value }) : setNewWakaalad({ ...newWakaalad, xafiisKuYaal: e.target.value })}
                   className="w-full border border-gray-300 p-3 rounded"
                   placeholder="Xafiiska ku yaal"
                   disabled={isSubmitting}
@@ -358,7 +360,7 @@ const DocumentModals = ({
                 <input
                   type="text"
                   value={editingDoc ? editingDoc.saxiix1 : newWakaalad.saxiix1}
-                  onChange={(e) => editingDoc ? setEditingDoc({...editingDoc, saxiix1: e.target.value}) : setNewWakaalad({...newWakaalad, saxiix1: e.target.value})}
+                  onChange={(e) => editingDoc ? setEditingDoc({ ...editingDoc, saxiix1: e.target.value }) : setNewWakaalad({ ...newWakaalad, saxiix1: e.target.value })}
                   className="w-full border border-gray-300 p-3 rounded"
                   placeholder="Saxiixa koowaad"
                   disabled={isSubmitting}
@@ -370,7 +372,7 @@ const DocumentModals = ({
                 <input
                   type="text"
                   value={editingDoc ? editingDoc.saxiix2 : newWakaalad.saxiix2}
-                  onChange={(e) => editingDoc ? setEditingDoc({...editingDoc, saxiix2: e.target.value}) : setNewWakaalad({...newWakaalad, saxiix2: e.target.value})}
+                  onChange={(e) => editingDoc ? setEditingDoc({ ...editingDoc, saxiix2: e.target.value }) : setNewWakaalad({ ...newWakaalad, saxiix2: e.target.value })}
                   className="w-full border border-gray-300 p-3 rounded"
                   placeholder="Saxiixa labaad"
                   disabled={isSubmitting}
@@ -384,7 +386,7 @@ const DocumentModals = ({
                 <input
                   type="text"
                   value={editingDoc ? editingDoc.refNo : newTasdiiq.refNo}
-                  onChange={(e) => editingDoc ? setEditingDoc({...editingDoc, refNo: e.target.value}) : setNewTasdiiq({...newTasdiiq, refNo: e.target.value})}
+                  onChange={(e) => editingDoc ? setEditingDoc({ ...editingDoc, refNo: e.target.value }) : setNewTasdiiq({ ...newTasdiiq, refNo: e.target.value })}
                   className="w-full border border-gray-300 p-3 rounded"
                   placeholder="Geli lambarka tixraac"
                   disabled={isSubmitting}
@@ -395,8 +397,8 @@ const DocumentModals = ({
                 <label className="block text-sm font-medium mb-1">Taariikhda</label>
                 <input
                   type="date"
-                  value={editingDoc ? editingDoc.date?.slice(0,10) : newTasdiiq.date}
-                  onChange={(e) => editingDoc ? setEditingDoc({...editingDoc, date: e.target.value}) : setNewTasdiiq({...newTasdiiq, date: e.target.value})}
+                  value={editingDoc ? editingDoc.date?.slice(0, 10) : newTasdiiq.date}
+                  onChange={(e) => editingDoc ? setEditingDoc({ ...editingDoc, date: e.target.value }) : setNewTasdiiq({ ...newTasdiiq, date: e.target.value })}
                   className="w-full border border-gray-300 p-3 rounded"
                   disabled={isSubmitting}
                 />
@@ -407,7 +409,7 @@ const DocumentModals = ({
                 <input
                   type="text"
                   value={editingDoc ? editingDoc.kasooBaxday : newTasdiiq.kasooBaxday}
-                  onChange={(e) => editingDoc ? setEditingDoc({...editingDoc, kasooBaxday: e.target.value}) : setNewTasdiiq({...newTasdiiq, kasooBaxday: e.target.value})}
+                  onChange={(e) => editingDoc ? setEditingDoc({ ...editingDoc, kasooBaxday: e.target.value }) : setNewTasdiiq({ ...newTasdiiq, kasooBaxday: e.target.value })}
                   className="w-full border border-gray-300 p-3 rounded"
                   placeholder="Halka kasoo baxday"
                   disabled={isSubmitting}
@@ -428,21 +430,21 @@ const DocumentModals = ({
                   setActiveModal(null);
                 }
               }}
-              className="bg-gray-400 text-white px-5 py-2 rounded hover:bg-gray-500 transition"
+
               disabled={isSubmitting}
             >
               Cancel
             </button>
             {editingDoc ? (
-              <button
+              <Button
                 onClick={handleSaveEdit}
                 disabled={isSubmitting}
-                className="bg-green-600 text-white px-5 py-2 rounded hover:bg-green-700 transition disabled:opacity-50"
+
               >
                 {isSubmitting ? "Saving..." : `Save ${selectedDocType}`}
-              </button>
+              </Button>
             ) : (
-              <button
+              <Button
                 onClick={handleCreateDocument}
                 disabled={
                   isSubmitting || (
@@ -454,10 +456,10 @@ const DocumentModals = ({
                     selectedDocType === "Tasdiiq" && (!newTasdiiq.refNo || !newTasdiiq.date || !newTasdiiq.kasooBaxday)
                   )
                 }
-                className="bg-green-600 text-white px-5 py-2 rounded hover:bg-green-700 transition disabled:opacity-50"
+
               >
                 {isSubmitting ? "Creating..." : `Create ${selectedDocType}`}
-              </button>
+              </Button>
             )}
           </div>
         </div>
@@ -471,140 +473,141 @@ const DocumentModals = ({
       <div className="bg-white rounded-lg w-full max-w-3xl max-h-[80vh] overflow-y-auto p-6">
         <div className="flex justify-between items-center mb-6">
           <h3 className="font-bold text-xl">Link Document to Agent</h3>
-          <button 
-            onClick={() => setActiveModal(null)} 
-            className="text-2xl hover:text-gray-600"
+          <Button
+            onClick={() => setActiveModal(null)}
+            variant="outline"
           >
             ✕
-          </button>
+          </Button>
         </div>
 
         <div className="mb-6">
-          
+
           <div className="flex justify-between items-center">
             <h4 className="font-medium mb-3">Select Document Type:</h4>
-            <button
+            <Button
               onClick={() => setShowCreateForm(true)}
-              className="bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700"
+
             >
               + Create New {selectedDocType}
-            </button>
+            </Button>
           </div>
           <div className="flex gap-4">
-            <button
+            <Button
               onClick={() => setSelectedDocType("Wakaalad")}
-              className={`px-4 py-2 rounded-lg ${selectedDocType === "Wakaalad" ? "bg-blue-600 text-white" : "bg-gray-200"}`}
+              // className={`px-4 py-2 rounded-lg ${selectedDocType === "Wakaalad" ? "bg-blue-600 text-white" : "bg-gray-200"}`}
+              variant="outline"
             >
               Wakaalad
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => setSelectedDocType("Tasdiiq")}
-              className={`px-4 py-2 rounded-lg ${selectedDocType === "Tasdiiq" ? "bg-blue-600 text-white" : "bg-gray-200"}`}
+            // className={`px-4 py-2 rounded-lg ${selectedDocType === "Tasdiiq" ? "bg-blue-600 text-white" : "bg-gray-200"}`}
             >
               Tasdiiq
-            </button>
+            </Button>
           </div>
         </div>
 
-      
+
         {loading ? (
-  <div className="text-center py-8">Loading documents...</div>
-) : (
-  <>
-    {/* SEARCH + FILTER BAR */}
-    <div className="mb-4 grid grid-cols-1 md:grid-cols-3 gap-3">
-      <input
-        type="text"
-        value={searchRef}
-        onChange={(e) => setSearchRef(e.target.value)}
-        placeholder="Search by Ref No..."
-        className="border border-gray-300 p-2 rounded w-full"
-      />
+          <div className="text-center py-8">Loading documents...</div>
+        ) : (
+          <>
+            {/* SEARCH + FILTER BAR */}
+            <div className="mb-4 grid grid-cols-1 md:grid-cols-3 gap-3">
+              <input
+                type="text"
+                value={searchRef}
+                onChange={(e) => setSearchRef(e.target.value)}
+                placeholder="Search by Ref No..."
+                className="border border-gray-300 p-2 rounded w-full"
+              />
 
-      {selectedDocType === "Wakaalad" && (
-        <select
-          value={filterWakaaladType}
-          onChange={(e) => setFilterWakaaladType(e.target.value)}
-          className="border border-gray-300 p-2 rounded w-full"
-        >
-          <option value="all">All Wakaalad Types</option>
-          <option value="Wakaalad Guud">Wakaalad Guud</option>
-          <option value="Wakaalad Gaar">Wakaalad Gaar</option>
-          <option value="Qayim">Qayim</option>
-          <option value="DhaxalKoob">DhaxalKoob</option>
-        </select>
-      )}
-
-      <button
-        onClick={() => {
-          setSearchRef("");
-          setFilterWakaaladType("all");
-        }}
-        className="bg-gray-200 hover:bg-gray-300 rounded px-4 py-2"
-      >
-        Clear
-      </button>
-    </div>
-
-    {/* RESULTS */}
-    <div className="space-y-3">
-      {filteredDocuments.map((doc) => (
-        <div key={doc._id} className="border rounded-lg p-4 hover:bg-gray-50">
-          <div className="flex justify-between items-start">
-            <div>
-              <h5 className="font-bold">
-                {selectedDocType === "Wakaalad"
-                  ? `Wakaalad ${doc.refNo}`
-                  : `Tasdiiq ${doc.refNo}`}
-              </h5>
-              <p className="text-sm text-gray-600">
-                Date: {new Date(doc.date).toLocaleDateString()}
-              </p>
-              {doc.wakaladType && (
-                <p className="text-sm text-gray-600">Type: {doc.wakaladType}</p>
+              {selectedDocType === "Wakaalad" && (
+                <select
+                  value={filterWakaaladType}
+                  onChange={(e) => setFilterWakaaladType(e.target.value)}
+                  className="border border-gray-300 p-2 rounded w-full"
+                >
+                  <option value="all">All Wakaalad Types</option>
+                  <option value="Wakaalad Guud">Wakaalad Guud</option>
+                  <option value="Wakaalad Gaar">Wakaalad Gaar</option>
+                  <option value="Qayim">Qayim</option>
+                  <option value="DhaxalKoob">DhaxalKoob</option>
+                </select>
               )}
-              <p className="text-sm text-gray-600">Issued by: {doc.kasooBaxday}</p>
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={() => handleLinkDocument(doc._id)}
-                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-              >
-                Link
-              </button>
-              <button
-                onClick={() => startEditDocument(doc)}
-                className="bg-blue-600 text-white px-3 py-1.5 rounded hover:bg-blue-700"
-              >
-                Edit
-              </button>
-              <button
-                onClick={() => handleDeleteDoc(doc)}
-                className="bg-red-600 text-white px-3 py-1.5 rounded hover:bg-red-700"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      ))}
 
-      {filteredDocuments.length === 0 && (
-        <div className="text-center py-8">
-          <p className="text-gray-500 italic mb-4">
-            No results found for your search/filter
-          </p>
-          <button
-            onClick={() => setShowCreateForm(true)}
-            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-          >
-            Create New {selectedDocType}
-          </button>
-        </div>
-      )}
-    </div>
-  </>
-)}
+              <button
+                onClick={() => {
+                  setSearchRef("");
+                  setFilterWakaaladType("all");
+                }}
+                className="bg-gray-200 hover:bg-gray-300 rounded px-4 py-2"
+              >
+                Clear
+              </button>
+            </div>
+
+            {/* RESULTS */}
+            <div className="space-y-3">
+              {filteredDocuments.map((doc) => (
+                <div key={doc._id} className="border rounded-lg p-4 hover:bg-gray-50">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h5 className="font-bold">
+                        {selectedDocType === "Wakaalad"
+                          ? `Wakaalad ${doc.refNo}`
+                          : `Tasdiiq ${doc.refNo}`}
+                      </h5>
+                      <p className="text-sm text-gray-600">
+                        Date: {new Date(doc.date).toLocaleDateString()}
+                      </p>
+                      {doc.wakaladType && (
+                        <p className="text-sm text-gray-600">Type: {doc.wakaladType}</p>
+                      )}
+                      <p className="text-sm text-gray-600">Issued by: {doc.kasooBaxday}</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={() => handleLinkDocument(doc._id)}
+
+                      >
+                        Link
+                      </Button>
+                      <Button
+                        onClick={() => startEditDocument(doc)}
+                        variant="outline"
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        onClick={() => handleDeleteDoc(doc)}
+                        className="bg-red-600 text-white px-3 py-1.5 rounded hover:bg-red-700"
+                      >
+                        Delete
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              {filteredDocuments.length === 0 && (
+                <div className="text-center py-8">
+                  <p className="text-gray-500 italic mb-4">
+                    No results found for your search/filter
+                  </p>
+                  <Button
+                    onClick={() => setShowCreateForm(true)}
+
+                  >
+                    Create New {selectedDocType}
+                  </Button>
+                </div>
+              )}
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

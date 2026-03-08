@@ -36,9 +36,10 @@ const agreementSchema = new mongoose.Schema(
         "Damaanad",
         "Heshiisyo",
         "Daaminulmaal",
+        "Sponsorship",
         "Shaqaaleysiin",
         "Heshiis Dhex Maray Laba Daraf",
-        "Aas’aasid Shirkad",
+        "asasidshirkad",
         "Kireeyn"
       ],
       required: true,
@@ -171,13 +172,13 @@ agreementSchema.pre("validate", function (next) {
     }
   }
   if (this.service === "Damaanad") {
-    const allowed = ["Daaminulmaal", "Shaqaaleysiin"];
+    const allowed = ["Daaminulmaal", "Shaqaaleysiin" , "Sponsorship"];
     if (!allowed.includes(this.serviceType)) {
       return next(new Error("Invalid serviceType for Damaanad"));
     }
   }
   if (this.service === "Heshiisyo") {
-    const allowed = ["Heshiis Dhex Maray Laba Daraf", "Aas’aasid Shirkad"];
+    const allowed = ["Heshiis Dhex Maray Laba Daraf", "asasidshirkad"];
     if (!allowed.includes(this.serviceType)) {
       return next(new Error("Invalid serviceType for Heshiisyo"));
     }

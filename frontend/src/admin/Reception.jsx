@@ -34,6 +34,7 @@ const Reception = () => {
     Damaanad: [
       { value: "Daaminulmaal", label: "Daaminul maal" },
       { value: "Shaqaaleysiin", label: "Shaqaaleysiin" },
+      { value: "Sponsorship", label: "Sponsorship Later" },
     ],
     Caddeyn: [
       { value: "Caddeyn", label: "Caddeyn" },
@@ -41,7 +42,7 @@ const Reception = () => {
     ],
     Heshiisyo: [
       { value: "Heshiis Dhex Maray Laba Daraf", label: "Heshiis Dhex Maray Laba Daraf" },
-      { value: "Aas’aasid Shirkad", label: "Aas’aasid Shirkad" },
+      { value: "asasidshirkad", label: "Aas’aasid Shirkad" },
     ],
     Kireeyn: [
       { value: "Kireeyn", label: "Heshiis Kiro" },

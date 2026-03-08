@@ -18,6 +18,8 @@ import Daaminulmaal from "./routes/DaaminulmaalRoute.js";
 import settingroutes from "./routes/settingroutes.js";
 import shaqaleysiinRoutes from "./routes/shaqaleysiinroutes.js";
 import xayiraadSaamiRoutes from "./routes/xayiraadSaamiRoutes.js";
+import asasidShirkadRoutes from "./routes/asasidShirkadRoutes.js";
+import sponsorshipRoutes from "./routes/sponsorshipRoutes.js";
 
 import cors from "cors"
 const app = express();
@@ -50,8 +52,9 @@ app.use("/api/XayiraadSaami", xayiraadSaamiRoutes);
 app.use("/api/settings", settingroutes )
 app.use("/api/nationalities", nationalityRoutes);
 app.use('/api/forgetpassword', TokenRoute);
+app.use("/api/asasidshirkad", asasidShirkadRoutes);
 
-
+app.use("/api/sponsorship", sponsorshipRoutes);
 conectBD();
 
 app.listen(PORT ,()=>{

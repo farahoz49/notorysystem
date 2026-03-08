@@ -12,6 +12,9 @@ const endpointMap = {
   Daaminulmaal: "/daaminulmaal", // ✅ NEW
   Shaqaaleysiin: "/Shaqaaleysiin", // ✅ NEW
   XayiraadSaami: "/XayiraadSaami", // ✅ NEW
+  asasidshirkad: "/asasidshirkad", // ✅ NEW
+  sponsorship: "/sponsorship", // ✅ NEW
+
 };
 
 const normalize = (res) => res?.data?.data || res?.data || null;
