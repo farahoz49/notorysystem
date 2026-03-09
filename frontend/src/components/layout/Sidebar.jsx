@@ -40,6 +40,19 @@ const officeName = settings?.office?.name ;
           Menu
         </p>
 
+        {user?.role === "SUPER_ADMIN" && (
+          <>
+            <NavItem to="/admin-dashboard" label="Dashboard" />
+            <NavItem to="/admin/reception" label="Reception" />
+            <NavItem to="/admin/ViewAgreements" label=" Aatada" />
+            <NavItem to="/admin/users" label="Users" />
+            <NavItem to="/admin/reports" label="Reports" />
+            {/* <NavItem to="/admin/documents" label="Documents" /> */}
+            <NavItem to="/admin/notoryList" label="Notory List" />
+            <NavItem to="/admin/settings" label="Settings" />
+
+          </>
+        )}
         {user?.role === "ADMIN" && (
           <>
             <NavItem to="/admin-dashboard" label="Dashboard" />
@@ -48,7 +61,7 @@ const officeName = settings?.office?.name ;
             <NavItem to="/admin/users" label="Users" />
             <NavItem to="/admin/reports" label="Reports" />
             {/* <NavItem to="/admin/documents" label="Documents" /> */}
-            {/* <NavItem to="/admin/notoryList" label="Notory List" /> */}
+            <NavItem to="/admin/notoryList" label="Notory List" />
             
             <NavItem to="/admin/settings" label="Settings" />
 

@@ -293,6 +293,7 @@ const Login = () => {
 
   /* ================= ROLE BASED REDIRECT ================= */
   if (isAuthenticated && user) {
+    if (user.role === "SUPER_ADMIN") return <Navigate to="/admin" replace />;
     if (user.role === "ADMIN") return <Navigate to="/admin" replace />;
     if (user.role === "USER") return <Navigate to="/user" replace />;
   }

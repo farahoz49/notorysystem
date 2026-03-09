@@ -7,6 +7,7 @@ import {
 
   deleteSettings,
 } from "../controller/settingcontroller.js";
+import { authenticate, authorizeRoles } from "../middleware/authmiddleware.js";
 
 // ✅ beddel paths haddii aad ku leedahay magacyo kale
 
@@ -17,9 +18,9 @@ const router = express.Router();
 router.get("/", getSettings);
 
 // Admin actions
-router.post("/init",  initSettings);
-router.put("/",  updateSettings);
+router.post("/init", authenticate, authorizeRoles("SUPER_ADMIN"), initSettings);
+router.put("/", authenticate, authorizeRoles("SUPER_ADMIN"), updateSettings);
 
-router.delete("/",  deleteSettings);
+router.delete("/", authenticate, authorizeRoles("SUPER_ADMIN"), deleteSettings);
 
 export default router;

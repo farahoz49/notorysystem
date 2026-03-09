@@ -93,21 +93,57 @@ export const loginUser = async (req, res) => {
 
 // get all users
 export const getAllUsers = async (req, res) => {
-  try { 
-    const users = await User.find().select("-password");
+  try {
+
+    let filter = {};
+
+    // haddii ADMIN yahay ha arkin SUPER_ADMIN
+    if (req.user.role === "ADMIN") {
+      filter = { role: { $ne: "SUPER_ADMIN" } };
+    }
+
+    const users = await User.find(filter).select("-password");
+
     res.status(200).json({
       success: true,
       data: users
     });
+
   } catch (error) {
     res.status(500).json({
       success: false,
       message: "Error fetching users",
       error: error.message
     });
-  } 
+  }
 };
+export const deleteUser = async (req, res) => {
+  try {
 
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // ADMIN ma delete gareyn karo SUPER_ADMIN
+    if (req.user.role === "ADMIN" && user.role === "SUPER_ADMIN") {
+      return res.status(403).json({
+        message: "You cannot delete SUPER_ADMIN"
+      });
+    }
+
+    await user.deleteOne();
+
+    res.json({
+      success: true,
+      message: "User deleted"
+    });
+
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 // // new login function
 
 // export const loginUser = async (req, res) => {

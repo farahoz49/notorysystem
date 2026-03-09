@@ -37,14 +37,14 @@ router.get("/missing-refnos", authenticate, getMissingRefNos);
 router.get(
   "/refno/settings",
   authenticate,
-  authorizeRoles("ADMIN"),
+  authorizeRoles("SUPER_ADMIN" ,"ADMIN"),
   getRefNoSettings
 );
 // ✅ ADMIN refno setting (MUST be before "/:id")
 router.put(
   "/refno/start",
   authenticate,
-  authorizeRoles("ADMIN"),
+  authorizeRoles( "SUPER_ADMIN" ,"ADMIN" ),
   updateRefNoStart
 );
 
@@ -72,6 +72,6 @@ router.get("/search", searchAgreements);
 // ✅ dynamic ":id" routes last
 router.get("/:id", authenticate, getAgreementById);
 router.put("/:id", authenticate, updateAgreement);
-router.delete("/:id", authenticate, authorizeRoles("ADMIN"), deleteAgreement);
+router.delete("/:id", authenticate, authorizeRoles("SUPER_ADMIN" ,"ADMIN"), deleteAgreement);
 
 export default router;

@@ -25,6 +25,7 @@ const ProtectedRoute = ({ children, roles }) => {
   // 3️⃣ Role not allowed
   if (roles && !roles.includes(user.role)) {
     // Optional: redirect to role home
+    if (user.role === "SUPER_ADMIN") return <Navigate to="/admin" replace />;
     if (user.role === "ADMIN") return <Navigate to="/admin" replace />;
     if (user.role === "USER") return <Navigate to="/user" replace />;
    

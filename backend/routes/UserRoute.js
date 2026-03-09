@@ -2,6 +2,7 @@ import express from "express";
 import {
   approveUser,
   changePassword,
+  deleteUser,
   forgotPassword,
   getAllUsers,
   getMe,
@@ -17,28 +18,64 @@ import { authenticate, authorizeRoles } from "../middleware/authmiddleware.js";
 
 const userRouter = express.Router();
 
-userRouter.post("/registerUser", authenticate, authorizeRoles("ADMIN"), registerUser);
 userRouter.post("/login", loginUser);
-
-// ✅ auth helpers
-userRouter.get("/me", authenticate, getMe);
-
-// ✅ password routes (MUST be before "/:id")
-userRouter.put("/change-password", authenticate, changePassword);
 userRouter.post("/forgot-password", forgotPassword);
 userRouter.post("/reset-password/:token", resetPassword);
 
+// auth helpers
+userRouter.get("/me", authenticate, getMe);
 userRouter.post("/logout", authenticate, logout);
+userRouter.put("/change-password", authenticate, changePassword);
 
-// ✅ lists
-userRouter.get("/", authenticate, getAllUsers);
+// users management
+userRouter.post(
+  "/registerUser",
+  authenticate,
+  authorizeRoles("SUPER_ADMIN", "ADMIN"),
+  registerUser
+);
 
-// ✅ admin actions
-userRouter.put("/approve/:id", authenticate, authorizeRoles("ADMIN"), approveUser);
-userRouter.put("/inactive/:id", authenticate, authorizeRoles("ADMIN"), inactiveUser);
+userRouter.get(
+  "/",
+  authenticate,
+  authorizeRoles("SUPER_ADMIN", "ADMIN"),
+  getAllUsers
+);
 
-// ✅ dynamic routes LAST
-userRouter.get("/:id", authenticate, getSingleUser);
-userRouter.put("/:id", updateUser);
+userRouter.put(
+  "/approve/:id",
+  authenticate,
+  authorizeRoles("SUPER_ADMIN", "ADMIN"),
+  approveUser
+);
+
+userRouter.put(
+  "/inactive/:id",
+  authenticate,
+  authorizeRoles("SUPER_ADMIN", "ADMIN"),
+  inactiveUser
+);
+
+// dynamic routes last
+userRouter.get(
+  "/:id",
+  authenticate,
+  authorizeRoles("SUPER_ADMIN", "ADMIN"),
+  getSingleUser
+);
+
+userRouter.put(
+  "/:id",
+  authenticate,
+  authorizeRoles("SUPER_ADMIN", "ADMIN"),
+  updateUser
+);
+
+userRouter.delete(
+  "/:id",
+  authenticate,
+  authorizeRoles("SUPER_ADMIN", "ADMIN"),
+  deleteUser
+);
 
 export default userRouter;

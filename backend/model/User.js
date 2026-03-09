@@ -34,7 +34,7 @@ const userschema = new mongoose.Schema(
     // ✅ Field cusub oo u maamula role-ka
     role: {
       type: String,
-      enum: ["ADMIN", "USER"], // kaliya labada door ee la ogol yahay
+      enum: ["SUPER_ADMIN" ,"ADMIN", "USER"], // kaliya labada door ee la ogol yahay
       default: "USER",         // user waa default
     },
     // ✅ Ku dar fields cusub ee password reset

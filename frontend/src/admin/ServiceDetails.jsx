@@ -329,22 +329,22 @@ const ServiceDetails = ({ agreement, serviceData, setServiceData, fetchData }) =
         ];
       }
       case "Sponsorship":
-  return [
-    { key: "AcademicYear", label: "Academic Year", type: "number" },
-    { key: "universityName", label: "University Name", type: "text" },
-    { key: "place", label: "Place", type: "text" },
-    {
-      key: "bank",
-      label: "Bank",
-      type: "select",
-      options: [
-        " Salaam Somali Bank",
-        "Agro Bank(Bankiga Beeraha)",
-        "Salaam African Bank",
-      ],
-    },
-    { key: "accountNumber", label: "Account Number", type: "number" },
-  ];
+        return [
+          { key: "AcademicYear", label: "Academic Year", type: "number" },
+          { key: "universityName", label: "University Name", type: "text" },
+          { key: "place", label: "Place", type: "text" },
+          {
+            key: "bank",
+            label: "Bank",
+            type: "select",
+            options: [
+              " Salaam Somali Bank",
+              "Agro Bank(Bankiga Beeraha)",
+              "Salaam African Bank",
+            ],
+          },
+          { key: "accountNumber", label: "Account Number", type: "number" },
+        ];
 
       default:
         return [];
@@ -620,7 +620,36 @@ const ServiceDetails = ({ agreement, serviceData, setServiceData, fetchData }) =
           </div>
         );
       }
-      
+      case "Sponsorship":
+        return (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+            <div>
+              <span className="font-semibold text-black">Academic Year:</span>{" "}
+              {service.AcademicYear || "N/A"}
+            </div>
+
+            <div>
+              <span className="font-semibold text-black">University Name:</span>{" "}
+              {service.universityName || "N/A"}
+            </div>
+
+            <div>
+              <span className="font-semibold text-black">Place:</span>{" "}
+              {service.place || "N/A"}
+            </div>
+
+            <div>
+              <span className="font-semibold text-black">Bank:</span>{" "}
+              {service.bank || "N/A"}
+            </div>
+
+            <div>
+              <span className="font-semibold text-black">Account Number:</span>{" "}
+              {service.accountNumber || "N/A"}
+            </div>
+          </div>
+        );
+
       default:
         return <p className="text-gray-500">No service details available</p>;
     }

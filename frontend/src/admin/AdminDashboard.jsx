@@ -32,7 +32,7 @@ const BW_COLORS = ["#111827", "#374151", "#6B7280", "#9CA3AF", "#D1D5DB", "#E5E7
 
 const Dashboard = () => {
   const { user } = useSelector((state) => state.auth);
-  const isAdmin = user?.role === "ADMIN";
+  const isAdmin = user?.role === "SUPER_ADMIN" || "ADMIN";
 
   const [loading, setLoading] = useState(true);
 
@@ -115,6 +115,7 @@ const Dashboard = () => {
 
   return (
     <div className="p-6 bg-white min-h-screen space-y-6">
+      
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>

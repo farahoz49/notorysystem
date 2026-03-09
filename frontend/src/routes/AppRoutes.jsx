@@ -87,7 +87,7 @@ const AppRoutes = () => {
                 <Route
                     path="/admin"
                     element={
-                        <ProtectedRoute roles={["ADMIN", "USER"]}>
+                        <ProtectedRoute roles={["ADMIN", "USER", "SUPER_ADMIN"]}>
                             <MainLayout>
                                 <AdminDashboard />
                             </MainLayout>
@@ -98,7 +98,7 @@ const AppRoutes = () => {
                 <Route
                     path="/admin/Reception"
                     element={
-                        <ProtectedRoute roles={["ADMIN", "USER"]}>
+                        <ProtectedRoute roles={[ "SUPER_ADMIN" ,"ADMIN", "USER"]}>
                             <MainLayout>
                                 <Reception />
                             </MainLayout>
@@ -109,7 +109,7 @@ const AppRoutes = () => {
                 <Route
                     path="/admin/viewAgreements"
                     element={
-                        <ProtectedRoute roles={["ADMIN", "USER"]}>
+                        <ProtectedRoute roles={["SUPER_ADMIN","ADMIN", "USER"]}>
                             <MainLayout>
                                 <ViewAgreements />
                             </MainLayout>
@@ -119,7 +119,7 @@ const AppRoutes = () => {
                 <Route
                     path="/agreement/:id"
                     element={
-                        <ProtectedRoute roles={["ADMIN", "USER"]}>
+                        <ProtectedRoute roles={[ "SUPER_ADMIN" ,"ADMIN", "USER"]}>
                             <MainLayout>
                                 <AgreementDetails />
                             </MainLayout>
@@ -129,7 +129,7 @@ const AppRoutes = () => {
                 <Route
                     path="/admin/reports"
                     element={
-                        <ProtectedRoute roles={["ADMIN", "USER"]}>
+                        <ProtectedRoute roles={[ "SUPER_ADMIN" ,"ADMIN", "USER"]}>
                             <MainLayout>
                                 <Reports />
                             </MainLayout>
@@ -139,7 +139,7 @@ const AppRoutes = () => {
                 <Route
                     path="/admin/settings"
                     element={
-                        <ProtectedRoute roles={["ADMIN", "USER"]}>
+                        <ProtectedRoute roles={[ "SUPER_ADMIN" ,"ADMIN"]}>
                             <MainLayout>
                                 <RefNoSetting />
                             </MainLayout>
@@ -149,7 +149,7 @@ const AppRoutes = () => {
                 <Route
                     path="/admin/documents"
                     element={
-                        <ProtectedRoute roles={["ADMIN", "USER"]}>
+                        <ProtectedRoute roles={[ "SUPER_ADMIN" ]}>
                             <MainLayout>
                                 <Settings />
                             </MainLayout>
@@ -159,7 +159,7 @@ const AppRoutes = () => {
                 <Route
                     path="/admin/notoryList"
                     element={
-                        <ProtectedRoute roles={["ADMIN", "USER"]}>
+                        <ProtectedRoute roles={["SUPER_ADMIN","ADMIN"]}>
                             <MainLayout>
                                 <NotoryList />
                             </MainLayout>
@@ -169,7 +169,7 @@ const AppRoutes = () => {
                 <Route
                     path="/admin/users"
                     element={
-                        <ProtectedRoute roles={["ADMIN"]}>
+                        <ProtectedRoute roles={[ "SUPER_ADMIN","ADMIN"]}>
                             <MainLayout>
                                 <Users />
                             </MainLayout>

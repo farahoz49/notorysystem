@@ -8,11 +8,13 @@ import {
   deleteUserById,
   approveUserById,
   deactivateUserById,
-} from "../api/Users.api";
+} from "../api/users.api";
 import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
+import { useSelector } from "react-redux";
 
 const Users = () => {
+  const { user: currentUser } = useSelector((state) => state.auth);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -249,25 +251,34 @@ const Users = () => {
   const RoleChip = ({ role }) => {
     const isAdmin = String(role || "").toUpperCase() === "ADMIN";
     return (
-      <span
-        className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold border
-          ${isAdmin ? "bg-black text-white border-black" : "bg-white text-black border-black/30"}`}
-      >
-        {isAdmin ? "ADMIN" : "USER"}
-      </span>
+     <span
+  className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold border
+    ${
+      role === "SUPER_ADMIN"
+        ? "bg-black text-white border-black"
+        : role === "ADMIN"
+        ? "bg-gray-200 text-black border-black/30"
+        : "bg-white text-black border-black/30"
+    }`}
+>
+  {role}
+</span>
     );
   };
+  const visibleUsers =
+    currentUser?.role === "ADMIN"
+      ? users.filter((u) => u.role !== "SUPER_ADMIN")
+      : users;
 
   return (
-    <div className="p-6 bg-white min-h-screen">
+    
+    <div className="max-w-8xl mx-auto p-6">
+
       {/* header */}
       <div className="flex items-center justify-between mb-4">
         <div className="space-y-1">
           <h2 className="text-2xl font-bold text-black">Users</h2>
-          <p className="text-sm text-gray-600">
-            Total: {stats.total} • Active: {stats.active} • Inactive: {stats.inactive} • Admin: {stats.admin} • User:{" "}
-            {stats.user}
-          </p>
+          
         </div>
 
         <div className="flex gap-2">
@@ -284,7 +295,7 @@ const Users = () => {
       <div className="border border-black/10 rounded-2xl overflow-x-auto bg-white shadow-sm">
         {loading ? (
           <div className="p-6 text-center text-gray-600">Loading...</div>
-        ) : users.length === 0 ? (
+        ) : visibleUsers.length === 0 ? (
           <div className="p-3 text-center text-gray-600">No users found</div>
         ) : (
           <table className="w-full">
@@ -301,7 +312,7 @@ const Users = () => {
             </thead>
 
             <tbody>
-              {users.map((u, index) => (
+              {visibleUsers.map((u, index) => (
                 <tr key={u._id} className="border-t border-black/5 text-sm hover:bg-gray-50 transition">
                   <td className="p-3 font-medium text-black">{index + 1}</td>
                   <td className="p-3 font-medium text-black">{u.username}</td>
@@ -338,18 +349,19 @@ const Users = () => {
                         </Button>
                       )}
 
-                      <Button
-                        onClick={() => u.role !== "ADMIN" && onDelete(u)}
-                        disabled={u.role === "ADMIN"}
-                        className={`px-3 py-1.5 rounded-lg transition
-                          ${
-                            u.role === "ADMIN"
-                              ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                              : "bg-black text-white hover:bg-gray-900"
-                          }`}
-                      >
-                        Delete
-                      </Button>
+                     <Button
+  onClick={() => u.role !== "SUPER_ADMIN" && onDelete(u)}
+  disabled={u.role === "SUPER_ADMIN"}
+  className={`px-3 py-1.5 rounded-lg transition
+    ${
+      u.role === "SUPER_ADMIN"
+        ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+        : "bg-black text-white hover:bg-gray-900"
+    }`}
+>
+  Delete
+</Button>
+                     
                     </div>
                   </td>
                 </tr>

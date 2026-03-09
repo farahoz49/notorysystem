@@ -4878,7 +4878,8 @@ export default function NotoryList() {
 
     return (
         <div className="min-h-screen bg-white text-black">
-            <div className="mx-auto max-w-6xl px-4 py-8">
+            
+            <div className="mx-auto max-w-8xl px-4 py-8">
                 {/* Header */}
                 <div className="rounded-2xl bg-black px-6 py-6 text-white shadow-sm">
                     <h1 className="text-2xl font-extrabold md:text-3xl">
