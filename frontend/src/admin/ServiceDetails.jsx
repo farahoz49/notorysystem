@@ -159,6 +159,52 @@ const ServiceDetails = ({ agreement, serviceData, setServiceData, fetchData }) =
 
         return [...base, ...aato, ...sabarloog, ...maxkamad];
       }
+      case "GuriDhisan": {
+        const base = [
+          { key: "cabirka", label: "Cabirka", type: "select", options: ["Boos", "Nus Boos", "Boosas"] },
+          { key: "tiradaBoosaska", label: "Tirada Boosaska", type: "number", showIf: (s) => s?.cabirka === "Boosas" },
+
+          { key: "cabirFaahfaahin", label: "Cabir Faahfaahin (tus: 20x20m)", type: "text" },
+          { key: "lottoLambar", label: "Lotto Lambar", type: "text" },
+
+          { key: "kuYaallo.gobol", label: "Gobol", type: "text" },
+          { key: "kuYaallo.degmo", label: "Degmo", type: "text" },
+
+          { key: "soohdinta.koonfur", label: "Soohdin Koonfur", type: "text" },
+          { key: "soohdinta.waqooyi", label: "Soohdin Waqooyi", type: "text" },
+          { key: "soohdinta.galbeed", label: "Soohdin Galbeed", type: "text" },
+          { key: "soohdinta.bari", label: "Soohdin Bari", type: "text" },
+
+          { key: "ahna", label: "Ahna", type: "text" },
+          { key: "kaKooban", label: "Ka Kooban", type: "text" },
+          { key: "kuMilkiyay", label: "Ku Milkiyay", type: "select", options: ["Aato", "Sabarloog", "Maxkamad"] },
+          { key: "taariikh", label: "Taariikh", type: "date" },
+        ];
+
+        const aato = [
+          { key: "aato.cadeynLambar", label: "Caddeyn Lambar", type: "text", showIf: (s) => s?.kuMilkiyay === "Aato" },
+          { key: "aato.kasooBaxday", label: "Ka Soo Baxday", type: "text", showIf: (s) => s?.kuMilkiyay === "Aato" },
+          { key: "aato.kuSaxiixan", label: "Ku Saxiixan", type: "text", showIf: (s) => s?.kuMilkiyay === "Aato" },
+        ];
+
+        const sabarloog = [
+          { key: "sabarloog.sabarloogNo", label: "Sabarloog No.", type: "text", showIf: (s) => s?.kuMilkiyay === "Sabarloog" },
+          { key: "sabarloog.bollettarioNo1", label: "Bollettario No. 1", type: "text", showIf: (s) => s?.kuMilkiyay === "Sabarloog" },
+          { key: "sabarloog.bollettarioNo2", label: "Bollettario No. 2", type: "text", showIf: (s) => s?.kuMilkiyay === "Sabarloog" },
+          { key: "sabarloog.rasiidNambar", label: "Rasiid Nambar", type: "text", showIf: (s) => s?.kuMilkiyay === "Sabarloog" },
+          { key: "sabarloog.rasiidTaariikh", label: "Rasiid Taariikh", type: "date", showIf: (s) => s?.kuMilkiyay === "Sabarloog" },
+          { key: "sabarloog.dHooseEe", label: "D. Hoose ee", type: "text", showIf: (s) => s?.kuMilkiyay === "Sabarloog" },
+        ];
+
+        const maxkamad = [
+          { key: "maxkamad.warqadLam", label: "Warqad Lam.", type: "text", showIf: (s) => s?.kuMilkiyay === "Maxkamad" },
+          { key: "maxkamad.maxkamada", label: "Maxkamada", type: "text", showIf: (s) => s?.kuMilkiyay === "Maxkamad" },
+          { key: "maxkamad.garsooraha", label: "Garsooraha", type: "text", showIf: (s) => s?.kuMilkiyay === "Maxkamad" },
+          { key: "maxkamad.kuSaxiixan", label: "Ku saxiixan", type: "text", showIf: (s) => s?.kuMilkiyay === "Maxkamad" },
+        ];
+
+        return [...base, ...aato, ...sabarloog, ...maxkamad];
+      }
 
       case "Wakaalad_Gaar_ah": {
         const base = [
@@ -330,7 +376,7 @@ const ServiceDetails = ({ agreement, serviceData, setServiceData, fetchData }) =
       }
       case "Sponsorship":
         return [
-          { key: "AcademicYear", label: "Academic Year", type: "number" },
+          { key: "AcademicYear", label: "Academic Year", type: "text" },
           { key: "universityName", label: "University Name", type: "text" },
           { key: "place", label: "Place", type: "text" },
           {
@@ -344,6 +390,26 @@ const ServiceDetails = ({ agreement, serviceData, setServiceData, fetchData }) =
             ],
           },
           { key: "accountNumber", label: "Account Number", type: "number" },
+        ];
+      case "Kireeyn":
+        const toNum = (v) => Number(String(v ?? "").replace(/,/g, "")) || 0;
+
+        return [
+          { key: "gobtakirada", label: "Goobta la kireenayo", type: "text" },
+          { key: "address", label: "Ku taalo", type: "text" },
+          { key: "cabirka", label: "Cabirka", type: "text" },
+
+          { key: "mudo", label: "Mudada Kirada (Bil)", type: "number" },
+          { key: "dateB", label: "Bilowga Kirada", type: "date" },
+
+          { key: "qimahakirada", label: "Kirada Bishii", type: "number" },
+          { key: "Qoralahaan", label: "Qoral ahaan", type: "text" , readOnly: true, getValue: (s) => numberToSomaliWords(toNum(s?.qimahakirada))},
+          { key: "qimahahormariska", label: "Lacagta Hormariska", type: "number" },
+          { key: "Qoralahaan0", label: "Qoral ahaan", type: "text" , readOnly: true, getValue: (s) => numberToSomaliWords(toNum(s?.qimahahormariska)) },
+          { key: "mudohormaris", label: "Mudada la Hormariyay", type: "number" },
+          { key: "dateB1", label: "Bilowga Hormariska", type: "date" },
+
+          { key: "mudoKurdhin", label: "Mudada Wargelinta", type: "text" },
         ];
 
       default:
@@ -378,6 +444,7 @@ const ServiceDetails = ({ agreement, serviceData, setServiceData, fetchData }) =
         );
 
       case "DhulBanaan":
+      case "GuriDhisan":
       case "Wakaalad_Gaar_ah":
         // (waxaan kaa tagay sida aad u qortay — details-kaaga waa badan, OK)
         return (
@@ -646,6 +713,60 @@ const ServiceDetails = ({ agreement, serviceData, setServiceData, fetchData }) =
             <div>
               <span className="font-semibold text-black">Account Number:</span>{" "}
               {service.accountNumber || "N/A"}
+            </div>
+          </div>
+        );
+              case "Kireeyn":
+        return (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+            <div>
+              <span className="font-semibold text-black">Goobta la kireenayo:</span>{" "}
+              {service.gobtakirada || "N/A"}
+            </div>
+
+            <div>
+              <span className="font-semibold text-black">Ku taalo:</span>{" "}
+              {service.address || "N/A"}
+            </div>
+
+            <div>
+              <span className="font-semibold text-black">Cabirka:</span>{" "}
+              {service.cabirka || "N/A"}
+            </div>
+
+            <div>
+              <span className="font-semibold text-black">Mudada Kirada:</span>{" "}
+              {service.mudo ? `${service.mudo} Bil` : "N/A"}
+            </div>
+
+            <div>
+              <span className="font-semibold text-black">Bilowga Kirada:</span>{" "}
+              {service.dateB?.split("T")[0] || "N/A"}
+            </div>
+
+            <div>
+              <span className="font-semibold text-black">Kirada Bishii:</span>{" "}
+              {service.qimahakirada ? formatCurrency(service.qimahakirada) : "N/A"}
+            </div>
+
+            <div>
+              <span className="font-semibold text-black">Lacagta Hormariska:</span>{" "}
+              {service.qimahahormariska ? formatCurrency(service.qimahahormariska) : "N/A"}
+            </div>
+
+            <div>
+              <span className="font-semibold text-black">Mudada la Hormariyay:</span>{" "}
+              {service.mudohormaris ? `${service.mudohormaris} Bil` : "N/A"}
+            </div>
+
+            <div>
+              <span className="font-semibold text-black">Bilowga Hormariska:</span>{" "}
+              {service.dateB1?.split("T")[0] || "N/A"}
+            </div>
+
+            <div>
+              <span className="font-semibold text-black">Mudada Wargelinta:</span>{" "}
+              {service.mudoKurdhin || "N/A"}
             </div>
           </div>
         );

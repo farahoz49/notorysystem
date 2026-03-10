@@ -5,6 +5,7 @@ const serviceEndpointMap = {
   Mooto: "/mootos",
   baabuur: "/baabuur",
   DhulBanaan: "/dhul-banaan",
+  GuriDhisan: "/GuriDhisan",
   Wakaalad_Gaar_ah: "/Wakaalad_Gaar_ah",
   Saami: "/saamis",
   Wakaalad_Saami: "/wakaalad-saami",
@@ -12,7 +13,8 @@ const serviceEndpointMap = {
   Shaqaaleysiin: "/Shaqaaleysiin", // ✅ NEW
   XayiraadSaami: "/XayiraadSaami", // ✅ NEW
   asasidshirkad: "/asasidshirkad", // ✅ NEW
-  sponsorship: "/sponsorship", // ✅ NEW
+  Sponsorship: "/Sponsorship", // ✅ NEW
+  Kireeyn: "/Kireeyn", // ✅ NEW
 
 };
 

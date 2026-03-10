@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const SponsorshipSchema = new mongoose.Schema(
     {
         AcademicYear: {
-            type: Number,
+            type: String,
             trim: true,
             uppercase: true,
         },

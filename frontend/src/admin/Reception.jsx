@@ -20,6 +20,7 @@ const Reception = () => {
     Wareejin: [
       { value: "Saami", label: "Saami" },
       { value: "DhulBanaan", label: "Dhul Banaan" }, // label space leh ✅
+      { value: "GuriDhisan", label: "Guri Dhisan" }, // label space leh ✅
       { value: "baabuur", label: "Baabuur" },
       { value: "Mooto", label: "Mooto" },
 
@@ -348,7 +349,7 @@ const Reception = () => {
 
       <div className="mb-5 flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-black">Agreement Registration</h2>
+          <h2 className="text-2xl font-bold text-black">Qaabilaad </h2>
 
         </div>
       </div>

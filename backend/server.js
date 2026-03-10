@@ -10,6 +10,7 @@ import SaamiRoutes from './routes/SaamiRoutes.js'
 import wakaladRoutes from './routes/wakaladRoutes.js';
 import tasdiiqRoutes from './routes/tasdiiqRoutes.js';
 import dhulBanaanRoutes from './routes/dhulBanaanRoutes.js'
+import GuriDhisanRoutes from './routes/GuriDhisanRoutes.js'
 import Wakaalad_Gaar_ahRoutes from './routes/Wakaalad_Gaar_ahRoute.js'
 import baabuurRoutes from './routes/BaabuurRoute.js'
 import wakaaladSaamiRoutes from "./routes/wakaaladSaamiroutes.js";
@@ -20,6 +21,7 @@ import shaqaleysiinRoutes from "./routes/shaqaleysiinroutes.js";
 import xayiraadSaamiRoutes from "./routes/xayiraadSaamiRoutes.js";
 import asasidShirkadRoutes from "./routes/asasidShirkadRoutes.js";
 import sponsorshipRoutes from "./routes/sponsorshipRoutes.js";
+import kiroRoute from "./routes/kiroRoute.js";
 
 import cors from "cors"
 const app = express();
@@ -42,6 +44,7 @@ app.use("/api/Saamis", SaamiRoutes);
 app.use("/api/wakaalads", wakaladRoutes);
 app.use("/api/tasdiiqs", tasdiiqRoutes);
 app.use("/api/dhul-banaan", dhulBanaanRoutes);
+app.use("/api/GuriDhisan", GuriDhisanRoutes);
 app.use("/api/Wakaalad_Gaar_ah", Wakaalad_Gaar_ahRoutes);
 app.use("/api/baabuur", baabuurRoutes);
 app.use("/api/daaminulmaal", Daaminulmaal);
@@ -53,9 +56,12 @@ app.use("/api/settings", settingroutes )
 app.use("/api/nationalities", nationalityRoutes);
 app.use('/api/forgetpassword', TokenRoute);
 app.use("/api/asasidshirkad", asasidShirkadRoutes);
+app.use("/api/Sponsorship", sponsorshipRoutes);
+app.use("/api/Kireeyn", kiroRoute);
+ 
 
-app.use("/api/sponsorship", sponsorshipRoutes);
 conectBD();
+
 
 app.listen(PORT ,()=>{
     console.log(`Server is running on port ${PORT}`);

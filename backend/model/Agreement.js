@@ -24,6 +24,7 @@ const agreementSchema = new mongoose.Schema(
       type: String,
       enum: [
         "DhulBanaan",
+        "GuriDhisan",
         "baabuur",
         "Mooto",
         "Saami",
@@ -153,7 +154,7 @@ const agreementSchema = new mongoose.Schema(
 
 agreementSchema.pre("validate", function (next) {
   if (this.service === "Wareejin") {
-    const allowed = ["DhulBanaan", "baabuur", "Mooto", "Saami"];
+    const allowed = ["DhulBanaan", "GuriDhisan" , "baabuur", "Mooto", "Saami"];
     if (!allowed.includes(this.serviceType)) {
       return next(new Error("Invalid serviceType for Wareejin"));
     }

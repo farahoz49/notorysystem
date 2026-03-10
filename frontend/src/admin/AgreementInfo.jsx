@@ -45,6 +45,9 @@ import { buildDaaminulMaalDoc } from "../Services/daaminulMaal.jsx";
 import { useSelector } from "react-redux";
 import { buildShaqaaleysiinDoc } from "../Services/Shaqaaleysiin.jsx";
 import { buildXayiraadSaamiDoc } from "../Services/xayiraadSaami.jsx";
+import { buildSponsorshipDoc } from "../Services/Sponsorship.jsx";
+import { buildKireeynDoc } from "../Services/Kireeyn.jsx";
+import { buildGuriDhisanDoc } from "../Services/GuriDhisan.jsx";
 
 const AgreementInfo = ({ agreement, fetchData }) => {
   const [formData, setFormData] = useState({
@@ -383,6 +386,29 @@ const AgreementInfo = ({ agreement, fetchData }) => {
             wakaaladText,
             // includeLocalSignatures: true, // only haddii aad rabto in case-kan kaliya saxiixyo ku daraan
           });
+        case "GuriDhisan":
+          return buildGuriDhisanDoc({
+            agreement,
+            service,
+            formatDate,
+            formatCurrency,
+            numberToSomaliWords,
+            getTitles,
+            getPhrases,
+            GW,
+            sellers,
+            buyers,
+            sellerAgents,
+            buyerAgents,
+            hasSellerAgent,
+            hasBuyerAgent,
+            sellerNames,
+            buyerNames,
+            sellerAgentDetails,
+            buyerAgentDetails,
+            wakaaladText,
+            // includeLocalSignatures: true, // only haddii aad rabto in case-kan kaliya saxiixyo ku daraan
+          });
 
 
 
@@ -412,6 +438,11 @@ const AgreementInfo = ({ agreement, fetchData }) => {
           return buildDaaminulMaalDoc({ agreement, service, formatDate, formatCurrency, numberToSomaliWords, sellers, buyers });
         case "Shaqaaleysiin":
           return buildShaqaaleysiinDoc({ agreement, service, formatDate, formatCurrency, numberToSomaliWords, sellers, buyers, notaryName });
+
+        case "Sponsorship":
+          return buildSponsorshipDoc({ agreement, service, formatDate, formatCurrency, numberToSomaliWords, sellers, buyers, notaryName });
+        case "Kireeyn":
+          return buildKireeynDoc({ agreement, service, formatDate, formatCurrency, numberToSomaliWords, sellers, buyers, notaryName });
 
 
         default:
