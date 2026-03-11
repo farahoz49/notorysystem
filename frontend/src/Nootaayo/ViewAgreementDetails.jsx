@@ -80,13 +80,13 @@ const ViewAgreementLayout = () => {
       <div className="bg-white text-white p-5 rounded-2xl border border-white/10 shadow-sm">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-black">agreement Details</h1>
+            <h1 className="text-2xl font-bold text-black">Faahfaahinta Heshiiska</h1>
             <p className="text-sm text-black/80 mt-1">
               Rep Nambar: <span className="font-semibold text-black">{agreement.refNo}</span> 
               </p>
           
             <p className="text-sm text-black/80 mt-1">
-              Created by: <span className="text-black font-semibold">{agreement.createdBy?.username}</span>{" "}
+              Qaabilay: <span className="text-black font-semibold">{agreement.createdBy?.username}</span>{" "}
               • {dynamicTime}
             </p>
           </div>
@@ -96,7 +96,7 @@ const ViewAgreementLayout = () => {
             onClick={() => navigate(-1)}
             className="bg-black text-white "
           >
-            Back to List
+            Back 
           </Button>
         </div>
       </div>

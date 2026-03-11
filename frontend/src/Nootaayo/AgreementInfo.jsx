@@ -458,63 +458,146 @@ const AgreementInfo = ({ agreement, fetchData }) => {
       sections: [
         {
           properties: {
+            titlePage: true,
             page: {
               margin: {
-                top: 500,
+                top: 700,
                 right: 800,
                 bottom: 700,
                 left: 800,
                 footer: 200,
+                header: 200,
               },
             },
           },
-
-          // 🟢 FOOTER (LOGO KALE)
-          footers: {
-            default: new Footer({
+          headers: {
+            first: new Header({
               children: [
-                // FOOTER LOGO
                 new Paragraph({
-                  alignment: AlignmentType.CENTER,
-                  spacing: { after: 20 },
-                  children: [
-                    new ImageRun({
-                      data: footerImageBuffer,
-                      type: "png",
-                      transformation: {
-                        width: 800,
-                        height: 8,
-                      },
-                    }),
-                  ],
+                  children: [new TextRun({ text: "" })],
                 }),
+              ],
+            }),
 
-                // FOOTER TEXT
+            default: new Header({
+              children: [
                 new Paragraph({
-                  alignment: AlignmentType.CENTER,
+                  tabStops: [
+                    {
+                      type: TabStopType.RIGHT,
+                      position: TabStopPosition.MAX,
+                    },
+                  ],
                   children: [
                     new TextRun({
-                      text: `${website}  Email: ${email} Mobile: ${Phone}`,
-
+                      text: `REF ${agreement.refNo}\t`,
+                      
+                      size: 22,
                       font: "Times New Roman",
-                      size: 20,
+                    }),
+                    new TextRun({
+                      text: formatDate(agreement.agreementDate),
+                   
+                      size: 22,
+                      font: "Times New Roman",
                     }),
                   ],
                 }),
-                // PAGE NUMBER
+
                 new Paragraph({
-                  alignment: AlignmentType.CENTER,
-                  spacing: { before: 20 },
+                  spacing: { after: 80 },
                   children: [
-                    new TextRun({ text: "Page ", size: 20 }),
-                    PageNumber.CURRENT,
-                    new TextRun({ text: " of ", size: 20 }),
-                    PageNumber.TOTAL_PAGES,
+                    new TextRun({
+                      text: "",
+                    }),
                   ],
                 }),
               ],
             }),
           },
+
+          // 🟢 FOOTER (LOGO KALE)
+         footers: {
+  first: new Footer({
+    children: [
+      new Paragraph({
+        alignment: AlignmentType.LEFT,
+        spacing: { before: 20 },
+        children: [
+          new TextRun({
+            children: ["Page ", PageNumber.CURRENT, " of ", PageNumber.TOTAL_PAGES],
+            size: 20,
+            font: "Times New Roman",
+          }),
+        ],
+      }),
+      new Paragraph({
+        alignment: AlignmentType.CENTER,
+        spacing: { after: 20 },
+        children: [
+          new ImageRun({
+            data: footerImageBuffer,
+            type: "png",
+            transformation: {
+              width: 700,
+              height: 8,
+            },
+          }),
+        ],
+      }),
+      new Paragraph({
+        alignment: AlignmentType.CENTER,
+        children: [
+          new TextRun({
+            text: `${website}  Email: ${email} Mobile: ${Phone}`,
+            font: "Times New Roman",
+            size: 20,
+          }),
+        ],
+      }),
+    ],
+  }),
+
+  default: new Footer({
+    children: [
+      new Paragraph({
+        alignment: AlignmentType.LEFT,
+        spacing: { before: 20 },
+        children: [
+          new TextRun({
+            children: ["Page ", PageNumber.CURRENT, " of ", PageNumber.TOTAL_PAGES],
+            size: 20,
+            font: "Times New Roman",
+          }),
+        ],
+      }),
+      new Paragraph({
+        alignment: AlignmentType.CENTER,
+        spacing: { after: 20 },
+        children: [
+          new ImageRun({
+            data: footerImageBuffer,
+            type: "png",
+            transformation: {
+              width: 700,
+              height: 8,
+            },
+          }),
+        ],
+      }),
+      new Paragraph({
+        alignment: AlignmentType.CENTER,
+        children: [
+          new TextRun({
+            text: `${website}  Email: ${email} Mobile: ${Phone}`,
+            font: "Times New Roman",
+            size: 20,
+          }),
+        ],
+      }),
+    ],
+  }),
+},
 
           // 🟢 BODY CONTENT
           children: [
@@ -572,7 +655,7 @@ const AgreementInfo = ({ agreement, fetchData }) => {
 
 
             ),
-            console.log(notaryName)
+
 
 
           ]
@@ -610,6 +693,7 @@ const AgreementInfo = ({ agreement, fetchData }) => {
                 agreementDate: agreement.agreementDate?.split("T")[0] || "",
                 officeFee: agreement.officeFee || "",
                 sellingPrice: agreement.sellingPrice || "",
+                agreementType: agreement.agreementType || "",
               });
               setShowAgreementModal(true);
             }}
@@ -698,7 +782,27 @@ const AgreementInfo = ({ agreement, fetchData }) => {
 
                     />
                   </div>
+
                 )}
+                {agreement.service === "Wareejin" && (
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Agreement Type</label>
+                    <select
+                      value={formData.agreementType}
+                      onChange={(e) =>
+                        setFormData({ ...formData, agreementType: e.target.value })
+                      }
+                      className="w-full border rounded-lg px-3 py-2"
+                    >
+
+                      <option value="Beec">Beec</option>
+                      <option value="Hibo">Hibo</option>
+                      <option value="Waqaf">Waqaf</option>
+
+                    </select>
+                  </div>
+                )}
+
               </div>
 
               <div className="flex gap-3 justify-end mt-8">

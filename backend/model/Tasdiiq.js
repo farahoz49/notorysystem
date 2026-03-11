@@ -17,7 +17,7 @@ const tasdiiqSchema = new mongoose.Schema(
 
     kasooBaxday: {
       type: String,
-      required: true,
+     
     },
   },
   { timestamps: true }

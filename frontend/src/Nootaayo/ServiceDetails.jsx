@@ -6,11 +6,13 @@ import { createService, deleteService, updateService } from "../api/services.api
 import { linkServiceToAgreement, unlinkServiceFromAgreement } from "../api/LinkService.api";
 import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
+import ConfirmDialog from "../components/ui/ConfirmDialog";
 
 const ServiceDetails = ({ agreement, serviceData, setServiceData, fetchData }) => {
   const [showServiceModal, setShowServiceModal] = useState(false);
   const [tempService, setTempService] = useState(serviceData || {});
-
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   // ✅ keep tempService updated when you open/edit different agreement/service
   useEffect(() => {
     setTempService(serviceData || {});
@@ -62,11 +64,14 @@ const ServiceDetails = ({ agreement, serviceData, setServiceData, fetchData }) =
           return;
         }
 
+        setDeleteLoading(true);
+
         await deleteService(agreement.serviceType, serviceData._id);
         await unlinkServiceFromAgreement(agreement._id);
 
         toast.success(`${agreement.serviceType} deleted`);
         setServiceData(null);
+        setDeleteOpen(false);
       }
 
       setShowServiceModal(false);
@@ -80,6 +85,10 @@ const ServiceDetails = ({ agreement, serviceData, setServiceData, fetchData }) =
 
       toast.error(msg);
       console.error(error);
+    } finally {
+      if (operation === "delete") {
+        setDeleteLoading(false);
+      }
     }
   };
 
@@ -403,9 +412,9 @@ const ServiceDetails = ({ agreement, serviceData, setServiceData, fetchData }) =
           { key: "dateB", label: "Bilowga Kirada", type: "date" },
 
           { key: "qimahakirada", label: "Kirada Bishii", type: "number" },
-          { key: "Qoralahaan", label: "Qoral ahaan", type: "text" , readOnly: true, getValue: (s) => numberToSomaliWords(toNum(s?.qimahakirada))},
+          { key: "Qoralahaan", label: "Qoral ahaan", type: "text", readOnly: true, getValue: (s) => numberToSomaliWords(toNum(s?.qimahakirada)) },
           { key: "qimahahormariska", label: "Lacagta Hormariska", type: "number" },
-          { key: "Qoralahaan0", label: "Qoral ahaan", type: "text" , readOnly: true, getValue: (s) => numberToSomaliWords(toNum(s?.qimahahormariska)) },
+          { key: "Qoralahaan0", label: "Qoral ahaan", type: "text", readOnly: true, getValue: (s) => numberToSomaliWords(toNum(s?.qimahahormariska)) },
           { key: "mudohormaris", label: "Mudada la Hormariyay", type: "number" },
           { key: "dateB1", label: "Bilowga Hormariska", type: "date" },
 
@@ -716,7 +725,7 @@ const ServiceDetails = ({ agreement, serviceData, setServiceData, fetchData }) =
             </div>
           </div>
         );
-              case "Kireeyn":
+      case "Kireeyn":
         return (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
             <div>
@@ -795,9 +804,7 @@ const ServiceDetails = ({ agreement, serviceData, setServiceData, fetchData }) =
             {serviceData && (
               <Button
                 variant="danger"
-                onClick={() => {
-                  if (window.confirm(`Delete this ${agreement.serviceType}?`)) handleService("delete");
-                }}
+                onClick={() => setDeleteOpen(true)}
               >
                 Delete
               </Button>
@@ -906,6 +913,16 @@ const ServiceDetails = ({ agreement, serviceData, setServiceData, fetchData }) =
           </div>
         </div>
       )}
+      <ConfirmDialog
+        open={deleteOpen}
+        title={`Delete ${agreement?.serviceType}`}
+        message={`Ma hubtaa inaad tirtirayso ${agreement?.serviceType} service-kan?`}
+        onConfirm={() => handleService("delete")}
+        onCancel={() => {
+          if (!deleteLoading) setDeleteOpen(false);
+        }}
+        loading={deleteLoading}
+      />
     </div>
   );
 };

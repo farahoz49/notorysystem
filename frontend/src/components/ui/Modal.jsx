@@ -136,13 +136,13 @@ const Modal = ({
           )}
 
           {/* Default Footer with Close Button */}
-          {!footer && !hideCloseButton && (
+          {/* {!footer && !hideCloseButton && (
             <div className="border-t px-6 py-4 flex justify-end">
               <Button variant="secondary" onClick={onClose}>
                 Close
               </Button>
             </div>
-          )}
+          )} */}
         </div>
       </div>
     </div>

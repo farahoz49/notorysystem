@@ -125,7 +125,9 @@ const DocumentModals = ({
           kasooBaxday: editingDoc.kasooBaxday,
           xafiisKuYaal: editingDoc.xafiisKuYaal,
           saxiix1: editingDoc.saxiix1,
+          ahna0: editingDoc.ahna0,
           saxiix2: editingDoc.saxiix2,
+          ahna1: editingDoc.ahna1,
         };
 
         const updated = await onUpdateWakaalad(editingDoc._id, payload);
@@ -366,6 +368,17 @@ const DocumentModals = ({
                   disabled={isSubmitting}
                 />
               </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">ahna</label>
+                <input
+                  type="text"
+                  value={editingDoc ? editingDoc.ahna0 : newWakaalad.ahna0}
+                  onChange={(e) => editingDoc ? setEditingDoc({ ...editingDoc, ahna0: e.target.value }) : setNewWakaalad({ ...newWakaalad, ahna0: e.target.value })}
+                  className="w-full border border-gray-300 p-3 rounded"
+                  placeholder="Saxiixa koowaad"
+                  disabled={isSubmitting}
+                />
+              </div>
 
               <div>
                 <label className="block text-sm font-medium mb-1">Saxiixa 2aad</label>
@@ -373,6 +386,17 @@ const DocumentModals = ({
                   type="text"
                   value={editingDoc ? editingDoc.saxiix2 : newWakaalad.saxiix2}
                   onChange={(e) => editingDoc ? setEditingDoc({ ...editingDoc, saxiix2: e.target.value }) : setNewWakaalad({ ...newWakaalad, saxiix2: e.target.value })}
+                  className="w-full border border-gray-300 p-3 rounded"
+                  placeholder="Saxiixa labaad"
+                  disabled={isSubmitting}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">ahna</label>
+                <input
+                  type="text"
+                  value={editingDoc ? editingDoc.ahna1 : newWakaalad.ahna1}
+                  onChange={(e) => editingDoc ? setEditingDoc({ ...editingDoc, ahna1: e.target.value }) : setNewWakaalad({ ...newWakaalad, ahna1: e.target.value })}
                   className="w-full border border-gray-300 p-3 rounded"
                   placeholder="Saxiixa labaad"
                   disabled={isSubmitting}
@@ -404,7 +428,7 @@ const DocumentModals = ({
                 />
               </div>
 
-              <div>
+              {/* <div>
                 <label className="block text-sm font-medium mb-1">Kasoo Baxday</label>
                 <input
                   type="text"
@@ -414,7 +438,7 @@ const DocumentModals = ({
                   placeholder="Halka kasoo baxday"
                   disabled={isSubmitting}
                 />
-              </div>
+              </div> */}
             </div>
           )}
 

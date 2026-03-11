@@ -169,6 +169,14 @@ const PersonsWitnesses = ({ agreement, fetchData }) => {
     sellerBtnText: "Wakaalad Bixiye",
     buyerBtnText: "La Wakiishe",
   },
+  "Wakaalad_Saami": {
+    sellerBtnText: "Wakaalad Bixiye",
+    buyerBtnText: "La Wakiishe",
+  },
+  "Wakaalad kale": {
+    sellerBtnText: "Wakaalad Bixiye",
+    buyerBtnText: "La Wakiishe",
+  },
   "Caddeyn": {
     sellerBtnText: "Caddeeye",
     buyerBtnText: "Loo Caddeeye",
@@ -181,9 +189,17 @@ const PersonsWitnesses = ({ agreement, fetchData }) => {
     sellerBtnText: "Damiinte",
     buyerBtnText: "La Damiinte",
   },
+  "Sponsorship": {
+    sellerBtnText: "Damiinu-l-Maal",
+    buyerBtnText: "La Damiinte",
+  },
   "Shaqaaleysiin": {
     sellerBtnText: "Damiinte",
     buyerBtnText: "La Damiinte",
+  },
+  "Kireeyn": {
+    sellerBtnText: "Kireeyaha",
+    buyerBtnText: "Kirestaha",
   },
   "Heshiis Dhex Maray Laba Daraf": {
     sellerBtnText: "Dhinac",

@@ -8,27 +8,27 @@ import MainLayout from "../components/layout/MainLayout";
 import Login from "../pages/auth/Login";
 
 /* ========= ADMIN ========= */
-import AdminDashboard from "../admin/AdminDashboard";
-import Reception from "../admin/Reception"
-import ViewAgreements from "../admin/ViewAgreements";
-import Reports from "../admin/Reports"
-import Users from "../admin/Users"
-import AgreementDetails from "../admin/ViewAgreementDetails";
+import AdminDashboard from "../Nootaayo/AdminDashboard";
+import Reception from "../Nootaayo/Reception"
+import ViewAgreements from "../Nootaayo/ViewAgreements";
+import Reports from "../Nootaayo/Reports"
+import Users from "../Nootaayo/Users"
+import AgreementDetails from "../Nootaayo/ViewAgreementDetails";
 /* ========= USER ========= */
 
-import UserDashboard from "../admin/AdminDashboard";
-import UserReception from "../admin/Reception"
-import UserViewAgreements from "../admin/ViewAgreements";
-import userAgreementDetails from "../admin/ViewAgreementDetails";
+import UserDashboard from "../Nootaayo/AdminDashboard";
+import UserReception from "../Nootaayo/Reception"
+import UserViewAgreements from "../Nootaayo/ViewAgreements";
+import userAgreementDetails from "../Nootaayo/ViewAgreementDetails";
 
-import UserReports from "../admin/Reports"
+import UserReports from "../Nootaayo/Reports"
 import ForgotPassword from "../pages/auth/ForgotPassword";
 import CheckEmail from "../pages/auth/CheckEmail";
 import ResetPassword from "../pages/auth/ResetPassword";
 import ChangePassword from "../pages/auth/ChangePassword";
-import RefNoSetting from "../admin/RefNoSetting";
-import Settings from "../admin/Settings";
-import NotoryList from "../admin/NotoryList";
+import RefNoSetting from "../Nootaayo/RefNoSetting";
+import Settings from "../Nootaayo/Settings";
+import NotoryList from "../Nootaayo/NotoryList";
 
 const AppRoutes = () => {
     return (

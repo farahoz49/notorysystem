@@ -35,8 +35,16 @@ const wakaladSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    ahna0: {
+      type: String,
+      required: true,
+    },
 
     saxiix2: {
+      type: String,
+      
+    },
+    ahna1: {
       type: String,
       
     },

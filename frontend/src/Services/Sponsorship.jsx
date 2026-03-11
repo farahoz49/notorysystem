@@ -7,6 +7,7 @@ import {
   TableCell,
   WidthType,
   BorderStyle,
+  PageBreak,
 } from "docx";
 
 /**
@@ -39,7 +40,24 @@ export const buildSponsorshipDoc = ({
   // ================= HELPERS =================
   const safe = (v) => (v === undefined || v === null ? "" : String(v).trim());
   const upper = (v) => safe(v).toUpperCase();
+  const EN = (gender) => {
+    const g = String(gender || "").toLowerCase();
+    const isF =
+      g === "female" || g === "f" || g === "naag" || g === "gabar";
 
+    return {
+      isFemale: isF,
+      isMale: !isF,
+      hasWord: isF ? "holding" : "holding",
+      pronoun: isF ? "she" : "he",
+      objectPronoun: isF ? "her" : "him",
+      possessive: isF ? "her" : "his",
+      studentWord: isF ? "female student" : "male student",
+      plansWord: isF ? "She is planning" : "He is planning",
+      requestWord: isF ? "She has applied and is waiting for" : "He has applied and is waiting for",
+      stayWord: isF ? "stays" : "stays",
+    };
+  };
   const G = (gender) => {
     const g = String(gender || "").toLowerCase();
     const isF =
@@ -140,11 +158,11 @@ export const buildSponsorshipDoc = ({
   const studentName = upper(student?.fullName);
 
   const studentGender = G(student?.gender);
-
+  const studentEn = EN(student?.gender);
   const academicYear = safe(service?.AcademicYear);
   const universityName = safe(service?.universityName);
-  const place = safe(service?.place );
-  const bank = safe(service?.bank );
+  const place = safe(service?.place);
+  const bank = safe(service?.bank);
   const accountNumber = safe(service?.accountNumber);
 
   const refNo = safe(agreement?.refNo);
@@ -159,7 +177,7 @@ export const buildSponsorshipDoc = ({
   // ================= HEADER =================
   const kuLine = new Paragraph({
     alignment: AlignmentType.LEFT,
-    spacing: { after: 200 , before : 200 },
+    spacing: { after: 200, before: 200 },
     children: [
       new TextRun({
         text: "KU: CIDDA AY QUSEYSO ",
@@ -167,7 +185,7 @@ export const buildSponsorshipDoc = ({
         size: 24,
         font: "Times New Roman",
       }),
-    
+
     ],
   });
 
@@ -363,7 +381,7 @@ export const buildSponsorshipDoc = ({
         size: 24,
         font: "Times New Roman",
       }),
-      
+
       new TextRun({
         text: `.`,
         size: 24,
@@ -503,52 +521,52 @@ export const buildSponsorshipDoc = ({
   const witnessRows =
     witnesses.length > 0
       ? Array.from({ length: Math.ceil(Math.min(witnesses.length, 4) / 2) }).map((_, i) => {
-          const leftW = witnesses[i * 2];
-          const rightW = witnesses[i * 2 + 1];
+        const leftW = witnesses[i * 2];
+        const rightW = witnesses[i * 2 + 1];
 
-          const makeCell = (w) =>
-            new TableCell({
-              width: { size: 50, type: WidthType.PERCENTAGE },
-              borders: hiddenBorders,
-              children: [
-                new Paragraph({
-                  alignment: AlignmentType.CENTER,
-                  spacing: { after: 70 },
-                  children: [
-                    new TextRun({
-                      text: toWitnessLine(w) || "________________",
-                      bold: true,
-                      size: 22,
-                      font: "Times New Roman",
-                    }),
-                  ],
-                }),
-                new Paragraph({
-                  alignment: AlignmentType.CENTER,
-                  children: [
-                    new TextRun({
-                      text: "__________________________",
-                      size: 22,
-                      font: "Times New Roman",
-                    }),
-                  ],
-                }),
-              ],
-            });
-
-          return new TableRow({
-            children: [makeCell(leftW), makeCell(rightW)],
+        const makeCell = (w) =>
+          new TableCell({
+            width: { size: 50, type: WidthType.PERCENTAGE },
+            borders: hiddenBorders,
+            children: [
+              new Paragraph({
+                alignment: AlignmentType.CENTER,
+                spacing: { after: 70 },
+                children: [
+                  new TextRun({
+                    text: toWitnessLine(w) || "________________",
+                    bold: true,
+                    size: 22,
+                    font: "Times New Roman",
+                  }),
+                ],
+              }),
+              new Paragraph({
+                alignment: AlignmentType.CENTER,
+                children: [
+                  new TextRun({
+                    text: "__________________________",
+                    size: 22,
+                    font: "Times New Roman",
+                  }),
+                ],
+              }),
+            ],
           });
-        })
+
+        return new TableRow({
+          children: [makeCell(leftW), makeCell(rightW)],
+        });
+      })
       : [];
 
   const witnessesTable =
     witnessRows.length > 0
       ? new Table({
-          width: { size: 100, type: WidthType.PERCENTAGE },
-          borders: tableNoBorders,
-          rows: witnessRows,
-        })
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        borders: tableNoBorders,
+        rows: witnessRows,
+      })
       : null;
 
   // ================= NOTARY =================
@@ -636,9 +654,456 @@ export const buildSponsorshipDoc = ({
       ],
     }),
   ];
+  // ================= PAGE BREAK =================
+  const pageBreak = new Paragraph({
+    children: [new PageBreak()],
+  });
 
+  // ================= ENGLISH PAGE =================
+  const enKuLine = new Paragraph({
+    alignment: AlignmentType.LEFT,
+    spacing: { after: 200, before: 200 },
+    children: [
+      new TextRun({
+        text: "TO: WHOM IT MAY CONCERN",
+        bold: true,
+        size: 24,
+        font: "Times New Roman",
+      }),
+    ],
+  });
+
+  const enSubjectLine = new Paragraph({
+    alignment: AlignmentType.LEFT,
+    spacing: { after: 100 },
+    children: [
+      new TextRun({
+        text: "SUBJECT: SPONSORSHIP LETTER",
+        bold: true,
+        size: 24,
+        font: "Times New Roman",
+      }),
+    ],
+  });
+
+  const enP1 = new Paragraph({
+    alignment: AlignmentType.JUSTIFIED,
+    spacing: { after: 100 },
+    children: [
+      new TextRun({
+        text: "I, ",
+        size: 24,
+        font: "Times New Roman",
+      }),
+      new TextRun({
+        text: sponsorName || "________________",
+        bold: true,
+        color: "FF0000",
+        size: 24,
+        font: "Times New Roman",
+      }),
+      new TextRun({
+        text: `, a Somali citizen, holder of `,
+        size: 24,
+        font: "Times New Roman",
+      }),
+      new TextRun({
+        text: safe(sponsor?.documentType || "ID Card"),
+        bold: true,
+        color: "FF0000",
+        size: 24,
+        font: "Times New Roman",
+      }),
+      new TextRun({
+        text: ` bearing number `,
+        size: 24,
+        font: "Times New Roman",
+      }),
+      new TextRun({
+        text: safe(sponsor?.documentNumber) || "________",
+        bold: true,
+        color: "FF0000",
+        size: 24,
+        font: "Times New Roman",
+      }),
+      new TextRun({
+        text: `, hereby confirm that I fully sponsor the educational and related expenses of `,
+        size: 24,
+        font: "Times New Roman",
+      }),
+      new TextRun({
+        text: studentName || "________________",
+        bold: true,
+        color: "FF0000",
+        size: 24,
+        font: "Times New Roman",
+      }),
+      new TextRun({
+        text: `, a Somali citizen, holder of `,
+        size: 24,
+        font: "Times New Roman",
+      }),
+      new TextRun({
+        text: safe(student?.documentType || "Passport"),
+        bold: true,
+        color: "FF0000",
+        size: 24,
+        font: "Times New Roman",
+      }),
+      new TextRun({
+        text: ` bearing number `,
+        size: 24,
+        font: "Times New Roman",
+      }),
+      new TextRun({
+        text: safe(student?.documentNumber) || "________",
+        bold: true,
+        color: "FF0000",
+        size: 24,
+        font: "Times New Roman",
+      }),
+      new TextRun({
+        text: `.`,
+        size: 24,
+        font: "Times New Roman",
+      }),
+    ],
+  });
+
+  const enP2 = new Paragraph({
+    alignment: AlignmentType.JUSTIFIED,
+    spacing: { after: 100 },
+    children: [
+      new TextRun({
+        text: `${studentEn.plansWord} to travel to `,
+        size: 24,
+        font: "Times New Roman",
+      }),
+      new TextRun({
+        text: upper(place),
+        bold: true,
+        color: "FF0000",
+        size: 24,
+        font: "Times New Roman",
+      }),
+      new TextRun({
+        text: ` to study at `,
+        size: 24,
+        font: "Times New Roman",
+      }),
+      new TextRun({
+        text: universityName || "UNIVERSITY",
+        bold: true,
+        size: 24,
+        font: "Times New Roman",
+      }),
+      new TextRun({
+        text: ` for the academic year `,
+        size: 24,
+        font: "Times New Roman",
+      }),
+      new TextRun({
+        text: academicYear || "________",
+        bold: true,
+        color: "FF0000",
+        size: 24,
+        font: "Times New Roman",
+      }),
+      new TextRun({
+        text: `.`,
+        size: 24,
+        font: "Times New Roman",
+      }),
+    ],
+  });
+
+  const enP3 = new Paragraph({
+    alignment: AlignmentType.JUSTIFIED,
+    spacing: { after: 100 },
+    children: [
+      new TextRun({
+        text: `I also guarantee all matters related to ${studentEn.possessive} stay in `,
+        size: 24,
+        font: "Times New Roman",
+      }),
+      new TextRun({
+        text: place || "________",
+        bold: true,
+        color: "FF0000",
+        size: 24,
+        font: "Times New Roman",
+      }),
+      new TextRun({
+        text: `, including tuition fees, accommodation, living expenses, and any other costs related to ${studentEn.possessive} higher education in that country.`,
+        size: 24,
+        font: "Times New Roman",
+      }),
+    ],
+  });
+
+  const enP4 = new Paragraph({
+    alignment: AlignmentType.JUSTIFIED,
+    spacing: { after: 100 },
+    children: [
+      new TextRun({
+        text: `I hereby confirm that I am financially capable of covering all university-related expenses, including accommodation, tuition fees, and other necessary costs.`,
+        size: 24,
+        font: "Times New Roman",
+      }),
+    ],
+  });
+
+  const enP5 = new Paragraph({
+    alignment: AlignmentType.JUSTIFIED,
+    spacing: { after: 100 },
+    children: [
+      new TextRun({
+        text: `${studentEn.requestWord} a visa from the Embassy of `,
+        size: 24,
+        font: "Times New Roman",
+      }),
+      new TextRun({
+        text: place || "________",
+        bold: true,
+        color: "FF0000",
+        size: 24,
+        font: "Times New Roman",
+      }),
+      new TextRun({
+        text: ` in Mogadishu, Somalia. I fully understand that failure to fulfill this legal responsibility may result in penalties in accordance with the law.`,
+        size: 24,
+        font: "Times New Roman",
+      }),
+    ],
+  });
+
+  const enP6 = new Paragraph({
+    alignment: AlignmentType.JUSTIFIED,
+    spacing: { after: 120 },
+    children: [
+      new TextRun({
+        text: `I hold a bank account at `,
+        size: 24,
+        font: "Times New Roman",
+      }),
+      new TextRun({
+        text: bank || "Salaam Somali Bank",
+        bold: true,
+        color: "FF0000",
+        size: 24,
+        font: "Times New Roman",
+      }),
+      new TextRun({
+        text: ` with account number `,
+        size: 24,
+        font: "Times New Roman",
+      }),
+      new TextRun({
+        text: accountNumber || "________",
+        bold: true,
+        color: "FF0000",
+        size: 24,
+        font: "Times New Roman",
+      }),
+      new TextRun({
+        text: `.`,
+        size: 24,
+        font: "Times New Roman",
+      }),
+    ],
+  });
+
+  const enSponsorSigTitle = new Paragraph({
+    alignment: AlignmentType.CENTER,
+    spacing: { after: 40 },
+    children: [
+      new TextRun({
+        text: "NAME AND SIGNATURE OF THE SPONSOR",
+        bold: true,
+        color: "FF0000",
+        size: 28,
+        font: "Times New Roman",
+      }),
+    ],
+  });
+
+  const enSponsorSigName = new Paragraph({
+    alignment: AlignmentType.CENTER,
+    spacing: { after: 40 },
+    children: [
+      new TextRun({
+        text: sponsorName || "________________",
+        bold: true,
+        color: "FF0000",
+        size: 28,
+        font: "Times New Roman",
+      }),
+    ],
+  });
+
+  const enSponsorSigLine = new Paragraph({
+    alignment: AlignmentType.CENTER,
+    spacing: { after: 100 },
+    children: [
+      new TextRun({
+        text: "________________________________________",
+        size: 22,
+        font: "Times New Roman",
+      }),
+    ],
+  });
+
+  const enWitnessesTitle = new Paragraph({
+    alignment: AlignmentType.CENTER,
+    spacing: { before: 180, after: 100 },
+    children: [
+      new TextRun({
+        text: "SIGNATURES OF WITNESSES",
+        bold: true,
+        underline: true,
+        size: 24,
+        font: "Times New Roman",
+      }),
+    ],
+  });
+
+  const enWitnessRows =
+    witnesses.length > 0
+      ? Array.from({ length: Math.ceil(Math.min(witnesses.length, 4) / 2) }).map((_, i) => {
+        const leftW = witnesses[i * 2];
+        const rightW = witnesses[i * 2 + 1];
+
+        const makeCell = (w) =>
+          new TableCell({
+            width: { size: 50, type: WidthType.PERCENTAGE },
+            borders: hiddenBorders,
+            children: [
+              new Paragraph({
+                alignment: AlignmentType.CENTER,
+                spacing: { after: 70 },
+                children: [
+                  new TextRun({
+                    text: toWitnessLine(w) || "________________",
+                    bold: true,
+                    size: 22,
+                    font: "Times New Roman",
+                  }),
+                ],
+              }),
+              new Paragraph({
+                alignment: AlignmentType.CENTER,
+                children: [
+                  new TextRun({
+                    text: "__________________________",
+                    size: 22,
+                    font: "Times New Roman",
+                  }),
+                ],
+              }),
+            ],
+          });
+
+        return new TableRow({
+          children: [makeCell(leftW), makeCell(rightW)],
+        });
+      })
+      : [];
+
+  const enWitnessesTable =
+    enWitnessRows.length > 0
+      ? new Table({
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        borders: tableNoBorders,
+        rows: enWitnessRows,
+      })
+      : null;
+
+  const enNotarySection = [
+    new Paragraph({
+      alignment: AlignmentType.CENTER,
+      spacing: { before: 220, after: 120 },
+      children: [
+        new TextRun({
+          text: "NOTARY ATTESTATION",
+          bold: true,
+          underline: true,
+          size: 24,
+          font: "Times New Roman",
+        }),
+      ],
+    }),
+
+    new Paragraph({
+      alignment: AlignmentType.JUSTIFIED,
+      spacing: { after: 110 },
+      children: [
+        new TextRun({
+          text: `REF: ${refNo || "____"}, Date: ${tr || "____"} `,
+          bold: true,
+          underline: true,
+          size: 22,
+          font: "Times New Roman",
+        }),
+        new TextRun({
+          text: "I, ",
+          size: 24,
+          font: "Times New Roman",
+        }),
+        new TextRun({
+          text: `${usedNotaryName}, `,
+          bold: true,
+          size: 24,
+          font: "Times New Roman",
+        }),
+        new TextRun({
+          text: "Notary Public of Boqole Notary Office, hereby certify that the above signatures are genuine, were made voluntarily, and were signed before me. This attestation is valid in accordance with Islamic Sharia and the laws of Somalia.",
+          size: 24,
+          font: "Times New Roman",
+        }),
+      ],
+    }),
+
+    new Paragraph({
+      alignment: AlignmentType.CENTER,
+      spacing: { after: 60 },
+      children: [
+        new TextRun({
+          text: "NOTARY PUBLIC",
+          bold: true,
+          size: 24,
+          font: "Times New Roman",
+        }),
+      ],
+    }),
+
+    new Paragraph({
+      alignment: AlignmentType.CENTER,
+      spacing: { after: 50 },
+      children: [
+        new TextRun({
+          text: usedNotaryName || "________________",
+          bold: true,
+          size: 24,
+          font: "Times New Roman",
+        }),
+      ],
+    }),
+
+    new Paragraph({
+      alignment: AlignmentType.CENTER,
+      spacing: { after: 40 },
+      children: [
+        new TextRun({
+          text: "__________________________",
+          size: 22,
+          font: "Times New Roman",
+        }),
+      ],
+    }),
+  ];
   // ================= RETURN =================
   return [
+    // PAGE 1 - SOMALI
     kuLine,
     ujeeddoLine,
     p1,
@@ -652,6 +1117,21 @@ export const buildSponsorshipDoc = ({
     sponsorSigLine,
     ...(witnessesTable ? [witnessesTitle, witnessesTable] : []),
     ...notarySection,
-    
+
+    // PAGE 2 - ENGLISH
+    pageBreak,
+    enKuLine,
+    enSubjectLine,
+    enP1,
+    enP2,
+    enP3,
+    enP4,
+    enP5,
+    enP6,
+    enSponsorSigTitle,
+    enSponsorSigName,
+    enSponsorSigLine,
+    ...(enWitnessesTable ? [enWitnessesTitle, enWitnessesTable] : []),
+    ...enNotarySection,
   ];
 };

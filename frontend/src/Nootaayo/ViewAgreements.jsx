@@ -247,11 +247,11 @@ const fetchData = async () => {
                   </td>
 
                   <td className="p-3 text-gray-700">
-                    {a.dhinac1?.sellers?.map((s) => s.fullName).join(", ") || "N/A"}
+                    {a.dhinac1?.sellers?.map((s) => s.fullName).join(", ") || ""}
                   </td>
 
                   <td className="p-3 text-gray-700">
-                    {a.dhinac2?.buyers?.map((b) => b.fullName).join(", ") || "N/A"}
+                    {a.dhinac2?.buyers?.map((b) => b.fullName).join(", ") || ""}
                   </td>
 
                   <td className="p-3 text-gray-700">{formatDatewithname(a.agreementDate)}</td>

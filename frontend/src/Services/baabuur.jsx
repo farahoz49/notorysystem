@@ -175,17 +175,17 @@ export const buildBaabuurDoc = ({
         parts.push(
           `haystana ${safe(wakaalad.wakaladType)} lambarkeedu yahay ${safe(
             wakaalad.refNo
-          )}, Tr. ${safe(wakaalad.date)?.split("T")?.[0] || ""}, kana soo baxday Xafiiska Nootaayaha iyo Latalinta Sharciga ah ee ${safe(
+          )}, Tr. ${safe(wakaalad.date)?.split("T")?.[0] || ""}, kana soo baxday ${safe(
             wakaalad.kasooBaxday
-          )}, uuna saxiixay Dr.${safe(wakaalad.saxiix1)}`
+          )}, uuna saxiixay ${safe(wakaalad.saxiix1)} ${safe(wakaalad.ahna0)} ` 
         );
       }
 
       if (tasdiiq) {
         parts.push(
-          `waxaa kale oo jira Tasdiiq lambarkiisu yahay ${safe(
+          `lehna Tasdiiqa lambarkiisu yahay  ${safe(
             tasdiiq.refNo
-          )}, Tr. ${safe(tasdiiq.date)?.split("T")?.[0] || ""}`
+          )}, Tr. ${safe(tasdiiq.date)?.split("T")?.[0] || ""} kana soo baxday Maxkamadda Rafcaanka Gobolka Banaadir soona martay Wasaaradda Arimaha Dibedda`
         );
       }
 
@@ -634,7 +634,7 @@ export const buildBaabuurDoc = ({
             new TextRun({ text: sellersPlural ? "Annagoo ah " : "Anigoo ah ", size: 24 }),
             new TextRun({ text: sellerAgentDetails, bold: true, color: "FF0000", size: 24 }),
             new TextRun({
-              text: `, ${wakaaladText}, kana wakiil ah ${T?.seller || ""} baabuurka `,
+              text: `, ${wakaaladText}, kana wakiil ah ${T?.seller || ""} `,
               size: 24,
             }),
             new TextRun({ text: sellerNames, bold: true, color: "FF0000", size: 24 }),
