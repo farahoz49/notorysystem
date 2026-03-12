@@ -35,6 +35,7 @@ const agreementSchema = new mongoose.Schema(
         "Caddeyn",
         "XayiraadSaami",
         "Damaanad",
+        "damiinmobile",
         "Heshiisyo",
         "Daaminulmaal",
         "Sponsorship",
@@ -173,7 +174,7 @@ agreementSchema.pre("validate", function (next) {
     }
   }
   if (this.service === "Damaanad") {
-    const allowed = ["Daaminulmaal", "Shaqaaleysiin", "Sponsorship"];
+    const allowed = ["Daaminulmaal", "Shaqaaleysiin", "damiinmobile", "Sponsorship"];
     if (!allowed.includes(this.serviceType)) {
       return next(new Error("Invalid serviceType for Damaanad"));
     }

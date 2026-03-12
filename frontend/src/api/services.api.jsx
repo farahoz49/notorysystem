@@ -15,6 +15,8 @@ const serviceEndpointMap = {
   asasidshirkad: "/asasidshirkad", // ✅ NEW
   Sponsorship: "/Sponsorship", // ✅ NEW
   Kireeyn: "/Kireeyn", // ✅ NEW
+  damiinmobile: "/damiinmobile", // ✅ NEW
+
 
 };
 

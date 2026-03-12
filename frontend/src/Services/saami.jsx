@@ -184,23 +184,24 @@ export const buildSaamiDoc = ({
       const { wakaalad, tasdiiq } = agentDocs;
       const parts = [];
 
-      if (wakaalad) {
+       if (wakaalad) {
         parts.push(
           `haystana ${safe(wakaalad.wakaladType)} lambarkeedu yahay ${safe(
             wakaalad.refNo
-          )}, Tr. ${safe(wakaalad.date)?.split("T")?.[0] || ""}, kana soo baxday Xafiiska Nootaayaha iyo Latalinta Sharciga ah ee ${safe(
+          )}, Tr. ${safe(wakaalad.date)?.split("T")?.[0] || ""}, kana soo baxday ${safe(
             wakaalad.kasooBaxday
-          )}, uuna saxiixay Dr.${safe(wakaalad.saxiix1)}`
+          )}, uuna saxiixay ${safe(wakaalad.saxiix1)} ${safe(wakaalad.ahna0)} ` 
         );
       }
 
       if (tasdiiq) {
         parts.push(
-          `waxaa kale oo jira Tasdiiq lambarkiisu yahay ${safe(
+          `lehna Tasdiiqa lambarkiisu yahay  ${safe(
             tasdiiq.refNo
-          )}, Tr. ${safe(tasdiiq.date)?.split("T")?.[0] || ""}`
+          )}, Tr. ${safe(tasdiiq.date)?.split("T")?.[0] || ""} kana soo baxday Maxkamadda Rafcaanka Gobolka Banaadir soona martay Wasaaradda Arimaha Dibedda`
         );
       }
+
 
       return parts.join(", ");
     })
@@ -409,8 +410,13 @@ export const buildSaamiDoc = ({
   const leftPeople = hasSellerSigAgent ? sellerAgentsArr : sellersArr;
   const rightPeople = hasBuyerSigAgent ? buyerAgentsArr : buyersArr;
 
-  const leftGender = leftPeople?.[0]?.gender || "male";
-  const rightGender = rightPeople?.[0]?.gender || "male";
+  const leftGender = sellersArr?.[0]?.gender || "male";
+  const rightGender = buyersArr?.[0]?.gender || "male";
+  const rightGender0 = rightPeople?.[0]?.gender || "male";
+  const acceptorWord = (gender) =>
+  String(gender || "").toLowerCase() === "female"
+    ? "U AQBASHADA"
+    : "U AQBALAHA";
 
   const leftName =
     leftPeople.length > 1 ? joinSigNames(leftPeople) : safe(leftPeople?.[0]?.fullName.toUpperCase());
@@ -443,8 +449,8 @@ export const buildSaamiDoc = ({
     rightTitle = hasBuyerSigAgent
       ? singleOrPlural(
         buyerAgentsArr.length,
-        `SAXIIXA BEEC U AQBALAHA ${maleFemale(rightGender, "IIBSADAHA", "IIBSATADA")} SAAMIGA`,
-        `SAXIIXA BEEC U AQBALAHA IIBSADAYAASHA SAAMIGA`
+        `SAXIIXA BEEC${acceptorWord(rightGender0)} ${maleFemale(rightGender, "IIBSADAHA", "IIBSATADA")} SAAMIGA`,
+        `SAXIIXA BEEC${acceptorWord(rightGender0)} IIBSADAYAASHA SAAMIGA`
       )
       : singleOrPlural(
         buyersArr.length,
@@ -474,8 +480,8 @@ export const buildSaamiDoc = ({
     rightTitle = hasBuyerSigAgent
       ? singleOrPlural(
         buyerAgentsArr.length,
-        `SAXIIXA HIBEYN U AQBALAHA ${maleFemale(rightGender, "QAATAHA", "QAATADA")} SAAMIGA`,
-        `SAXIIXA HIBEYN U AQBALAHA QAATAYAASHA SAAMIGA`
+        `SAXIIXA HIBEYN${acceptorWord(rightGender0)} ${maleFemale(rightGender, "QAATAHA", "QAATADA")} SAAMIGA`,
+        `SAXIIXA HIBEYN${acceptorWord(rightGender0)} QAATAYAASHA SAAMIGA`
       )
       : singleOrPlural(
         buyersArr.length,
@@ -483,7 +489,7 @@ export const buildSaamiDoc = ({
         `SAXIIXA QAATAYAASHA SAAMIGA`
       );
   }
-
+    
   /* =========================
      W A Q A F
   ========================= */
@@ -505,8 +511,8 @@ export const buildSaamiDoc = ({
     rightTitle = hasBuyerSigAgent
       ? singleOrPlural(
         buyerAgentsArr.length,
-        `SAXIIXA WAQAF U AQBALAHA ${maleFemale(rightGender, "QOFKA LOO WAQFAY", "QOFTA LOO WAQFAY")} SAAMIGA`,
-        `SAXIIXA WAQAF U AQBALAHA DADKA LOO WAQFAY SAAMIGA`
+        `SAXIIXA WAQAF${acceptorWord(rightGender0)} ${maleFemale(rightGender, "QOFKA LOO WAQFAY", "QOFTA LOO WAQFAY")} SAAMIGA`,
+        `SAXIIXA WAQAF${acceptorWord(rightGender0)} DADKA LOO WAQFAY SAAMIGA`
       )
       : singleOrPlural(
         buyersArr.length,

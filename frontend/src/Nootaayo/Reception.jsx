@@ -35,6 +35,7 @@ const Reception = () => {
     Damaanad: [
       { value: "Daaminulmaal", label: "Daaminul maal" },
       { value: "Shaqaaleysiin", label: "Shaqaaleysiin" },
+      { value: "damiinmobile", label: "damiinmobile" },
       { value: "Sponsorship", label: "Sponsorship Later" },
     ],
     Caddeyn: [

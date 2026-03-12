@@ -48,6 +48,7 @@ import { buildXayiraadSaamiDoc } from "../Services/xayiraadSaami.jsx";
 import { buildSponsorshipDoc } from "../Services/Sponsorship.jsx";
 import { buildKireeynDoc } from "../Services/Kireeyn.jsx";
 import { buildGuriDhisanDoc } from "../Services/GuriDhisan.jsx";
+import { buildDamiinMobileDoc } from "../Services/damiinmobile.jsx";
 
 const AgreementInfo = ({ agreement, fetchData }) => {
   const [formData, setFormData] = useState({
@@ -384,6 +385,7 @@ const AgreementInfo = ({ agreement, fetchData }) => {
             sellerAgentDetails,
             buyerAgentDetails,
             wakaaladText,
+             includeLocalSignatures: true,
             // includeLocalSignatures: true, // only haddii aad rabto in case-kan kaliya saxiixyo ku daraan
           });
         case "GuriDhisan":
@@ -436,6 +438,8 @@ const AgreementInfo = ({ agreement, fetchData }) => {
         }
         case "Daaminulmaal":
           return buildDaaminulMaalDoc({ agreement, service, formatDate, formatCurrency, numberToSomaliWords, sellers, buyers });
+        case "damiinmobile":
+          return buildDamiinMobileDoc({ agreement, service, formatDate, formatCurrency, numberToSomaliWords, sellers, buyers });
         case "Shaqaaleysiin":
           return buildShaqaaleysiinDoc({ agreement, service, formatDate, formatCurrency, numberToSomaliWords, sellers, buyers, notaryName });
 

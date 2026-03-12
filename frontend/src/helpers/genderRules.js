@@ -8,7 +8,7 @@ const genderRules = [
   ["loo hibeeyaha", "loo hibeeyada"],
   ["waqfaha", "waqfada"],
   ["loo waqfaha", "loo waqfada"],
-  ["wakiilka", "wakiilada"], // haddii aad rabto female form
+  ["wakiilka", "wakiilka"], // haddii aad rabto female form
 ];
 
 /** 2) applyGender: haddii female -> erayada beddel */

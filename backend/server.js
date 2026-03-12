@@ -22,6 +22,7 @@ import xayiraadSaamiRoutes from "./routes/xayiraadSaamiRoutes.js";
 import asasidShirkadRoutes from "./routes/asasidShirkadRoutes.js";
 import sponsorshipRoutes from "./routes/sponsorshipRoutes.js";
 import kiroRoute from "./routes/kiroRoute.js";
+ import damiinMobileRoutes from "./routes/damiinMobileRoutes.js";
 
 import cors from "cors"
 const app = express();
@@ -58,7 +59,8 @@ app.use('/api/forgetpassword', TokenRoute);
 app.use("/api/asasidshirkad", asasidShirkadRoutes);
 app.use("/api/Sponsorship", sponsorshipRoutes);
 app.use("/api/Kireeyn", kiroRoute);
- 
+
+app.use("/api/damiinmobile", damiinMobileRoutes);
 
 conectBD();
 
