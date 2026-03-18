@@ -91,21 +91,15 @@ const ServiceDetails = ({ agreement, serviceData, setServiceData, fetchData }) =
       }
     }
   };
-  const mobileOptions = {
-    Samsung: [
-      { model: "Model A17", memory: "128/6" },
-      { model: "Model A07", memory: "128/4" },
-    ],
-    Tecno: [
-      { model: "Spark 40", memory: "128/8" },
-    ],
-    Infinix: [
-      { model: "Model Hot 60i 256/16", memory: "256/16" },
-      { model: "Model Hot 60i 128/12", memory: "128/12" },
-      { model: "Model Smart 20", memory: "128/8" },
-      { model: "Model tap xpad 20", memory: "128/4" },
-    ],
-  };
+  const mobileOptions = [
+    { brand: "Samsung", model: "A17", memory: "128/6", type: "Mobile" },
+    { brand: "Samsung", model: "A07", memory: "128/4", type: "Mobile" },
+    { brand: "Tecno", model: "Spark 40", memory: "128/8", type: "Mobile" },
+    { brand: "Infinix", model: "Hot 60i 256/16", memory: "256/16", type: "Mobile" },
+    { brand: "Infinix", model: "Hot 60i 128/12", memory: "128/12", type: "Mobile" },
+    { brand: "Infinix", model: "Smart 20", memory: "128/8", type: "Mobile" },
+    { brand: "Tecno", model: "Tap XPad 20", memory: "128/4", type: "Tablet" },
+  ];
   const getServiceFields = () => {
     switch (agreement?.serviceType) {
       case "Mooto":
@@ -436,86 +430,50 @@ const ServiceDetails = ({ agreement, serviceData, setServiceData, fetchData }) =
         ];
 
       case "damiinmobile": {
-        const toNum = (v) => Number(String(v ?? "").replace(/,/g, "")) || 0;
-
-        const selectedBrand = tempService?.mobileBrand || "";
-        const modelOptions = selectedBrand ? mobileOptions[selectedBrand] || [] : [];
-
         return [
-       //   { key: "Name", label: "Magaca", type: "text" },
-         // { key: "Type", label: "Nooca", type: "select", options: ["Banki", "Shirkad"] },
-
-          {
-            key: "mobileBrand",
-            label: "Mobile Brand",
-            type: "select",
-            options: Object.keys(mobileOptions),
-          },
-
           {
             key: "mobileModel",
             label: "Mobile Model",
             type: "select",
-            options: modelOptions.map((item) => item.model),
+            options: mobileOptions.map((item) => item.model),
           },
 
           // {
+          //   key: "mobileBrand",
+          //   label: "Mobile Brand",
+          //   type: "text",
+          //   readOnly: true,
+          //   getValue: (s) => s?.mobileBrand || "",
+          // },
+
+          // {
           //   key: "mobileMemory",
-          //   label: "Mobile Memory",
+          //   label: "Memory / RAM",
           //   type: "text",
           //   readOnly: true,
           //   getValue: (s) => s?.mobileMemory || "",
           // },
 
+          // {
+          //   key: "deviceType",
+          //   label: "Device Type",
+          //   type: "text",
+          //   readOnly: true,
+          //   getValue: (s) => s?.deviceType || "",
+          // },
+
           { key: "totalAmount", label: "Wadarta Guud", type: "number" },
-          // {
-          //   key: "totalAmountText",
-          //   label: "Wadarta Guud (Qoral ahaan)",
-          //   type: "text",
-          //   readOnly: true,
-          //   getValue: (s) => numberToSomaliWords(toNum(s?.totalAmount)),
-          // },
-
           { key: "downPayment", label: "Lacagta Hormariska", type: "number" },
-          // {
-          //   key: "downPaymentText",
-          //   label: "Hormaris (Qoral ahaan)",
-          //   type: "text",
-          //   readOnly: true,
-          //   getValue: (s) => numberToSomaliWords(toNum(s?.downPayment)),
-          // },
 
-          // {
-          //   key: "remainingAmount",
-          //   label: "Lacagta Hartay",
-          //   type: "number",
-          //   readOnly: true,
-          //   getValue: (s) => {
-          //     const total = toNum(s?.totalAmount);
-          //     const down = toNum(s?.downPayment);
-          //     return total - down;
-          //   },
-          // },
-   {
+          {
             key: "TypePayment",
             label: "Type Payment",
             type: "select",
-            options: [
-             "Maalin", "Isbuuc" , "Bil"
-            ],
+            options: ["Maalin", "Isbuuc", "Bil"],
           },
-          { key: "Payment", label: "Lacagta", type: "number" },
-          // {
-          //   key: "dailyPaymentText",
-          //   label: "Lacagta Maalinlaha (Qoral ahaan)",
-          //   type: "text",
-          //   readOnly: true,
-          //   getValue: (s) => numberToSomaliWords(toNum(s?.dailyPayment)),
-          // },
 
+          { key: "Payment", label: "Lacagta", type: "number" },
           { key: "startDate", label: "Bilowga", type: "date" },
-         // { key: "endDate", label: "Dhamaadka", type: "date" },
-       //   { key: "months", label: "Bilaha", type: "number" },
         ];
       }
       default:
@@ -876,93 +834,68 @@ const ServiceDetails = ({ agreement, serviceData, setServiceData, fetchData }) =
             </div>
           </div>
         );
-      case "damiinmobile": {
-        const toNum = (v) => Number(String(v ?? "").replace(/,/g, "")) || 0;
+     case "damiinmobile": {
+  const toNum = (v) => Number(String(v ?? "").replace(/,/g, "")) || 0;
 
-        const totalAmount = toNum(service.totalAmount);
-        const downPayment = toNum(service.downPayment);
-        const remainingAmount = totalAmount - downPayment;
-        const dailyPayment = toNum(service.dailyPayment);
+  const totalAmount = toNum(service.totalAmount);
+  const downPayment = toNum(service.downPayment);
+  const remainingAmount = totalAmount - downPayment;
+  const payment = toNum(service.Payment);
 
-        return (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
-            <div>
-              <span className="font-semibold text-black">Magaca:</span>{" "}
-              {service.Name || "N/A"}
-            </div>
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+      <div>
+        <span className="font-semibold text-black">Device Type:</span>{" "}
+        {service.deviceType || "N/A"}
+      </div>
 
-            <div>
-              <span className="font-semibold text-black">Nooca:</span>{" "}
-              {service.Type || "N/A"}
-            </div>
+      <div>
+        <span className="font-semibold text-black">Mobile Brand:</span>{" "}
+        {service.mobileBrand || "N/A"}
+      </div>
 
-            <div>
-              <span className="font-semibold text-black">Mobile Brand:</span>{" "}
-              {service.mobileBrand || "N/A"}
-            </div>
+      <div>
+        <span className="font-semibold text-black">Mobile Model:</span>{" "}
+        {service.mobileModel || "N/A"}
+      </div>
 
-            <div>
-              <span className="font-semibold text-black">Mobile Model:</span>{" "}
-              {service.mobileModel || "N/A"}
-            </div>
+      <div>
+        <span className="font-semibold text-black">Mobile Memory:</span>{" "}
+        {service.mobileMemory || "N/A"}
+      </div>
 
-            <div>
-              <span className="font-semibold text-black">Mobile Memory:</span>{" "}
-              {service.mobileMemory || "N/A"}
-            </div>
+      <div>
+        <span className="font-semibold text-black">Wadarta Guud:</span>{" "}
+        {totalAmount ? formatCurrency(totalAmount) : "N/A"}
+      </div>
 
-            <div>
-              <span className="font-semibold text-black">Wadarta Guud:</span>{" "}
-              {totalAmount ? formatCurrency(totalAmount) : "N/A"}
-            </div>
+      <div>
+        <span className="font-semibold text-black">Lacagta Hormariska:</span>{" "}
+        {downPayment ? formatCurrency(downPayment) : "N/A"}
+      </div>
 
-            <div className="sm:col-span-2 lg:col-span-3">
-              <span className="font-semibold text-black">Wadarta Guud (Qoral ahaan):</span>{" "}
-              {totalAmount ? numberToSomaliWords(totalAmount) : "N/A"}
-            </div>
+      <div>
+        <span className="font-semibold text-black">Lacagta Hartay:</span>{" "}
+        {formatCurrency(remainingAmount)}
+      </div>
 
-            <div>
-              <span className="font-semibold text-black">Lacagta Hormariska:</span>{" "}
-              {downPayment ? formatCurrency(downPayment) : "N/A"}
-            </div>
+      <div>
+        <span className="font-semibold text-black">Nooca Bixinta:</span>{" "}
+        {service.TypePayment || "N/A"}
+      </div>
 
-            <div className="sm:col-span-2 lg:col-span-3">
-              <span className="font-semibold text-black">Hormaris (Qoral ahaan):</span>{" "}
-              {downPayment ? numberToSomaliWords(downPayment) : "N/A"}
-            </div>
+      <div>
+        <span className="font-semibold text-black">Lacagta:</span>{" "}
+        {payment ? formatCurrency(payment) : "N/A"}
+      </div>
 
-            <div>
-              <span className="font-semibold text-black">Lacagta Hartay:</span>{" "}
-              {formatCurrency(remainingAmount)}
-            </div>
-
-            <div>
-              <span className="font-semibold text-black">Lacagta Maalinlaha:</span>{" "}
-              {dailyPayment ? formatCurrency(dailyPayment) : "N/A"}
-            </div>
-
-            <div className="sm:col-span-2 lg:col-span-3">
-              <span className="font-semibold text-black">Lacagta Maalinlaha (Qoral ahaan):</span>{" "}
-              {dailyPayment ? numberToSomaliWords(dailyPayment) : "N/A"}
-            </div>
-
-            <div>
-              <span className="font-semibold text-black">Bilowga:</span>{" "}
-              {service.startDate?.split("T")[0] || "N/A"}
-            </div>
-
-            <div>
-              <span className="font-semibold text-black">Dhamaadka:</span>{" "}
-              {service.endDate?.split("T")[0] || "N/A"}
-            </div>
-
-            <div>
-              <span className="font-semibold text-black">Bilaha:</span>{" "}
-              {service.months || "N/A"}
-            </div>
-          </div>
-        );
-      }
+      <div>
+        <span className="font-semibold text-black">Bilowga:</span>{" "}
+        {service.startDate?.split("T")[0] || "N/A"}
+      </div>
+    </div>
+  );
+}
 
       default:
         return <p className="text-gray-500">No service details available</p>;
@@ -1055,25 +988,15 @@ const ServiceDetails = ({ agreement, serviceData, setServiceData, fetchData }) =
                           onChange={(e) => {
                             const value = e.target.value;
 
-                            if (agreement?.serviceType === "damiinmobile" && field.key === "mobileBrand") {
-                              setTempService((prev) => ({
-                                ...prev,
-                                mobileBrand: value,
-                                mobileModel: "",
-                                mobileMemory: "",
-                              }));
-                              return;
-                            }
-
                             if (agreement?.serviceType === "damiinmobile" && field.key === "mobileModel") {
-                              const selectedBrand = tempService?.mobileBrand || "";
-                              const selectedItem =
-                                mobileOptions[selectedBrand]?.find((item) => item.model === value) || null;
+                              const selectedItem = mobileOptions.find((item) => item.model === value);
 
                               setTempService((prev) => ({
                                 ...prev,
                                 mobileModel: value,
+                                mobileBrand: selectedItem?.brand || "",
                                 mobileMemory: selectedItem?.memory || "",
+                                deviceType: selectedItem?.type || "",
                               }));
                               return;
                             }
