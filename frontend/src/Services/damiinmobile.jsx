@@ -68,8 +68,8 @@ export const buildDamiinMobileDoc = ({
   const refNo = safe(agreement?.refNo);
   const tr = agreement?.agreementDate ? formatDate(agreement.agreementDate) : "";
 
-  const companyName = upper(service?.Name || "SANABIL");
-  const companyType = safe(service?.Type || "Shirkad");
+  // const companyName = upper(service?.Name || "SANABIL");
+  // const companyType = safe(service?.Type || "Shirkad");
 
   const deviceType = upper(service?.deviceType || "MOBILE");
   const mobileBrand = upper(service?.mobileBrand || "MOBILE");
@@ -278,7 +278,7 @@ export const buildDamiinMobileDoc = ({
         text: ` SANABIL `,
         size: 24,
         bold: true,
-        color: "FF0000",
+ 
 
         font: "Times New Roman",
       }),
@@ -361,7 +361,7 @@ export const buildDamiinMobileDoc = ({
         text: ` SANABIL `,
         size: 24,
         bold: true,
-        color: "FF0000",
+       
 
         font: "Times New Roman",
       }),
