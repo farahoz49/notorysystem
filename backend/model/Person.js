@@ -11,8 +11,8 @@ const personSchema = new mongoose.Schema({
   gender : {type : String , enum :["Male","Female"] , default : "Male"},
   documentType: {   
     type: String, 
-    enum:  ["Passport", "ID Card", "Kaarka Aqoonsiga (NIRA)", "Sugnan", "Laysin"], 
-    default : "Kaarka Aqoonsiga (NIRA)"
+    enum:  ["Passport", "ID Card", "Kaarka Aqoonsiga (NIRA)", "Sugnan", "Laysin", ""], 
+    default : ""
     
   },
   documentNumber: { type: String,  },

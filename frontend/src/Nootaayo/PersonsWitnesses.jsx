@@ -193,6 +193,10 @@ const PersonsWitnesses = ({ agreement, fetchData }) => {
     sellerBtnText: "Damiinu-l-Maal",
     buyerBtnText: "La Damiinte",
   },
+  "damiinmobile": {
+    sellerBtnText: "Damiinu-l-Maal",
+    buyerBtnText: "La Damiinte",
+  },
   "Shaqaaleysiin": {
     sellerBtnText: "Damiinte",
     buyerBtnText: "La Damiinte",
