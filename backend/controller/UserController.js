@@ -43,14 +43,7 @@ export const registerUser = async (req, res) => {
     res.status(500).json({ message: "Error in registering user" });
   }
 };
-const isProduction = process.env.NODE_ENV === "production";
 
-res.cookie("token", token, {
-  httpOnly: true,
-  secure: isProduction,
-  sameSite: isProduction ? "none" : "lax",
-  maxAge,
-});
 // /**  LOGIN  **/
 export const loginUser = async (req, res) => {
   try {
