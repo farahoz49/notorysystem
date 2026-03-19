@@ -8,7 +8,7 @@ import { deleteAgreement } from "../api/agreements.api";
 
 import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
-import { formatDatewithname } from "../helpers/formatDate";
+import { formatDatewithname } from "../helpers/formatDate.js";
 
 const selectClass =
   "px-4 py-2.5 rounded-xl border border-black/20 bg-white text-black shadow-sm outline-none transition-all duration-200 focus:ring-2 focus:ring-black focus:border-black";
