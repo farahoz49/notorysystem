@@ -385,7 +385,7 @@ const AgreementInfo = ({ agreement, fetchData }) => {
             sellerAgentDetails,
             buyerAgentDetails,
             wakaaladText,
-             includeLocalSignatures: true,
+            includeLocalSignatures: true,
             // includeLocalSignatures: true, // only haddii aad rabto in case-kan kaliya saxiixyo ku daraan
           });
         case "GuriDhisan":
@@ -465,12 +465,12 @@ const AgreementInfo = ({ agreement, fetchData }) => {
             titlePage: true,
             page: {
               margin: {
-                top: 700,
+                top: 900,
                 right: 800,
-                bottom: 700,
+                bottom: 1400,
                 left: 800,
-                footer: 200,
-                header: 200,
+                header: 400,
+                footer: 700,
               },
             },
           },
@@ -495,13 +495,13 @@ const AgreementInfo = ({ agreement, fetchData }) => {
                   children: [
                     new TextRun({
                       text: `REF ${agreement.refNo}\t`,
-                      
+
                       size: 22,
                       font: "Times New Roman",
                     }),
                     new TextRun({
                       text: formatDate(agreement.agreementDate),
-                   
+
                       size: 22,
                       font: "Times New Roman",
                     }),
@@ -521,87 +521,87 @@ const AgreementInfo = ({ agreement, fetchData }) => {
           },
 
           // 🟢 FOOTER (LOGO KALE)
-         footers: {
-  first: new Footer({
-    children: [
-      new Paragraph({
-        alignment: AlignmentType.LEFT,
-        spacing: { before: 20 },
-        children: [
-          new TextRun({
-            children: ["Page ", PageNumber.CURRENT, " of ", PageNumber.TOTAL_PAGES],
-            size: 20,
-            font: "Times New Roman",
-          }),
-        ],
-      }),
-      new Paragraph({
-        alignment: AlignmentType.CENTER,
-        spacing: { after: 20 },
-        children: [
-          new ImageRun({
-            data: footerImageBuffer,
-            type: "png",
-            transformation: {
-              width: 700,
-              height: 8,
-            },
-          }),
-        ],
-      }),
-      new Paragraph({
-        alignment: AlignmentType.CENTER,
-        children: [
-          new TextRun({
-            text: `${website}  Email: ${email} Mobile: ${Phone}`,
-            font: "Times New Roman",
-            size: 20,
-          }),
-        ],
-      }),
-    ],
-  }),
+          footers: {
+            first: new Footer({
+              children: [
+                new Paragraph({
+                  alignment: AlignmentType.LEFT,
+                  spacing: { before: 20 },
+                  children: [
+                    new TextRun({
+                      children: ["Page ", PageNumber.CURRENT, " of ", PageNumber.TOTAL_PAGES],
+                      size: 20,
+                      font: "Times New Roman",
+                    }),
+                  ],
+                }),
+                new Paragraph({
+                  alignment: AlignmentType.CENTER,
+                  spacing: { after: 20 },
+                  children: [
+                    new ImageRun({
+                      data: footerImageBuffer,
+                      type: "png",
+                      transformation: {
+                        width: 700,
+                        height: 8,
+                      },
+                    }),
+                  ],
+                }),
+                new Paragraph({
+                  alignment: AlignmentType.CENTER,
+                  children: [
+                    new TextRun({
+                      text: `${website}  Email: ${email} Mobile: ${Phone}`,
+                      font: "Times New Roman",
+                      size: 20,
+                    }),
+                  ],
+                }),
+              ],
+            }),
 
-  default: new Footer({
-    children: [
-      new Paragraph({
-        alignment: AlignmentType.LEFT,
-        spacing: { before: 20 },
-        children: [
-          new TextRun({
-            children: ["Page ", PageNumber.CURRENT, " of ", PageNumber.TOTAL_PAGES],
-            size: 20,
-            font: "Times New Roman",
-          }),
-        ],
-      }),
-      new Paragraph({
-        alignment: AlignmentType.CENTER,
-        spacing: { after: 20 },
-        children: [
-          new ImageRun({
-            data: footerImageBuffer,
-            type: "png",
-            transformation: {
-              width: 700,
-              height: 8,
-            },
-          }),
-        ],
-      }),
-      new Paragraph({
-        alignment: AlignmentType.CENTER,
-        children: [
-          new TextRun({
-            text: `${website}  Email: ${email} Mobile: ${Phone}`,
-            font: "Times New Roman",
-            size: 20,
-          }),
-        ],
-      }),
-    ],
-  }),
-},
+            default: new Footer({
+              children: [
+                new Paragraph({
+                  alignment: AlignmentType.LEFT,
+                  spacing: { before: 20 },
+                  children: [
+                    new TextRun({
+                      children: ["Page ", PageNumber.CURRENT, " of ", PageNumber.TOTAL_PAGES],
+                      size: 20,
+                      font: "Times New Roman",
+                    }),
+                  ],
+                }),
+                new Paragraph({
+                  alignment: AlignmentType.CENTER,
+                  spacing: { after: 20 },
+                  children: [
+                    new ImageRun({
+                      data: footerImageBuffer,
+                      type: "png",
+                      transformation: {
+                        width: 700,
+                        height: 8,
+                      },
+                    }),
+                  ],
+                }),
+                new Paragraph({
+                  alignment: AlignmentType.CENTER,
+                  children: [
+                    new TextRun({
+                      text: `${website}  Email: ${email} Mobile: ${Phone}`,
+                      font: "Times New Roman",
+                      size: 20,
+                    }),
+                  ],
+                }),
+              ],
+            }),
+          },
 
           // 🟢 BODY CONTENT
           children: [

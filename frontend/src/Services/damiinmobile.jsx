@@ -270,7 +270,7 @@ export const buildDamiinMobileDoc = ({
         font: "Times New Roman",
       }),
       new TextRun({
-        text: ` mudo 6(lix) bil ah, lacagtaas oo ay SANABIL ugu muraabaxeysay`,
+        text: ` mudo 6(lix) bil ah, lacagtaas oo ay`,
         size: 24,
         font: "Times New Roman",
       }),
