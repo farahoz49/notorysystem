@@ -28,7 +28,7 @@ dotenv.config();
       username,
       phone,
       password,
-      role: "SUPER_ADMIN",
+      role: "ADMIN",
       status: "active",
     });
 

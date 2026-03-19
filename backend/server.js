@@ -25,6 +25,7 @@ import kiroRoute from "./routes/kiroRoute.js";
  import damiinMobileRoutes from "./routes/damiinMobileRoutes.js";
 
 import cors from "cors"
+import { seedSuperAdmin } from './seedSuperadmin.js';
 const app = express();
 const PORT = process.env.PORT || 8000;
 
@@ -64,7 +65,7 @@ app.use("/api/damiinmobile", damiinMobileRoutes);
 
 conectBD();
 
-
+//seedSuperAdmin()
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
