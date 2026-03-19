@@ -352,7 +352,15 @@ export const updateUser = async (req, res) => {
 };
 
 export const logout = (req, res) => {
-  res.clearCookie("token").json({ message: "Logged out" });
+  const isProduction = process.env.NODE_ENV === "production";
+
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
+  });
+
+  res.json({ message: "Logged out" });
 };
 export const getMe = async (req, res) => {
   try {
