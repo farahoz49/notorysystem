@@ -1,17 +1,18 @@
 // src/pages/Users.jsx
 import React, { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
-import {
-  getUsers,
-  registerUser,
+
+import Button from "../components/ui/Button";
+import Input from "../components/ui/Input";
+import { useSelector } from "react-redux";
+import { getUsers ,registerUser,
+
   updateUserById,
   deleteUserById,
   approveUserById,
   deactivateUserById,
-} from "../api/users.api";
-import Button from "../components/ui/Button";
-import Input from "../components/ui/Input";
-import { useSelector } from "react-redux";
+ } from "../api/users.api";
+
 
 const Users = () => {
   const { user: currentUser } = useSelector((state) => state.auth);
