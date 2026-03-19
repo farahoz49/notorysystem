@@ -3,12 +3,12 @@ import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
 
-import {  formatDatewithname } from "../helpers/formatDate";
 import { getAgreements, searchAgreements } from "../api/reception.api";
 import { deleteAgreement } from "../api/agreements.api";
 
 import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
+import { formatDatewithname } from "../helpers/formatDate";
 
 const selectClass =
   "px-4 py-2.5 rounded-xl border border-black/20 bg-white text-black shadow-sm outline-none transition-all duration-200 focus:ring-2 focus:ring-black focus:border-black";
