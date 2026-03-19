@@ -1,17 +1,24 @@
+// src/api/axios.jsx
 import axios from "axios";
 
-const baseURL = import.meta.env.PROD
-  ? import.meta.env.VITE_API_URL_PROD
-  : import.meta.env.VITE_API_URL_DEV;
+/**
+ * Axios instance
+ * - Cookie-based auth (JWT in cookies)
+ * - Centralized config
+ */
 
 const api = axios.create({
-  baseURL,
-  withCredentials: true,
+  baseURL: import.meta.env.VITE_API_URL,
+  withCredentials: true, // 🍪 allow cookies
   headers: {
     "Content-Type": "application/json",
   },
 });
 
+/**
+ * Optional: Response interceptor
+ * Catch global errors (401, 403, etc.)
+ */
 api.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -19,6 +26,7 @@ api.interceptors.response.use(
 
     if (status === 401) {
       console.warn("Unauthorized – please login");
+      // future: redirect to /login
     }
 
     if (status === 403) {
