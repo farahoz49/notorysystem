@@ -43,7 +43,14 @@ export const registerUser = async (req, res) => {
     res.status(500).json({ message: "Error in registering user" });
   }
 };
+const isProduction = process.env.NODE_ENV === "production";
 
+res.cookie("token", token, {
+  httpOnly: true,
+  secure: isProduction,
+  sameSite: isProduction ? "none" : "lax",
+  maxAge,
+});
 // /**  LOGIN  **/
 export const loginUser = async (req, res) => {
   try {
@@ -67,12 +74,13 @@ export const loginUser = async (req, res) => {
       { expiresIn: "7d" }
     );
 
-    const maxAge = 7 * 24 * 60 * 60 * 1000; // ms
+    const maxAge = 7 * 24 * 60 * 60 * 1000;
+    const isProduction = process.env.NODE_ENV === "production";
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: false,
-      sameSite: "lax",
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
       maxAge,
     });
 
@@ -82,9 +90,8 @@ export const loginUser = async (req, res) => {
         username: user.username,
         role: user.role,
         phone: user.phone,
-      }
+      },
     });
-
   } catch (error) {
     console.log("Error in logging in user:", error);
     res.status(500).json({ message: "Error in logging in user" });
