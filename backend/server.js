@@ -26,7 +26,7 @@ import kiroRoute from "./routes/kiroRoute.js";
 
 import cors from "cors"
 const app = express();
-const PORT = 8000
+const PORT = process.env.PORT || 8000;
 
 app.use(express.json());
 app.use(cookieParser());
@@ -65,7 +65,6 @@ app.use("/api/damiinmobile", damiinMobileRoutes);
 conectBD();
 
 
-app.listen(PORT ,()=>{
-    console.log(`Server is running on port ${PORT}`);
-
-})
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
