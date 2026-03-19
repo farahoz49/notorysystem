@@ -10,7 +10,7 @@ import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
 import { getAgreementsReportApi } from "../api/reports.api";
 import { getAllUsersApi } from "../api/users.api";
-import { formatDate } from "../helpers/formatDate";
+import { formatDate } from "../helpers/formatDate.js";
 
 const selectClass =
   "px-4 py-2.5 rounded-xl border border-black/20 bg-white text-black shadow-sm outline-none transition-all duration-200 focus:ring-2 focus:ring-black focus:border-black w-full";
