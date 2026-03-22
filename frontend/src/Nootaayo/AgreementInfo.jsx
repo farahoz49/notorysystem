@@ -465,12 +465,12 @@ const AgreementInfo = ({ agreement, fetchData }) => {
             titlePage: true,
             page: {
               margin: {
-                top: 900,
+                top: 200,
                 right: 800,
-                bottom: 1400,
+                bottom: 100,
                 left: 800,
-                header: 400,
-                footer: 700,
+                header: 10,
+                footer: 10,
               },
             },
           },

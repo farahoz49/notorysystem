@@ -250,7 +250,7 @@ export const buildDamiinMobileDoc = ({
         font: "Times New Roman",
       }),
       new TextRun({
-        text: ` Kuna bixin doona haraaga oo ah`,
+        text: ` kuna bixin doona haraaga oo ah`,
         size: 24,
         font: "Times New Roman",
       }),
@@ -270,7 +270,7 @@ export const buildDamiinMobileDoc = ({
         font: "Times New Roman",
       }),
       new TextRun({
-        text: ` mudo 6(lix) bil ah, lacagtaas oo ay`,
+        text: ` mudo 6 (lix) bil ah, lacagtaas oo ay`,
         size: 24,
         font: "Times New Roman",
       }),
@@ -283,12 +283,12 @@ export const buildDamiinMobileDoc = ({
         font: "Times New Roman",
       }),
       new TextRun({
-        text: ` ugu muraabaxeysay `,
+        text: `ugu muraabaxeysay `,
         size: 24,
         font: "Times New Roman",
       }),
       new TextRun({
-        text: `${deviceType}-${mobileBrand} `,
+        text: `${deviceType}-${mobileBrand}, `,
         size: 24,
         bold: true,
         color: "FF0000",
@@ -353,7 +353,7 @@ export const buildDamiinMobileDoc = ({
         font: "Times New Roman",
       }),
       new TextRun({
-        text: `, si walba haku timaadee, sida haddii ${buyerGenderText.pronoun} ${buyerGenderText.deathText}, ${buyerGenderText.musalaf}, la waayo ama caafimaad darro xagga maskaxda iyo jirka ah ku ${buyerGenderText.tilmaan}, aniga ayaa bixinaayo sida ay ku heshiiyeen `,
+        text: `, si walba haku timaadee, sida haddii ${buyerGenderText.pronoun} ${buyerGenderText.deathText}, ${buyerGenderText.musalaf}, la waayo ama caafimaad darro xagga maskaxda iyo jirka ah ku ${buyerGenderText.tilmaan}, aniga ayaa bixinaya sida ay ku heshiiyeen `,
         size: 24,
         font: "Times New Roman",
       }),
@@ -539,7 +539,7 @@ export const buildDamiinMobileDoc = ({
     spacing: { before: 140, after: 140 },
     children: [
       new TextRun({
-        text: `aan Ku bixin doono lacagtaas kor ku xusan muddo 6 (lix) bilood ah, oo ka bilaabaneysa`,
+        text: `Aan ku bixin doono lacagtaas kor ku xusan muddo 6 (lix) bilood ah, oo ka bilaabaneysa`,
         size: 24,
         font: "Times New Roman",
       }),
@@ -590,18 +590,11 @@ export const buildDamiinMobileDoc = ({
         font: "Times New Roman",
       }),
       new TextRun({
-        text: ` ay ii muraabaxeysay ee faahfaahintiisu kor ku cadahay,`,
+        text: ` ay ii muraabaxeysay ee faahfaahintiisu kor ku cadahay, `,
         size: 24,
         font: "Times New Roman",
       }),
-    ],
-  });
-
-  const p5 = new Paragraph({
-    alignment: AlignmentType.JUSTIFIED,
-    spacing: { after: 140 },
-    children: [
-      new TextRun({
+        new TextRun({
         text: `haddii aan`,
         size: 24,
         font: "Times New Roman",
@@ -619,12 +612,13 @@ export const buildDamiinMobileDoc = ({
       }),
     ],
   });
-  const p6 = new Paragraph({
+
+  const p5 = new Paragraph({
     alignment: AlignmentType.JUSTIFIED,
-    spacing: { before: 140, after: 140 },
+    spacing: { after: 140 },
     children: [
       new TextRun({
-        text: `aan`,
+        text: `Aan`,
         size: 24,
         font: "Times New Roman",
       }),
@@ -642,13 +636,14 @@ export const buildDamiinMobileDoc = ({
     ],
   });
 
-  const p7 = new Paragraph({
+
+  const p6 = new Paragraph({
     alignment: AlignmentType.JUSTIFIED,
     spacing: { after: 180 },
     children: [
       // p4
       new TextRun({
-        text: `aan`,
+        text: `Aan`,
         size: 24,
         font: "Times New Roman",
       }),
@@ -659,13 +654,13 @@ export const buildDamiinMobileDoc = ({
         font: "Times New Roman",
       }),
       new TextRun({
-        text: ` marka aan qaato oo aan ka qaato xafiiska SANABIL in aanan dib u soo celin doonin.`,
+        text: ` marka aan ka qaato xafiiska SANABIL in aanan dib u soo celin doonin.`,
         size: 24,
         font: "Times New Roman",
       }),
     ],
   });
-  const p8 = new Paragraph({
+  const p7 = new Paragraph({
     alignment: AlignmentType.JUSTIFIED,
     spacing: { before: 140, after: 140 },
     children: [
@@ -688,7 +683,7 @@ export const buildDamiinMobileDoc = ({
       }),
     ],
   });
-  const p9 = new Paragraph({
+  const p8 = new Paragraph({
     alignment: AlignmentType.JUSTIFIED,
     spacing: { before: 140, after: 140 },
     children: [
@@ -698,7 +693,7 @@ export const buildDamiinMobileDoc = ({
         font: "Times New Roman",
       }),
       new TextRun({
-        text: ` ${deviceType}kaas`,
+        text: ` ${deviceType} kaas`,
         size: 24,
         bold: true,
 
@@ -981,7 +976,7 @@ export const buildDamiinMobileDoc = ({
     p6,
     p7,
     p8,
-    p9,
+    //p9,
     sigTable,
     ...(witnessesTable ? [witnessesTitle, witnessesTable] : []),
     ...notarySection,
