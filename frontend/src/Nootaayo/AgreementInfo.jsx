@@ -470,7 +470,7 @@ const AgreementInfo = ({ agreement, fetchData }) => {
                 bottom: 100,
                 left: 800,
                 header: 10,
-                footer: 10,
+                footer: 200,
               },
             },
           },
