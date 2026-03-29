@@ -50,7 +50,7 @@ const PersonsSection = ({
       nationality: "",
       phone: "",
       gender: "Male",
-      documentType: "Passport",
+      documentType: "",
       documentNumber: "",
     });
 

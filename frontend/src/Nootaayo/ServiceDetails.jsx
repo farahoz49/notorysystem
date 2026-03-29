@@ -13,6 +13,7 @@ const ServiceDetails = ({ agreement, serviceData, setServiceData, fetchData }) =
   const [tempService, setTempService] = useState(serviceData || {});
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   // ✅ keep tempService updated when you open/edit different agreement/service
   useEffect(() => {
     setTempService(serviceData || {});
@@ -37,10 +38,21 @@ const ServiceDetails = ({ agreement, serviceData, setServiceData, fetchData }) =
 
   // ================= SERVICE OPERATIONS =================
   const handleService = async (operation, data = null) => {
-    try {
-      if (!agreement?._id || !agreement?.serviceType) return;
+    if (!agreement?._id || !agreement?.serviceType) return;
 
+    if ((operation === "add" || operation === "update") && isSaving) return;
+    if (operation === "delete" && deleteLoading) return;
+
+    try {
       const payload = data || tempService;
+
+      if (operation === "add" || operation === "update") {
+        setIsSaving(true);
+      }
+
+      if (operation === "delete") {
+        setDeleteLoading(true);
+      }
 
       if (operation === "add") {
         const created = await createService(agreement.serviceType, payload);
@@ -64,8 +76,6 @@ const ServiceDetails = ({ agreement, serviceData, setServiceData, fetchData }) =
           return;
         }
 
-        setDeleteLoading(true);
-
         await deleteService(agreement.serviceType, serviceData._id);
         await unlinkServiceFromAgreement(agreement._id);
 
@@ -86,6 +96,10 @@ const ServiceDetails = ({ agreement, serviceData, setServiceData, fetchData }) =
       toast.error(msg);
       console.error(error);
     } finally {
+      if (operation === "add" || operation === "update") {
+        setIsSaving(false);
+      }
+
       if (operation === "delete") {
         setDeleteLoading(false);
       }
@@ -834,68 +848,68 @@ const ServiceDetails = ({ agreement, serviceData, setServiceData, fetchData }) =
             </div>
           </div>
         );
-     case "damiinmobile": {
-  const toNum = (v) => Number(String(v ?? "").replace(/,/g, "")) || 0;
+      case "damiinmobile": {
+        const toNum = (v) => Number(String(v ?? "").replace(/,/g, "")) || 0;
 
-  const totalAmount = toNum(service.totalAmount);
-  const downPayment = toNum(service.downPayment);
-  const remainingAmount = totalAmount - downPayment;
-  const payment = toNum(service.Payment);
+        const totalAmount = toNum(service.totalAmount);
+        const downPayment = toNum(service.downPayment);
+        const remainingAmount = totalAmount - downPayment;
+        const payment = toNum(service.Payment);
 
-  return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
-      <div>
-        <span className="font-semibold text-black">Device Type:</span>{" "}
-        {service.deviceType || "N/A"}
-      </div>
+        return (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+            <div>
+              <span className="font-semibold text-black">Device Type:</span>{" "}
+              {service.deviceType || "N/A"}
+            </div>
 
-      <div>
-        <span className="font-semibold text-black">Mobile Brand:</span>{" "}
-        {service.mobileBrand || "N/A"}
-      </div>
+            <div>
+              <span className="font-semibold text-black">Mobile Brand:</span>{" "}
+              {service.mobileBrand || "N/A"}
+            </div>
 
-      <div>
-        <span className="font-semibold text-black">Mobile Model:</span>{" "}
-        {service.mobileModel || "N/A"}
-      </div>
+            <div>
+              <span className="font-semibold text-black">Mobile Model:</span>{" "}
+              {service.mobileModel || "N/A"}
+            </div>
 
-      <div>
-        <span className="font-semibold text-black">Mobile Memory:</span>{" "}
-        {service.mobileMemory || "N/A"}
-      </div>
+            <div>
+              <span className="font-semibold text-black">Mobile Memory:</span>{" "}
+              {service.mobileMemory || "N/A"}
+            </div>
 
-      <div>
-        <span className="font-semibold text-black">Wadarta Guud:</span>{" "}
-        {totalAmount ? formatCurrency(totalAmount) : "N/A"}
-      </div>
+            <div>
+              <span className="font-semibold text-black">Wadarta Guud:</span>{" "}
+              {totalAmount ? formatCurrency(totalAmount) : "N/A"}
+            </div>
 
-      <div>
-        <span className="font-semibold text-black">Lacagta Hormariska:</span>{" "}
-        {downPayment ? formatCurrency(downPayment) : "N/A"}
-      </div>
+            <div>
+              <span className="font-semibold text-black">Lacagta Hormariska:</span>{" "}
+              {downPayment ? formatCurrency(downPayment) : "N/A"}
+            </div>
 
-      <div>
-        <span className="font-semibold text-black">Lacagta Hartay:</span>{" "}
-        {formatCurrency(remainingAmount)}
-      </div>
+            <div>
+              <span className="font-semibold text-black">Lacagta Hartay:</span>{" "}
+              {formatCurrency(remainingAmount)}
+            </div>
 
-      <div>
-        <span className="font-semibold text-black">Nooca Bixinta:</span>{" "}
-        {service.TypePayment || "N/A"}
-      </div>
+            <div>
+              <span className="font-semibold text-black">Nooca Bixinta:</span>{" "}
+              {service.TypePayment || "N/A"}
+            </div>
 
-      <div>
-        <span className="font-semibold text-black">Lacagta:</span>{" "}
-        {payment ? formatCurrency(payment) : "N/A"}
-      </div>
+            <div>
+              <span className="font-semibold text-black">Lacagta:</span>{" "}
+              {payment ? formatCurrency(payment) : "N/A"}
+            </div>
 
-      <div>
-        <span className="font-semibold text-black">Bilowga:</span>{" "}
-        {service.startDate?.split("T")[0] || "N/A"}
-      </div>
-    </div>
-  );
-}
+            <div>
+              <span className="font-semibold text-black">Bilowga:</span>{" "}
+              {service.startDate?.split("T")[0] || "N/A"}
+            </div>
+          </div>
+        );
+      }
 
       default:
         return <p className="text-gray-500">No service details available</p>;
@@ -921,17 +935,23 @@ const ServiceDetails = ({ agreement, serviceData, setServiceData, fetchData }) =
             {serviceData && (
               <Button
                 variant="danger"
-                onClick={() => setDeleteOpen(true)}
+                onClick={() => {
+                  if (deleteLoading || isSaving) return;
+                  setDeleteOpen(true);
+                }}
+                disabled={deleteLoading || isSaving}
               >
-                Delete
+                {deleteLoading ? "Deleting..." : "Delete"}
               </Button>
             )}
 
             <Button
               onClick={() => {
+                if (isSaving || deleteLoading) return;
                 setTempService(serviceData || {});
                 setShowServiceModal(true);
               }}
+              disabled={isSaving || deleteLoading}
             >
               {serviceData ? "badal" : "Ku dar"} {agreement?.serviceType}
             </Button>
@@ -1033,12 +1053,22 @@ const ServiceDetails = ({ agreement, serviceData, setServiceData, fetchData }) =
               </div>
 
               <div className="flex gap-3 justify-end mt-8">
-                <Button variant="outline" onClick={() => setShowServiceModal(false)}>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    if (isSaving) return;
+                    setShowServiceModal(false);
+                  }}
+                  disabled={isSaving}
+                >
                   Cancel
                 </Button>
 
-                <Button onClick={() => handleService(serviceData ? "update" : "add")}>
-                  {serviceData ? "Update" : "Add"}
+                <Button
+                  onClick={() => handleService(serviceData ? "update" : "add")}
+                  disabled={isSaving}
+                >
+                  {isSaving ? "Sug..." : serviceData ? "Update" : "Add"}
                 </Button>
               </div>
             </div>

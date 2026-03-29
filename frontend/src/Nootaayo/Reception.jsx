@@ -15,6 +15,8 @@ import Input from "../components/ui/Input";
 const Reception = () => {
   const [persons, setPersons] = useState([]);
   const [refNo, setRefNo] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCreatingPerson, setIsCreatingPerson] = useState(false);
   const navigate = useNavigate();
   const serviceTypeOptions = {
     Wareejin: [
@@ -48,7 +50,7 @@ const Reception = () => {
     ],
     Kireeyn: [
       { value: "Kireeyn", label: "Heshiis Kiro" },
-      
+
     ],
   };
 
@@ -77,23 +79,23 @@ const Reception = () => {
     forSide: "", // dhinac1 or dhinac2
     forRole: "" // sellers, buyers, agents, guarantors
   });
-//   useEffect(() => {
-//   const onRefNoUpdated = (e) => {
-//     const newRef = e?.detail;
-//     if (newRef) setRefNo(newRef);
-//   };
+  //   useEffect(() => {
+  //   const onRefNoUpdated = (e) => {
+  //     const newRef = e?.detail;
+  //     if (newRef) setRefNo(newRef);
+  //   };
 
-//   window.addEventListener("refno-updated", onRefNoUpdated);
-//   return () => window.removeEventListener("refno-updated", onRefNoUpdated);
-// }, []);
+  //   window.addEventListener("refno-updated", onRefNoUpdated);
+  //   return () => window.removeEventListener("refno-updated", onRefNoUpdated);
+  // }, []);
 
   useEffect(() => {
     const init = async () => {
       try {
-        const [personsData, refData ] = await Promise.all([
+        const [personsData, refData] = await Promise.all([
           getPersons(),
           getNextRefNo(),
-          
+
         ]);
         setPersons(personsData || []);
         setRefNo(refData?.refNo || "");
@@ -208,7 +210,11 @@ const Reception = () => {
       return;
     }
 
+    if (isCreatingPerson) return;
+
     try {
+      setIsCreatingPerson(true);
+
       const person = await createPerson({
         fullName: newPersonModal.fullName,
         phone: newPersonModal.phone,
@@ -222,6 +228,8 @@ const Reception = () => {
       closeNewPersonModal();
     } catch (err) {
       toast.error(err?.response?.data?.message || "Error creating person");
+    } finally {
+      setIsCreatingPerson(false);
     }
   };
 
@@ -249,7 +257,7 @@ const Reception = () => {
         guarantors: "Damiin"
       }
     },
-   
+
 
     Wakaalad: {
       side1Title: "Dhinaca 1aad (Wakaalad Bixiye)",
@@ -308,7 +316,7 @@ const Reception = () => {
         guarantors: "Damiin"
       }
     },
-     Kireeyn: {
+    Kireeyn: {
       side1Title: "Dhinaca 1aad ( Kireeyaha)",
       side2Title: "Dhinaca 2aad (Kireestaha)",
       dhinac1Roles: {
@@ -328,6 +336,8 @@ const Reception = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (isSubmitting) return;
+
     const payload = { ...form };
 
     if (payload.service !== "Wareejin") {
@@ -336,16 +346,20 @@ const Reception = () => {
     }
 
     try {
+      setIsSubmitting(true);
+
       const agreement = await createAgreement(payload);
       toast.success("Agreement saved");
       navigate(`/agreement/${agreement._id}`);
     } catch (err) {
       toast.error(err?.response?.data?.message || "Error saving agreement");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
- 
+
     <div className="max-w-8xl mx-auto p-6">
 
       <div className="mb-5 flex items-center justify-between">
@@ -387,18 +401,18 @@ const Reception = () => {
 
             <div className="flex justify-end gap-3 mt-6">
               <Button
-                type="Button"
+                type="button"
                 onClick={closeNewPersonModal}
                 className="px-4 py-2 border rounded hover:bg-gray-100"
               >
                 Cancel
               </Button>
               <Button
-                type="Button"
+                type="button"
                 onClick={createNewPerson}
-
+                disabled={isCreatingPerson}
               >
-                Diwaan Gali
+                {isCreatingPerson ? "Waa la diiwaan galinayaa..." : "Diwaan Gali"}
               </Button>
             </div>
           </div>
@@ -433,7 +447,7 @@ focus:ring-2 focus:ring-black focus:border-black shadow-sm"
 
               />
             </div>
-          
+
             <div>
               <label className="block text-sm font-medium mb-1">Dooro Adeega</label>
               <select
@@ -581,7 +595,7 @@ focus:ring-2 focus:ring-black focus:border-black shadow-sm"
 
                   />
                   <Button
-                    type="Button"
+                    type="button"
                     onClick={() => openNewPersonModal("dhinac1", role)}
 
                   >
@@ -621,7 +635,7 @@ focus:ring-2 focus:ring-black focus:border-black shadow-sm"
                       >
                         <span>{person?.fullName}</span>
                         <Button
-                          type="Button"
+                          type="button"
                           onClick={() => handleRemove("dhinac1", role, id)}
 
                         >
@@ -658,7 +672,7 @@ focus:ring-2 focus:ring-black focus:border-black shadow-sm"
 
                   />
                   <Button
-                    type="Button"
+                    type="button"
                     onClick={() => openNewPersonModal("dhinac2", role)}
 
                   >
@@ -698,7 +712,7 @@ focus:ring-2 focus:ring-black focus:border-black shadow-sm"
                       >
                         <span>{person?.fullName}</span>
                         <Button
-                          type="Button"
+                          type="button"
                           onClick={() => handleRemove("dhinac2", role, id)}
 
                         >
@@ -717,9 +731,13 @@ focus:ring-2 focus:ring-black focus:border-black shadow-sm"
         <div className="flex justify-end">
           <Button
             type="submit"
-            className="px-14 py-3 rounded-xl bg-black text-white hover:bg-gray-800 active:scale-95 transition"
+            disabled={isSubmitting}
+            className={`px-14 py-3 rounded-xl text-white transition ${isSubmitting
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-black hover:bg-gray-800 active:scale-95"
+              }`}
           >
-            Keydi
+            {isSubmitting ? "Sug..." : "Keydi"}
           </Button>
 
         </div>
