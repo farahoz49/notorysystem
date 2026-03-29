@@ -183,7 +183,7 @@ export const buildDamiinMobileDoc = ({
         font: "Times New Roman",
       }),
       new TextRun({
-        text: "CADDEYN DAMIINUL MAAL IYO BALAN QAAD LACAGEED OO MUDDO LEH",
+        text: "UJEEDDO: CADDEYN DAMIINUL MAAL IYO BALAN QAAD LACAGEED",
         bold: true,
         underline: {},
         size: 22,
