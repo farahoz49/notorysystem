@@ -6,7 +6,7 @@ const personSchema = new mongoose.Schema({
   birthPlace: { type: String,  },
   birthYear: { type: Number,  },
   address: { type: String,  },
-  nationality: { type: String, default: 'Somali' },
+  nationality: { type: String, default: '' },
   phone: { type: String,  unique: true, },
   gender : {type : String , enum :["Male","Female"] , default : "Male"},
   documentType: {   

@@ -109,7 +109,7 @@ const fetchData = async () => {
     <div className="max-w-8xl mx-auto p-6">
       
       {/* Header */}
-      <div className="bg-white rounded-2xl border border-black/10 shadow-sm p-5 mb-5">
+      {/* <div className="bg-white rounded-2xl border border-black/10 shadow-sm p-5 mb-5">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="text-2xl font-bold text-black">Agreements</h2>
@@ -126,7 +126,7 @@ const fetchData = async () => {
             )}
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Filter Bar */}
       <div className="bg-white rounded-2xl border border-black/10 shadow-sm p-5 mb-5">
